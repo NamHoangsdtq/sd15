@@ -1,0 +1,252 @@
+﻿@model AppData.ViewModels.BanOffline.ChiTietSanPhamBanHang
+
+@{
+    ViewData["Title"] = "View";
+    <style>
+        .overlay-fade{
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+        }          
+            .overlay-fade .sold {
+                padding-right:5px;
+                position: absolute;
+                box-sizing: border-box;
+                top: 0;
+                background-color: rgba(255,255,255,0.6);
+                width: 100%;
+                height:100%;
+                opacity: 1;
+                transition: all 0.2s ease-in;
+            }
+
+            .overlay-fade .sold a {
+                box-sizing: border-box;
+                text-decoration: none;
+                display: block;
+                color: #eeeeee;
+                background-color: #6c757d;
+                text-align: center;
+                margin: auto;
+                left: 0;
+                right: 20px;
+                top: 0;
+                bottom: 0;
+                width: 120px;
+                height: 50px;
+                line-height: 50px;
+                position: absolute;
+                font-size: 12px;
+                font-weight: bold;
+            }
+
+
+        .button-value {
+            border: 2px solid #b3d4fc;
+            padding: 0.5em 1.5em;
+            border-radius: 3em;
+            background-color: transparent;
+            color: #6759ff;
+            cursor: pointer;
+        }
+
+            .button-value:hover {
+                border: 2px solid #6759ff;
+                background: #b3d4fc;
+            }
+
+            .button-value.active {
+                background-color: #6759ff;
+                color: #ffffff;
+            }
+    </style>
+}
+<div class="d-flex flex-column p-1 h-100">
+    <h4><b>@Model.Ten</b></h4>
+    <!--Màu sắc-->
+    <div class="d-flex flex-row p-3" style="border: none; border-bottom: 2px dashed #ced4da;">
+        <div class="d-flex align-items-center" style="width:140px">
+            <h6 class="fw-bold">MÀU SẮC</h6>
+        </div>
+        <div class="flex-grow-1 align-content-start">
+            <div id="buttons">
+                @foreach (var ms in @Model.lstMau)
+                {
+                    <button class="button-value mb-1 btnms" value="@ms.ID">
+                        @ms.Ten
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+    <!--Kích thước-->
+    <div class="d-flex flex-row p-3">
+        <div class="d-flex align-items-center" style="width:140px">
+            <h6 class="fw-bold">KÍCH THƯỚC</h6>
+        </div>
+        <div class="flex-grow-1 align-content-start">
+            <div id="buttons">
+                @foreach (var kc in @Model.lstKC)
+                {
+                    <button class="button-value mb-1 btnkc" value="@kc.ID">
+                        @kc.Ten
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+    <!--Chi tiết sản phẩm-->
+    <div class="d-flex flex-row p-2 mt-auto">
+        <div class="d-flex align-content-start flex-wrap w-100 mt-2" id="lstChiTietSP" style="height:300px;overflow-y:scroll; ">
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        loadCTSPByID();
+        var buttons = document.querySelectorAll(".button-value");
+          buttons.forEach(function(button) {
+            button.addEventListener("click", function() {
+              if ($(this).hasClass("active")) {
+                $(this).removeClass("active");
+              } else {
+                $(this).addClass("active");
+              }
+              FilterPL();
+          });
+        });
+    });
+
+    function getSelectedValues(elements) {
+      const selectedValues = [];
+      elements.forEach(function(element) {
+        if (element.classList.contains('active')) {
+          const value = element.value;
+          selectedValues.push(value);
+        }
+        });
+      return selectedValues;
+    }
+    function FilterPL() {
+      let ms = document.querySelectorAll(".btnms");
+      let lstms = getSelectedValues(ms);
+      let kc = document.querySelectorAll(".btnkc");
+      let lstkc = getSelectedValues(kc);
+      let request = {IdSanPham: '@Model.Id', lstIdMS:lstms , lstIdKC: lstkc };
+          $.ajax({
+             url: "/BanHangTaiQuay/FilterCTSP",
+             type: "POST",
+             dataType: "json",
+             data: request ,
+             success: function(response) {
+                 $("#lstChiTietSP").empty();
+                  response.data.forEach(function(item) {
+                   if(item.soLuong <= 0){
+                        var html = `
+                      <div class="d-flex flex-column p-2 border-0 rounded-3 mb-3 overlay-fade" id="ctspitem">
+                        <div class="flex-shrink-0 w-100" style="height:180px">
+                          <img src="/img/product/${item.anh}" style="display: block; object-fit: cover;background-position: center; max-width: 100%; max-height: 180px; position:absolute">
+                        </div>
+                        <div class="flex-shrink-0 mt-3 p-1">
+                          <h6>${item.ten} <span style="color:#f28322; font-size:14px">${item.chiTiet}</span></h6>
+                          ${item.giaBan === item.giaGoc
+                            ? `<span style="flex-basis: 59.5%;"><b style="color:blue; font-weight:700">${item.giaBan.toLocaleString()}</b></span>
+                               <span style="flex-basis: 49.5%;padding-left:20px">SL: ${item.soLuong}</span>`
+                            : `<span style="flex-basis: 59.5%;"><b style="color:blue; font-weight:700">${item.giaBan.toLocaleString()}</b></span>
+                               <span style="flex-basis: 49.5%;padding-left:20px">SL: ${item.soLuong}</span>
+                               <span style="flex-basis: 59.5%;"><del>${item.giaGoc.toLocaleString()}</del></span>`
+                          }
+                        </div>
+                        <div class="text-white sold">
+                            <a>HẾT HÀNG</a>
+                        </div>
+                      </div>
+                    `;
+                    }else{
+                        var html = `
+                      <div class="d-flex flex-column p-2 border-0 rounded-3 mb-3 " id="ctspitem" onclick="addCTSP('${item.id}')">
+                        <div class="flex-shrink-0 w-100" style="height:180px">
+                          <img src="/img/product/${item.anh}" style="display: block; object-fit: cover;background-position: center; max-width: 100%; max-height: 180px;">
+                        </div>
+                        <div class="flex-shrink-0 mt-3 p-1">
+                          <h6>${item.ten} <span style="color:#f28322; font-size:14px">${item.chiTiet}</span></h6>
+                          ${item.giaBan === item.giaGoc
+                            ? `<span style="flex-basis: 59.5%;"><b style="color:blue; font-weight:700">${item.giaBan.toLocaleString()}</b></span>
+                               <span style="flex-basis: 49.5%;padding-left:20px">SL: ${item.soLuong}</span>`
+                            : `<span style="flex-basis: 59.5%;"><b style="color:blue; font-weight:700">${item.giaBan.toLocaleString()}</b></span>
+                               <span style="flex-basis: 49.5%;padding-left:20px">SL: ${item.soLuong}</span>
+                               <span style="flex-basis: 59.5%;"><del>${item.giaGoc.toLocaleString()}</del></span>`
+                          }
+                        </div>
+                      </div>
+                    `;
+                    }
+                    $("#lstChiTietSP").append(html);
+                });
+             },
+             error: function(err) {
+                 console.log('Error:', err);
+             }
+         });
+      };
+
+    function loadCTSPByID() {
+        var modelId = '@Model.Id';
+      $.ajax({
+        url: "/BanHangTaiQuay/ShowListCTSP/"+modelId,
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+           $("#lstChiTietSP").empty();
+                  response.data.forEach(function(item) {
+                   if(item.soLuong <= 0){
+                        var html = `
+                      <div class="d-flex flex-column p-2 border-0 rounded-3 mb-3 overlay-fade" id="ctspitem">
+                        <div class="flex-shrink-0 w-100" style="height:180px">
+                          <img src="/img/product/${item.anh}" style="display: block; object-fit: cover;background-position: center; max-width: 100%; max-height: 180px; position:absolute">
+                        </div>
+                        <div class="flex-shrink-0 mt-3 p-1">
+                          <h6>${item.ten} <span style="color:#f28322; font-size:14px">${item.chiTiet}</span></h6>
+                          ${item.giaBan === item.giaGoc
+                            ? `<span style="flex-basis: 59.5%;"><b style="color:blue; font-weight:700">${item.giaBan.toLocaleString()}</b></span>
+                                   <span style="flex-basis: 49.5%;padding-left:20px">SL: ${item.soLuong}</span>`
+                            : `<span style="flex-basis: 59.5%;"><b style="color:blue; font-weight:700">${item.giaBan.toLocaleString()}</b></span>
+                               <span style="flex-basis: 59.5%;"><del>${item.giaGoc.toLocaleString()}</del></span>
+                               <p style="flex-basis: 49.5%;padding-left:20px">SL: ${item.soLuong}</p>`
+                          }
+                        </div>
+                        <div class="text-white sold">
+                            <a>HẾT HÀNG</a>
+                        </div>
+                      </div>
+                    `;
+                    }else{
+                        var html = `
+                      <div class="d-flex flex-column p-2 border-0 rounded-3 mb-3 " id="ctspitem" onclick="addCTSP('${item.id}')">
+                        <div class="flex-shrink-0 w-100" style="height:180px">
+                          <img src="/img/product/${item.anh}" style="display: block; object-fit: cover;background-position: center; max-width: 100%; max-height: 180px;">
+                        </div>
+                        <div class="flex-shrink-0 mt-3 p-1">
+                          <h6>${item.ten} <span style="color:#f28322; font-size:14px">${item.chiTiet}</span></h6>
+                          ${item.giaBan === item.giaGoc
+                            ? `<span style="flex-basis: 59.5%;"><b style="color:blue; font-weight:700">${item.giaBan.toLocaleString()}</b></span>
+                              <spanp style="flex-basis: 49.5%;padding-left:20px">SL: ${item.soLuong}</span>`
+                            : `<span style="flex-basis: 59.5%;"><b style="color:blue; font-weight:700">${item.giaBan.toLocaleString()}</b></span>
+                               <span style="flex-basis: 59.5%;"><del>${item.giaGoc.toLocaleString()}</del></span>
+                               <p style="flex-basis: 49.5%;padding-left:20px">SL: ${item.soLuong}</p>
+                                   `
+                          }
+                        </div>
+                      </div>
+                    `;
+                    }
+                    $("#lstChiTietSP").append(html);
+                });
+        },
+        error: function(err) {
+          console.log('Error:', err);
+        }
+      });
+    }
+</script>

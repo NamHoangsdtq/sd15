@@ -1,0 +1,231 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    Layout = "_Layout";
+    <style>
+        .stars-outer {
+            position: relative;
+            display: inline-block;
+        }
+
+        .stars-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            width: auto;
+        }
+
+        .stars-outer::before {
+            content: "\f005 \f005 \f005 \f005 \f005";
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .stars-inner::before {
+            content: "\f005 \f005 \f005 \f005 \f005";
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            color: #f7941d;
+            font-size: 14px;
+        }
+    </style>
+}
+
+<!-- Hero Section Begin -->
+<section class="hero">
+    <div class="hero__slider owl-carousel">
+        <div class="hero__items set-bg" data-setbg="img/hero/slide_1_img.png">
+            @* <div class="container">
+                <div class="row">
+                    <div class="col-xl-5 col-lg-7 col-md-8">
+                        <div class="hero__text">
+                            <h6>Thời trang nam 5Ting</h6>
+                            <p>Thương hiệu tạo ra những sản phẩm thiết yếu sang trọng. Cam kết vững chắc về chất lượng vượt trội.</p>
+                            <a href="Home/Shop" class="primary-btn">Mua sắm ngay <span class="arrow_right"></span></a>
+                        </div>
+                    </div>
+                </div>
+            </div> *@
+        </div>
+        <div class="hero__items set-bg" data-setbg="img/hero/slide_2_img.png">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-5 col-lg-7 col-md-8">
+                        <div class="hero__text">
+                            <h6>Thời trang nam 5Ting</h6>
+                            <p style="color: white">Thương hiệu tạo ra những sản phẩm thiết yếu sang trọng. Cam kết vững chắc về chất lượng vượt trội.</p>
+                            <a href="Home/Shop" class="primary-btn">Mua sắm ngay <span class="arrow_right"></span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Hero Section End -->
+<!-- Banner Section Begin -->
+<section class="banner spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 offset-lg-4">
+                <div class="banner__item">
+                    <div class="banner__item__pic">
+                        <img src="img/banner/anh1.png" alt="">
+                    </div>
+                    <div class="banner__item__text">
+                        <h2>Thanh lịch</h2>
+                        <a href="Home/Shop">Mua sắm ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="banner__item banner__item--middle">
+                    <div class="banner__item__pic">
+                        <img src="img/banner/anh2.png" alt="">
+                    </div>
+                    <div class="banner__item__text">
+                        <h2>Phong cách</h2>
+                        <a href="Home/Shop">Mua sắm ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="banner__item banner__item--last">
+                    <div class="banner__item__pic">
+                        <img src="img/banner/banner3.png" alt="">
+                    </div>
+                    <div class="banner__item__text">
+                        <h2></h2>
+                        <a href="Home/Shop">Mua sắm ngay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Banner Section End -->
+<!-- Product Section Begin -->
+<section class="product spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="filter__controls">
+                    <li class="active" data-filter="*" onclick="FilterSPHome(2)">Bán chạy nhất</li>
+                    <li data-filter=".new-arrivals" onclick="FilterSPHome(1)">Sản phẩm mới</li>
+                    <li data-filter=".hot-sales" onclick="FilterSPHome(3)">
+                        Đánh giá cao
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row product__filter">
+          
+        </div>
+    </div>
+</section>
+<!-- Latest Blog Section End -->
+<script src="/js/jquery-3.3.1.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        FilterSPHome(2);
+    });
+    const starsTotal = 5;
+    function getRatings(id, ratings) {
+        const starPercentage = (ratings / starsTotal) * 100;
+        const starPercentageRounded = `${Math.round(starPercentage / 10) * 10}%`;
+
+        $(`.${id} .stars-inner`).css('width', starPercentageRounded);
+    }
+    function addCart(idctsp) {
+        $.ajax({
+            async: true,
+            type: 'POST',
+            dataType: "json",
+            data: { id: idctsp },
+            url: '/Home/AddToCart',
+            success: function (response) {
+                if (response.success == true) {
+                    toastr.success(response.message, 'Thông báo', { timeOut: 3000 });
+
+                } else {
+                    toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+                }
+            },
+            error: function (response) {
+                console.log(response);
+                toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+            }
+        });
+        $.ajax({
+            async: true,
+            type: 'POST',
+            dataType: "json",
+            data: { sl: 1 },
+            url: '/Home/TongSoLuong',
+            success: function (response) {
+                if (response.success == true) {
+                    $('#tongsoluong').text(response.sl);
+
+                } else {
+
+                }
+            },
+            error: function (response) {
+
+            }
+        });
+    }
+
+    function FilterSPHome(index) {
+        $.ajax({
+            type: "GET",
+            url: "/TrangChu/FilterSPHome/" + index,
+            dataType: 'json',
+            success: function (response) {
+                $(".product__filter").empty();
+                for (let i = 0; i < response.data.length; i++) {
+                    const item = response.data[i];
+                    const id = item.id.substring(0, 8);
+                    const khuyenMaiHTML = item.khuyenMai === null ? '' :
+                        item.khuyenMai <= 100 ? `<span class="label" style="background-color:red;">-${item.khuyenMai}%</span>` :
+                            `<span class="label" style="background-color:red;">-${item.khuyenMai.toLocaleString()} VND</span>`;
+                    const productHTML = `
+                            <div class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix new-arrivals">
+                              <div class="product__item sale ${id}">
+                                <a href="/Home/ProductDetail?idSanPham=${item.id}">
+                                  <div class="product__item__pic" style="background-image: url('img/product/${item.anh}');">
+                                    ${khuyenMaiHTML}
+                                    <ul class="product__hover">
+                                      <li><a href="/Home/ProductDetail?idSanPham=${item.id}"><img src="img/icon/search.png" alt=""></a></li>
+                                    </ul>
+                                  </div>
+                                </a>
+                                <div class="product__item__text">
+                                  <h6>${item.ten}</h6>
+                                  <a onclick="addCart('${item.idCTSP}')" class="add-cart">+ Thêm vào giỏ hàng</a>
+                                  <div class="stars-outer">
+                                    <div class="stars-inner"></div>
+                                    <span class="number-rating"></span>
+                                  </div>
+                                  ${item.giaBan !== item.giaGoc ?
+                            `<h5 style="color:red;">${item.giaBan.toLocaleString()} VND</h5><span style="font-size:14px; color:#3a3b3c;"><del>${item.giaGoc.toLocaleString()} VND</del></span>` : `<h5>${item.giaBan.toLocaleString()} VND</h5>`
+                        }
+                                </div>
+                              </div>
+                            </div>
+                          `;
+                    $(".product__filter").append(productHTML);
+                    getRatings(id, item.soSao);
+                }
+            },
+            error: function (response) {
+
+            }
+        });
+    }
+</script>

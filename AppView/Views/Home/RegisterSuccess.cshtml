@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Đăng Ký Thành Công";
+    Layout = "_Layout";
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            // Lấy thông báo từ TempData mà Controller đã gán
+            var message = '@Html.Raw(TempData["SuccessMessage"])';
+
+            // Nếu không có thông báo, gán một giá trị mặc định
+            if (message === '') {
+                message = 'Tài khoản của bạn đã được tạo thành công!';
+            }
+
+            Swal.fire({
+                title: 'Đăng ký thành công!',
+                text: message, // Hiển thị thông báo
+                icon: 'success',
+                confirmButtonText: 'Đăng nhập ngay',
+                allowOutsideClick: false, // Không cho bấm ra ngoài
+                allowEscapeKey: false // Không cho bấm phím ESC
+            }).then((result) => {
+                // Nếu người dùng bấm nút "Đăng nhập ngay"
+                if (result.isConfirmed) {
+
+                    // Chuyển hướng sang trang Login
+                    // (Giả sử action Login nằm cùng Controller với Register)
+                    window.location.href = '@Url.Action("Login")';
+                }
+            });
+        });
+    </script>
+}

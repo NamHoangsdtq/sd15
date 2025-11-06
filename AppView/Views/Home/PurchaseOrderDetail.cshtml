@@ -1,0 +1,390 @@
+﻿@using AppData.Models;
+@using AppData.ViewModels;
+@model List<DonMuaChiTietViewModel>
+@{
+    Layout = "_Layout";
+    int tongtien = 0;
+    int giaSP = 0;
+    int tienShip = 0;
+    int? giaTri = null;
+    int? hinhThucGiamGia = null;
+    int diemSudung = 0;
+    int diemTich = 0;
+    int trangThaiLichSuTichDiem = 1;
+    int tileTieuDiem = 0;
+    int tileTichDiem = 0;
+    var trangthaiGiaoHang = 0;
+    var ngaythanhToan = DateTime.Now;
+    int trangthaiDanhGia = 0;
+    string tennguoinhan = "";
+    string SDT = "";
+    string email = "";
+    string diachi = "";
+    string phuongthucthanhtoan = "";
+    int loaiHD = 0;
+    List<LichSuTichDiem> lichSuTichDiems = new List<LichSuTichDiem>();
+}
+<style>
+    #navbar {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 10px 0px 10px 0px;
+        background-color: white;
+        margin-bottom: 24px;
+    }
+
+    #AllHoaDon {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        background-color: white;
+    }
+
+    #navbar div label {
+        margin: 0px;
+    }
+
+        #navbar div label span {
+            cursor: pointer;
+            padding: 10px;
+        }
+
+    #navbar input[type="radio"] {
+        display: none;
+    }
+
+    #navbar label input[type="radio"]:checked ~ span {
+        border-bottom: 1px solid black;
+    }
+
+    .table td{
+        vertical-align:middle;
+    }
+</style>
+<section style="background-color: #eee;">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="https://localhost:5001/">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="PurchaseOrder">Đơn hàng</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Đơn hàng chi tiết</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        @if (Model.FirstOrDefault().TrangThaiGiaoHang == 2)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">Chờ xác nhận</li>
+                        }
+                        else if (Model.FirstOrDefault().TrangThaiGiaoHang == 3)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">Đang giao hàng</li>
+                        }
+                        else if (Model.FirstOrDefault().TrangThaiGiaoHang == 11)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">Giao hàng không thành công</li>
+                        }
+                        else if (Model.FirstOrDefault().TrangThaiGiaoHang == 4)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">Đang hoàn hàng</li>
+                        }
+                        else if (Model.FirstOrDefault().TrangThaiGiaoHang == 5)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">Hoàn hàng thành công</li>
+                        }
+                        else if (Model.FirstOrDefault().TrangThaiGiaoHang == 6)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">Hoàn thành</li>
+                        }
+                        else if (Model.FirstOrDefault().TrangThaiGiaoHang == 7)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">Đơn hủy</li>
+                        }
+                        else if (Model.FirstOrDefault().TrangThaiGiaoHang == 8)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">Chờ xác nhận hủy</li>
+                        }
+                        else if (Model.FirstOrDefault().TrangThaiGiaoHang == 9)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">Chờ xác nhận hoàn hàng</li>
+                        }
+                        else if (Model.FirstOrDefault().TrangThaiGiaoHang == 10)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">Chờ đóng hàng</li>
+                        }
+
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        @*<div id="AllHoaDon">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Sản phẩm</th>
+                        <th scope="col">Số lượng</th>
+                        <th scope="col">Đơn giá</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <th scope="row">@item.Ten</th>
+                            <td>@item.SoLuong</td>
+                            <td>@item.DonGia</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>*@
+        <div class="shopping__cart__table">
+            <table class="table" style="background-color:white;margin-bottom:0px">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="product__cart__item">
+                                <div class="product__cart__item__pic">
+                                    <img style="width:90px;height:90px;" src="/img/product/@item.DuongDan" alt="">
+                                </div>
+                                <div class="product__cart__item__text">
+                                    <h6>@item.TenSanPham</h6>
+                                    <h5>@item.TenKichCo/@item.TenMau</h5>
+                                </div>
+                            </td>
+                            <td class="cart__price">@item.DonGia.ToString("n0").Replace(',','.') VNĐ</td>
+                            <td class="cart__price">@item.SoLuong</td>
+                            <td class="cart__price">@((item.DonGia * item.SoLuong).ToString("n0").Replace(',','.')) VNĐ</td>
+                            @if (item.TrangThaiGiaoHang == 6 && item.TrangThaiDanhGia == 0)
+                            {
+                                <td class="cart__price">
+                                    <div style="border: none; color: white; background-color: black; text-align:center;">
+                                        <a style="color:white;" asp-controller="Home" asp-action="ReviewProducts" asp-route-idCTHD="@item.IDCTHD" >Đánh giá sản phẩm</a>
+                                    </div>
+                                </td>
+                            }
+                            @{
+                                giaSP += item.DonGia * item.SoLuong;
+                                tienShip = item.TienShip;
+                                giaTri = item.GiaTri;
+                                diemSudung = item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 0) != null ? item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 0).Diem:0;
+                                diemTich = item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 1) != null ? item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 1).Diem:0;
+                                trangThaiLichSuTichDiem = item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 0) != null ? 0 : 1;
+                                hinhThucGiamGia =item.HinhThucGiamGia;
+                                tileTieuDiem = item.TiLeTieuDiem;
+                                tileTichDiem = item.TiLeTichDiem;
+                                trangthaiGiaoHang = item.TrangThaiGiaoHang;
+                                ngaythanhToan = Convert.ToDateTime(item.NgayThanhToan);
+                                trangthaiDanhGia += item.TrangThaiDanhGia;
+                                lichSuTichDiems = item.lichSuTichDiems;
+                                tennguoinhan = item.TenNguoiNhan;
+                                SDT = item.SDT;
+                                email = item.Email;
+                                diachi = item.DiaChi;
+                                phuongthucthanhtoan = item.PhuongThucThanhToan;
+                                loaiHD = item.LoaiHoaDon;
+                            }
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <table style="background-color:white;">
+                        <tbody>
+                            @{
+                                if (hinhThucGiamGia == 1)
+                                {
+                                    if (trangThaiLichSuTichDiem == 0)
+                                    {
+                                        tongtien = Convert.ToInt32(giaSP - giaSP * (Convert.ToDouble(giaTri) / 100)) + tienShip - diemSudung * tileTieuDiem;
+                                    }else
+                                    {
+                                        tongtien = Convert.ToInt32(giaSP - giaSP * (Convert.ToDouble(giaTri) / 100)) + tienShip;
+                                    }
+
+                                }else if (hinhThucGiamGia == 0)
+                                {
+                                    if (trangThaiLichSuTichDiem == 0)
+                                    {
+                                        tongtien = giaSP - Convert.ToInt32(giaTri) + tienShip - diemSudung * tileTieuDiem;
+                                    }
+                                    else
+                                    {
+                                        tongtien = giaSP - Convert.ToInt32(giaTri) + tienShip;
+                                    }
+                                }else
+                                {
+                                    if (trangThaiLichSuTichDiem == 0)
+                                    {
+                                        tongtien = giaSP + tienShip - diemSudung * tileTieuDiem;
+                                    }
+                                    else
+                                    {
+                                        tongtien = giaSP + tienShip;
+                                    }
+                                }
+                                int diemsudung = diemSudung * tileTieuDiem;
+                                int diemtich = diemTich != 0 ? giaSP / tileTichDiem : 0;
+
+                            }
+                            <tr>
+                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 70%;">
+                                    Giá sản phẩm
+                                </td>
+                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">@giaSP.ToString("n0").Replace(',','.') VNĐ</td>
+                            </tr>
+                            @if(loaiHD == 0){
+                                <tr>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
+                                        Phí vận chuyển
+                                    </td>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;"> @tienShip.ToString("n0").Replace(',','.') VNĐ</td>
+                                </tr>
+                            }
+                            @if (hinhThucGiamGia == 1)
+                            {
+                                <tr>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
+                                        Voucher
+                                    </td>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">- @giaTri%</td>
+                                </tr>
+                            }
+                            else if (hinhThucGiamGia == 0)
+                            {
+                                <tr>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
+                                        Voucher
+                                    </td>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">- @Convert.ToInt32(giaTri).ToString("n0").Replace(',','.') VNĐ</td>
+                                </tr>
+                            }
+                            @{
+                                foreach (var item in lichSuTichDiems)
+                                {
+                                    if (item.TrangThai == 0 && diemsudung > 0)
+                                    {
+                                        <tr>
+                                            <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
+                                                Điểm sử dụng
+                                            </td>
+                                            <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">- @diemsudung.ToString("n0").Replace(',','.') VNĐ</td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                            <tr>
+                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
+                                    Tổng tiền
+                                </td>
+                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">@tongtien.ToString("n0").Replace(',','.') VNĐ</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </tfoot>
+            </table>
+        </div>
+        
+        <div class="row" style="margin-bottom:30px;">
+            <div class="col-6">
+                @{
+                    if (loaiHD == 0)
+                    {
+                        <div style="background-color: #d9edf7; border: 1px solid #bce8f1; padding: 10px;">
+                            <h4>Địa Chỉ Nhận Hàng</h4>
+                        </div>
+                        <div style="background-color: white; padding: 10px;">
+                            <div style="font-weight: bold;padding: 5px;">@tennguoinhan</div>
+                            <div style="padding: 5px;">@diachi</div>
+                            <div style="padding: 5px;">@SDT</div>
+                            <div style="padding: 5px;">@email</div>
+                        </div>
+                    }
+                }
+            </div>
+            <div class="col-6">
+                <table class="table" style="background-color:white;width: 100%;height: 100%;">
+                    <tbody>
+                        @foreach (var item in lichSuTichDiems)
+                        {
+                            @*if (item.TrangThai == 1 && diemtich > 0)
+                            {
+                                <tr style="height:88px;">
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
+                                        Điểm được tích
+                                    </td>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: auto;padding-right: 70px; text-align: right;">@diemtich.ToString("n0").Replace(',','.') Điểm</td>
+                                </tr>
+                            }*@
+                        }
+                        <tr style="height:88px;">
+                            <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
+                                Phương thức thanh toán
+                            </td>
+                            <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: auto;padding-right: 70px; text-align: right;">@phuongthucthanhtoan</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @if (trangthaiGiaoHang == 2)
+        {
+        <div style="text-align:-webkit-right ;">
+                <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center;">
+                    <a style="color:white;" asp-controller="Home" asp-action="HuyDonHang" asp-route-idHoaDon="@Model.First().ID">Hủy đơn hàng</a>
+                </div>
+            </div>
+        }
+        else if (trangthaiGiaoHang == 6 && DateTime.Now.Subtract(ngaythanhToan).TotalDays < 3 && trangthaiDanhGia == 0)
+        {
+            <div style="text-align:-webkit-right ;">
+                <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center;">
+                    <a style="color:white;" asp-controller="Home" asp-action="DoiTraHang" asp-route-idHoaDon="@Model.First().ID">Hoàn hàng</a>
+                </div>
+            </div>
+        }else if (trangthaiGiaoHang == 8)
+        {
+            <div style="text-align:-webkit-right ;">
+                <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center;">
+                    <a style="color:white;" asp-controller="Home" asp-action="HoanTacHuyDonHang" asp-route-idHoaDon="@Model.First().ID">Hoàn tác hủy đơn hàng</a>
+                </div>
+            </div>
+        }
+        else if (trangthaiGiaoHang == 9)
+        {
+            <div style="text-align:-webkit-right ;">
+                <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center;">
+                    <a style="color:white;" asp-controller="Home" asp-action="HoanTacDoiTraHang" asp-route-idHoaDon="@Model.First().ID">Hoàn tác hoàn hàng</a>
+                </div>
+            </div>
+        }
+        else if (trangthaiGiaoHang == 3)
+        {
+            <div style="text-align:-webkit-right ;">
+                <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center;">
+                    <a style="color:white;" asp-controller="Home" asp-action="XacNhanGHTC" asp-route-idHoaDon="@Model.First().ID">Xác nhận giao hàng thành công</a>
+                </div>
+            </div>
+        }
+
+    </div>
+    
+</section>
+@*@Html.PartialAsync("ReviewProduct")*@

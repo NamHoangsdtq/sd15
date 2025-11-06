@@ -1,0 +1,257 @@
+﻿@{
+    Layout = "_Layout";
+}
+<style>
+    .adon a:hover {
+        color:black;
+    }
+    #navbar {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 10px 0px 10px 0px;
+        background-color: white;
+        margin-bottom: 24px;
+    }
+
+    #AllHoaDon {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        background-color: white;
+    }
+
+    #navbar div label {
+        margin: 0px;
+    }
+
+    #navbar div label span {
+        cursor: pointer;
+        padding: 10px;
+    }
+
+    #navbar input[type="radio"] {
+        display: none;
+    }
+
+    #navbar label input[type="radio"]:checked ~ span {
+        border-bottom: 1px solid black;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+</style>
+<section style="background-color: #eee;">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="https://localhost:5001/">Home</a></li>
+                        <li class="breadcrumb-item"><a asp-action="Profile" asp-controller="Home">Thông tin cá nhân</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Lịch sử tiêu điểm</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div onchange="LocHoaDon()" id="navbar">
+                    <div>
+                        <label>
+                            <input type="radio" name="menu" value="2" checked />
+                            <span>Tất cả lịch sử</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <input type="radio" name="menu" value="1" />
+                            <span>Đã nhận</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <input type="radio" name="menu" value="0" />
+                            <span>Đã dùng</span>
+                        </label>
+                    </div>
+                    
+                </div>
+
+            </div>
+        </div>
+        
+        <div id="AllHoaDon" style="display:inherit;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Mã đơn hàng</th>
+                        <th scope="col">Mô tả</th>
+                        <th scope="col">Điểm</th>
+                    </tr>
+                </thead>
+                <tbody id="DShoaDon">
+                    
+                </tbody>
+
+            </table>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <ul id="pagination-demo" class="pagination"></ul>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script>
+    var pageIndex = 1;
+    var pagesize = 5;
+
+    $(document).ready(function () {
+        FilterHoaDon();
+    });
+    function LocHoaDon(){
+        $("#pagination-demo").twbsPagination('destroy');
+        FilterHoaDon();
+    }
+    function FilterHoaDon(){
+        var x = document.querySelector('input[name="menu"]:checked').value;
+        var data = { TrangThaiGiaoHang: x, page: pageIndex, pageSize: pagesize}
+        $.ajax({
+            url: "/Home/LichSuTieuDiemTichDiembyuser",
+            type: "GET",
+            data: data,
+            success: function (response) {
+                $("#DShoaDon").empty();
+                console.log(response.data);
+                for (let i = 0; i < response.data.length; i++) {
+                    if (response.data[i].trangThaiLSTD === 0) {
+                        $("#DShoaDon").append(`<tr>
+                            <th class="adon" scope="row"><a href="PurchaseOrderDetail?idHoaDon=${response.data[i].idHoaDon}">${response.data[i].maHD}</a></th>
+                                <td>
+                                    Trừ điểm khi mua hàng thành công
+                                </td>
+                                <td>
+                                   <label>-${response.data[i].diem}</label>
+                                </td>
+                        </tr>`);
+                    }
+                    else if(response.data[i].trangThaiLSTD === 1 && response.data[i].trangThaiGiaoHang == 6){
+                        $("#DShoaDon").append(`<tr>
+                            <th class="adon" scope="row"><a href="PurchaseOrderDetail?idHoaDon=${response.data[i].idHoaDon}">${response.data[i].maHD}</a></th>
+                                <td>
+                                    Cộng điểm khi mua hàng thành công
+                                </td>
+                                <td>
+                                   <label>+${response.data[i].diem}</label>
+                                </td>
+                        </tr>`);
+                    }
+                    else if(response.data[i].trangThaiLSTD === 1 && response.data[i].trangThaiGiaoHang == 9){
+                        $("#DShoaDon").append(`<tr>
+                            <th class="adon" scope="row"><a href="PurchaseOrderDetail?idHoaDon=${response.data[i].idHoaDon}">${response.data[i].maHD}</a></th>
+                                <td>
+                                    Cộng điểm khi mua hàng thành công
+                                </td>
+                                <td>
+                                   <label>+${response.data[i].diem}</label>
+                                </td>
+                        </tr>`);
+                    }
+                    else if(response.data[i].trangThaiLSTD === 1 && response.data[i].trangThaiGiaoHang == 4){
+                        $("#DShoaDon").append(`<tr>
+                            <th class="adon" scope="row"><a href="PurchaseOrderDetail?idHoaDon=${response.data[i].idHoaDon}">${response.data[i].maHD}</a></th>
+                                <td>
+                                    Cộng điểm khi mua hàng thành công
+                                </td>
+                                <td>
+                                   <label>+${response.data[i].diem}</label>
+                                </td>
+                        </tr>`);
+                    }
+                    else if(response.data[i].trangThaiLSTD === 1 && response.data[i].trangThaiGiaoHang == 5){
+                        $("#DShoaDon").append(`<tr>
+                            <th class="adon" scope="row"><a href="PurchaseOrderDetail?idHoaDon=${response.data[i].idHoaDon}">${response.data[i].maHD}</a></th>
+                                <td>
+                                    Cộng điểm khi mua hàng thành công
+                                </td>
+                                <td>
+                                   <label>+${response.data[i].diem}</label>
+                                </td>
+                        </tr>`);
+                    }
+                    else if (response.data[i].trangThaiGiaoHang == 7 && response.data[i].trangThaiLSTD === 2) {
+                        $("#DShoaDon").append(`<tr>
+                            <th class="adon" scope="row"><a href="PurchaseOrderDetail?idHoaDon=${response.data[i].idHoaDon}">${response.data[i].maHD}</a></th>
+                                <td>
+                                    Cộng lại điểm điểm khi hủy đơn hàng
+                                </td>
+                                <td>
+                                   <label>+${response.data[i].diem}</label>
+                                </td>
+                        </tr>`);
+                    }
+                    else if (response.data[i].trangThaiGiaoHang == 4 && response.data[i].trangThaiLSTD === 3) {
+                        $("#DShoaDon").append(`<tr>
+                            <th class="adon" scope="row"><a href="PurchaseOrderDetail?idHoaDon=${response.data[i].idHoaDon}">${response.data[i].maHD}</a></th>
+                                <td>
+                                    Trừ điểm khi hoàn lại đơn hàng
+                                </td>
+                                <td>
+                                   <label>-${response.data[i].diem}</label>
+                                </td>
+                        </tr>`);
+                    }
+                    else if (response.data[i].trangThaiGiaoHang == 5 && response.data[i].trangThaiLSTD === 3) {
+                        $("#DShoaDon").append(`<tr>
+                            <th class="adon" scope="row"><a href="PurchaseOrderDetail?idHoaDon=${response.data[i].idHoaDon}">${response.data[i].maHD}</a></th>
+                                <td>
+                                    Trừ điểm khi hoàn lại đơn hàng
+                                </td>
+                                <td>
+                                   <label>-${response.data[i].diem}</label>
+                                </td>
+                        </tr>`);
+                    }
+                    else if (response.data[i].trangThaiGiaoHang == 5 && response.data[i].trangThaiLSTD === 4) {
+                        $("#DShoaDon").append(`<tr>
+                            <th class="adon" scope="row"><a href="PurchaseOrderDetail?idHoaDon=${response.data[i].idHoaDon}">${response.data[i].maHD}</a></th>
+                                <td>
+                                    Cộng lại điểm khi hoàn lại đơn hàng
+                                </td>
+                                <td>
+                                   <label>+${response.data[i].diem}</label>
+                                </td>
+                        </tr>`);
+                    }
+                }
+                paginghd(response.total, function () {
+                    FilterHoaDon()
+                });
+            },
+            error: function (err) {
+                console.log('Error:', err);
+            }
+        });
+    }
+    function paginghd(totalrow, callback) {
+        var totalpages = Math.ceil(totalrow / pagesize);
+        $("#pagination-demo").twbsPagination({
+            totalPages: totalpages,
+            visiblePages: 5,
+            first:'Đầu',
+            last:'Cuối',
+            prev:'Trước',
+            next:'Tiếp',
+            onPageClick: function (event, page) {
+                pageIndex = page;
+                setTimeout(callback, 200);
+            }
+        });
+    }
+    function billDetail(id){
+        window.location = 'https://localhost:5001/Home/PurchaseOrderDetail?idHoaDon=';
+    }
+</script>

@@ -1,0 +1,83 @@
+﻿@model IEnumerable<AppData.ViewModels.SanPham.AnhViewModel>
+
+@{
+    ViewData["Title"] = "QuanLyAnh";
+    string? id = ViewData["IDSanPham"] as string;
+}
+
+<h1>Quản lý ảnh</h1>
+<br />
+<a class="btn btn-primary" onclick="history.back();">
+    <i class="bi bi-chevron-double-left"></i> Quay Lại
+</a>
+<div style="margin-bottom:10px ;margin-top:10px">
+    <label for="image" class="btn btn-success"><i class="bi bi-image"></i> Thêm ảnh</label>
+    <input id="image" style="visibility:hidden;" type="file" onchange="AddImage(event)">
+</div>
+<table class="table" style="width:100%">
+    <thead>
+        <tr>
+            <th>
+                Ảnh
+            </th>
+            <th>
+                Tên màu
+            </th>
+            <th>
+                Mã màu
+            </th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <img src="/img/product/@item.DuongDan" style="width:70px;height:80px" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TenMau)
+                </td>
+                <td>
+                    <input type="color" value="@item.MaMau" style="border:none;width:27px;height:25px" disabled />
+                </td>
+                <td style="padding-right:2px;width:50px">
+                    <label for="update_@item.ID" class="btn btn-warning"><i class="bi bi-pencil-square"></i></label><br />
+                    <input id="update_@item.ID" style="visibility:hidden;width:50px" type="file" onchange="UpdateImage(event,'@item.ID','@item.DuongDan')">
+                </td>
+                <td style="padding-left:2px">
+                    <a asp-action="DeleteImage" class="btn btn-danger" asp-route-id="@item.ID" asp-route-idSanPham="@id" asp-route-duongDan="@item.DuongDan"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script>
+    function AddImage(event, id) {
+        var value = event.target.files[0];
+        var formData = new FormData();
+        formData.append("file", value);
+        formData.append("idSanPham", '@id');
+        fetch("/Admin/AddAnhNoColor", {
+            method: 'POST',
+            body: formData
+        });
+        setTimeout("location.reload(true);", 600);
+    };
+    function UpdateImage(event, id, duongdan) {
+        var value = event.target.files[0];
+        var formData = new FormData();
+        formData.append("file", value);
+        formData.append("id", id);
+        formData.append("duongDan", duongdan);
+        formData.append("idSanPham", '@id');
+        fetch("/Admin/UpdateImage", {
+            method: 'POST',
+            body: formData
+        });
+        setTimeout("location.reload(true);", 600);
+    };
+</script>

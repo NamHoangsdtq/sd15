@@ -1,0 +1,193 @@
+﻿@using Newtonsoft.Json;
+@using AppData.ViewModels;
+@{
+    var loginInfor = new LoginViewModel();
+    string? session = Context.Session.GetString("LoginInfor");
+    if (session != null)
+    {
+        loginInfor = JsonConvert.DeserializeObject<LoginViewModel>(Context.Session.GetString("LoginInfor"));
+    }
+    //string? count = TempData.Peek("SoLuong") as string;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="5Ting">
+    <meta name="keywords" content="5Ting, unica, creative, html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+
+    <!-- Boostrap icon -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+          rel="stylesheet">
+     
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css">
+    <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/css/toastr.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" />
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css">
+</head>
+<body>
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+    <!-- Header Section Begin -->
+    <header class="header">
+        <div class="header__top" style="background-color:#242021">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-md-7">
+                     @*    <div class="header__top__left">
+                            <div style="display: inline-block;">
+                                <span style="color: white; font-size: 12px;">Hotline mua hàng: <strong style="font-weight: bold;">098889999</strong></span>
+                            </div>
+                            <span style="color: white; margin: 0 10px;">|</span>
+                            <div style="display: inline-block;">
+                                <span><a asp-controller="Home" asp-action="Contacts" style="color: white; font-size: 12px;"><strong>Liên hệ</strong></a></span>
+                            </div>
+
+                        </div> *@
+                    </div>
+                    <div class="col-lg-6 col-md-5">
+                        <div class="header__top__right">
+                            <div class="header__top__hover">
+                                @{
+                                    if (loginInfor.Ten != null)
+                                    {
+                                        <span>
+                                            <a id="helloTen" style="color:white">
+                                                <i class="bi bi-person" style="font-size: 20px;"></i> @loginInfor.Ten
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Profile">Thông tin cá nhân</a></li>
+                                                <li><a class="dropdown-item" asp-controller="Home" asp-action="PurchaseOrder">Đơn hàng</a></li>
+                                                @if (loginInfor.vaiTro == 0)
+                                                {
+                                                    <li><a class="dropdown-item" asp-controller="BanHangTaiQuay" asp-action="BanHang">Quản lý cửa hàng</a></li>
+                                                }
+                                                <li><a class="dropdown-item" asp-controller="Home" asp-action="LogOut">Đăng xuất</a></li>
+                                            </ul>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Home" asp-action="Login" asp-route-actionName="Index" style="color:white">
+                                            <i class="bi bi-person" style="font-size: 20px;"></i>
+                                        </a>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row" style="height:90px">
+                <div class="col-lg-3 col-md-3">
+                    <div class="header__logo" style="padding-top:10px">
+                        <a asp-controller="Home" asp-action="Index"><img src="~/img/" style="height:70px;width:auto"></a>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <nav class="header__menu mobile-menu">
+                        <ul>
+                            <li><a asp-controller="TrangChu" asp-action="Index">Trang chủ</a></li>
+                            <li><a asp-controller="Home" asp-action="Shop">Cửa hàng</a></li>
+                           @*  <li><a asp-controller="Home" asp-action="Shop">Áo Nam</a></li>
+                            <li><a asp-controller="Home" asp-action="Shop">Bộ Sưu Tập</a></li> *@
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-lg-2 col-md-2">
+                    <div class="header__nav__option">
+                        @await Html.PartialAsync("CartPartial.cshtml")
+                    </div>
+                </div>
+            </div>
+            <div class="canvas__open"><i class="fa fa-bars"></i></div>
+        </div>
+    </header>
+    <!-- Header Section End -->
+
+    <div>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Footer Section Begin -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="footer__widget">
+                        <h6 class="text-white fw-bold">KENI SHOP</h6>
+                        <p style="color:#b7b7b7">Hệ thống thời trang cho phái mạnh hàng đầu Việt Nam, hướng tới phong cách nam tính, lịch lãm và trẻ trung.</p>
+                        <p style="color:#b7b7b7">Phương thức thanh toán:</p>
+                        <span><img src="/img/paymentvnpay.png" style="height: 30px; width:50px" alt=""></span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="footer__widget">
+                        <h6>Thông tin liên hệ</h6>
+                        <ul>
+                            <li><strong>Địa chỉ:</strong> Tòa nhà FPT Polytechnic, Phố Trịnh Văn Bô, Nam Từ Liêm, Hà Nội.</li>
+                        
+                            <li><strong>Email:</strong> KeniShop@gmail.com</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="footer__widget">
+                        <h6>Mua hàng</h6>
+                        <ul>
+                            <li>Đa dạng sản phẩm</li>
+                            <li>Thanh toán online</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+    </footer>
+    <!-- Footer Section End -->
+    <!-- Search Begin -->
+    <div class="search-model">
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <div class="search-close-switch">+</div>
+            <form class="search-model-form">
+                <input type="text" id="search-input" placeholder="Search here.....">
+            </form>
+        </div>
+    </div>
+    <!-- Search End -->
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.nicescroll.min.js"></script>
+    <script src="/Admin/js/jquery.twbsPagination.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/jquery.countdown.min.js"></script>
+    <script src="/js/jquery.slicknav.js"></script>
+    <script src="/js/mixitup.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

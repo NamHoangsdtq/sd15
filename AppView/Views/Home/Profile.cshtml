@@ -1,0 +1,218 @@
+﻿@model AppData.ViewModels.LoginViewModel
+@{
+    Layout = "_Layout";
+    var thoigian = Model.NgaySinh != null ? Model.NgaySinh.Value.ToString("yyyy-MM-dd HH:mm:ss").Replace(' ', 'T') : null;
+}
+<style>
+    #chonNgaySinh input {
+        position: relative;
+        width: 250px;
+        height: 20px;
+        color: white;
+    }
+
+        #chonNgaySinh input:before {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            content: attr(my-date);
+            display: inline-block;
+            color: black;
+        }
+</style>
+<section style="background-color: #eee;">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="https://localhost:5001/">Trang chủ</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Thông tin người dùng</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <img src="~/img/avt_mac_dinh.png" alt="avatar"
+                             class="rounded-circle img-fluid" style="width: 150px;">
+                        <h5 id="tenanh" class="my-3">@Model.Ten</h5>
+                        <div class="d-flex justify-content-center mb-2">
+                            <button type="button" data-toggle="modal" data-target="#changePassword" data-url="@Url.Action($"ChangePassword")" class="btn btn-primary">Đổi mật khẩu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Tên</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <input id="ten" style="border:none;width: 100%; background: white;" type="text" value="@Model.Ten" maxlength="30" disabled />
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Email</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <input id="email" style="border:none;width: 100%; background: white;" type="text" value="@Model.Email" maxlength="50" disabled />
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">SDT</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <input id="sdt" style="border:none;width: 100%; background: white;" type="text" value="@Model.SDT" maxlength="20" disabled />
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Giới tính</p>
+                            </div>
+                            <div class="col-sm-9">
+                                @*<input id="gioiTinh" style="border:none;width: 100%; background: white;" type="text" value="@Model.GioiTinh" disabled />*@
+                                <select id="gioiTinh" style="width: 30%; border: 1px solid #ced4da; border-radius: 0.25rem;" disabled class="form-select" aria-label="Default select example">
+                                    @{
+                                        if (Model.GioiTinh == 1)
+                                        {
+                                            <option selected value="1">Nam</option>
+                                            <option value="0">Nữ</option>
+                                            <option value="2">Khác</option>
+                                        }
+                                        else if (Model.GioiTinh == 0)
+                                        {
+                                            <option value="1">Nam</option>
+                                            <option selected value="0">Nữ</option>
+                                            <option value="2">Khác</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="1">Nam</option>
+                                            <option value="0">Nữ</option>
+                                            <option selected value="2">Khác</option>
+                                        }
+                                    }
+
+                                </select>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Ngày sinh</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <input id="chonNgaySinh" style="border:none;background: white;display:none;" type="datetime-local" value="@thoigian" />
+                                @{
+                                    if (Model.NgaySinh != null)
+                                    {
+                                        <p id="ShowNgaySinh" class="text-muted mb-0">@Model.NgaySinh.Value.ToString("dd/MM/yyyy")</p>
+                                    }
+                                    else
+                                    {
+                                        <p id="ShowNgaySinh" class="text-muted mb-0"></p>
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Địa chỉ</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <input id="diaChi" style="border:none;width: 100%; background: white;" type="text" value="@Model.DiaChi" maxlength="50" disabled />
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Điểm tích</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <input style="border:none;width: 100%; background: white;" type="text" value="@Model.DiemTich" disabled />
+                            </div>
+                            <div class="col-sm-6">
+                                <button onclick="LichsuTichDiem()" type="button" class="btn btn-primary">Lịch sử tiêu điểm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <button id="Sua" type="button" onclick="SuaThongTinCN()" style="background-color: gray; border: none;" class="btn btn-primary">Sửa thông tin cá nhân</button>
+                    <button id="Luu" onclick="LuuThongTin()" style="display:none;" type="button" class="btn btn-primary">Lưu thông tin cá nhân</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    function LichsuTichDiem() {
+        location.href = 'LichSuTieuDiemTichDiem';
+    }
+    function SuaThongTinCN() {
+        var x = document.getElementById("ten").disabled;
+        document.getElementById("ten").disabled = false;
+        document.getElementById("email").disabled = false;
+        document.getElementById("sdt").disabled = false;
+        document.getElementById("gioiTinh").disabled = false;
+        document.getElementById("diaChi").disabled = false;
+        document.getElementById("ShowNgaySinh").style.display = "none";
+        document.getElementById("chonNgaySinh").style.display = "block";
+        document.getElementById("Sua").style.display = "none";
+        document.getElementById("Luu").style.display = "block";
+    }
+    function LuuThongTin() {
+        var ten = document.getElementById("ten").value;
+        var email = document.getElementById("email").value;
+        var sdt = document.getElementById("sdt").value;
+        var gioitinh = document.getElementById("gioiTinh").value;
+        var diachi = document.getElementById("diaChi").value;
+        var ngaysinh = document.getElementById("chonNgaySinh").value;
+
+        $.ajax({
+            async: true,
+            type: 'PUT',
+            dataType: "json",
+            data: { Ten: ten, Email: email, SDT: sdt, GioiTinh: gioitinh, NgaySinh: ngaysinh, DiaChi: diachi },
+            url: '/Home/UpdateProfile',
+            success: function (response) {
+                if (response.success == true) {
+                    toastr.success(response.message, 'Thông báo', { timeOut: 3000 });
+                    document.getElementById("ten").disabled = true;
+                    document.getElementById("email").disabled = true;
+                    document.getElementById("sdt").disabled = true;
+                    document.getElementById("gioiTinh").disabled = true;
+                    document.getElementById("diaChi").disabled = true;
+                    document.getElementById("ShowNgaySinh").style.display = "block";
+                    document.getElementById("chonNgaySinh").style.display = "none";
+                    document.getElementById("Sua").style.display = "block";
+                    document.getElementById("Luu").style.display = "none";
+                    document.getElementById("ShowNgaySinh").innerHTML = document.getElementById("chonNgaySinh").value;
+                    document.getElementById("tenanh").innerHTML = document.getElementById("ten").value;
+                    document.getElementById("helloTen").innerHTML = "Hello: " + document.getElementById("ten").value;
+                } else {
+                    toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+                }
+            },
+            error: function (response) {
+                console.log(response);
+                toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+            }
+        });
+    }
+</script>
+@await Html.PartialAsync("ChangePassword")

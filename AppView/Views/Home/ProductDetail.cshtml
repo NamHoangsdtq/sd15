@@ -1,0 +1,832 @@
+﻿@using AppData.ViewModels;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@model AppData.ViewModels.SanPham.ChiTietSanPhamViewModelHome
+@{
+    Layout = "_Layout";
+    var ListDanhGia = ViewData["ListDanhGia"] as PagedList<DanhGiaViewModel>;
+}
+<link href="~/css/productdetail.css" rel="stylesheet" type="text/css" />
+<style>
+    .icon-hover:hover {
+        border-color: #3b71ca !important;
+        background-color: white !important;
+        color: #3b71ca !important;
+    }
+
+    .pro-qty-2 input::-webkit-outer-spin-button,
+    .pro-qty-2 input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
+
+    .icon-hover:hover i {
+        color: #3b71ca !important;
+    }
+
+    #filter-color input[type="radio"], #filter-size input[type="radio"], #LoaiSpFilter input[type="radio"], #filter-material input[type="radio"], #sizes input[type="radio"] {
+        display: none;
+    }
+
+    #filter-color label input[type="radio"]:checked ~ span, #filter-size label input[type="radio"]:checked ~ span, #LoaiSpFilter label input[type="radio"]:checked ~ span, #filter-material label input[type="radio"]:checked ~ span, #sizes label input[type="radio"]:checked ~ span {
+        background: black;
+        color: #e5e5e5;
+    }
+
+    #filter-color label span, #filter-size label span, #filter-material label span, #LoaiSpFilter label span, #sizes label span {
+        color: #111111;
+        font-size: 15px;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+        border: 1px solid black;
+        padding: 6px 25px;
+        margin-bottom: 10px;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+
+    #tronMau label {
+        left: -3px;
+        top: -3px;
+        height: 36px;
+        width: 36px;
+        border: 1px solid #e5e5e5;
+        content: "";
+        border-radius: 30%;
+        border: 2px solid black;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+    }
+
+    #tronMau svg {
+        visibility: hidden
+    }
+
+    #tronMau input[type="radio"]:checked ~ label svg {
+        visibility: visible
+    }
+
+    #filter-color label span:hover, #filter-size label span:hover, #filter-material label span:hover, #LoaiSpFilter label span:hover, #sizes label span:hover {
+        background: black;
+        color: white;
+    }
+
+    .MoTa, .DanhGia {
+        background-color: white;
+        margin-top: 15px;
+        padding: 10px;
+    }
+
+    .stars-outer {
+        position: relative;
+        display: inline-block;
+    }
+
+    .stars-inner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 0;
+    }
+
+    .stars-outer::before {
+        content: "\f005 \f005 \f005 \f005 \f005";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        color: #ccc;
+    }
+
+    .stars-inner::before {
+        content: "\f005 \f005 \f005 \f005 \f005";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        color: #f8ce0b;
+    }
+
+    .thumbnail_images ul {
+        overflow-x: auto;
+        display: -webkit-inline-box;
+        margin-left: 70px;
+        margin-right: 70px;
+    }
+
+        .thumbnail_images ul::-webkit-scrollbar {
+            display: none;
+        }
+
+    .thumbnail_images {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .slide-button {
+        position: absolute;
+        transform: translateY(180%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 25px;
+        height: 25px;
+        color: white;
+        border: none;
+        outline: none;
+        background: black;
+        cursor: pointer;
+        border-radius: 50%;
+    }
+
+    #giaTKM {
+        display: inline-block;
+        min-width: 36px;
+        padding: 4px 10px;
+        margin-left: 15px;
+        background: #ff0000;
+        color: #fff;
+        text-transform: uppercase;
+        text-align: center;
+        font-weight: 600;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        border-radius: 10px;
+        vertical-align: text-bottom;
+        line-height: 1.5;
+        white-space: nowrap;
+    }
+</style>
+<div class="container mt-5 mb-5">
+    <div class="card py-4">
+        <div class="row g-0">
+            <div class="col-md-5 border-end p-3">
+                <div class="d-flex flex-column justify-content-center">
+                    <div class="main_image">
+                        <img src="" id="main_product_image" width="350">
+                    </div>
+                    <div class="thumbnail_images">
+
+                        <ul id="thumbnail">
+                            <button id="prev-slide" class="slide-button" style="left: 50px">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
+                                </svg>
+                            </button>
+                            @foreach (var x in Model.Anhs)
+                            {
+                                <li><img class="image-list" onclick="changeImage(this)" src="~/img/product/@x.DuongDan" style="width:70px;height:100px"></li>
+                            }
+                            <button id="next-slide" class="slide-button" style="right:50px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
+                                </svg>
+                            </button>
+                        </ul>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <span style="margin-top: 15px; font-size: 12px;">Sản phẩm đã bao gồm cả thuế VAT</span>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="p-3 right-side">
+                    <div class="d-flex justify-content-between">
+                        <h4 style="font-size:26px; font-weight:bold">@Model.Ten.ToUpper()</h4>
+                    </div>
+                    <div class="row my-2">
+                        <div class="col-6">
+                            Mã sản phẩm: <strong id="maSP">@Model.ChiTietSanPhams.First(x => x.TrangThai == 1).MaCTSP</strong>
+                        </div>
+                        <div class="col-6">
+                            <span>Tình trạng: <strong id="trangthai"></strong></span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column justify-content-start mt-2">
+                        <div class="d-flex flex-row">
+                            <div class="fw-bold">
+                                <span style="font-size:24px; font-weight:bold" id="giaCTSP">@Model.ChiTietSanPhams.First(x => x.TrangThai == 1).GiaBan.ToString("n0") VNĐ</span>
+                            </div>
+                            <div class="ms-auto p-2">
+                                <span id="giaTKM">@*- @Model.ChiTietSanPhams.First(x=>x.TrangThai==1).GiaTriKM*@</span>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <del style="color: #9e9e9e;"><h5 id="giaGoc" style="color: #9e9e9e;">@*@Model.ChiTietSanPhams.First(x=>x.TrangThai==1).GiaGoc.ToString("n0") VNĐ*@</h5></del>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-3">
+                        <span class="fw-bold">Màu Sắc:</span>
+                        <span id="color-name" style="margin-left: 5px; font-weight: bold;"></span>
+                        <div class="colors" id="filter-color">
+                            @foreach (var item in Model.MauSacs)
+                            {
+                                <label id="tronMau">
+                                    <input type="radio" class="btn-check" id="btn-check-outlined_@item.GiaTri" autocomplete="off" value="@item.ID" name="color" onclick="getMauSac(this)" />
+                                    <label for="btn-check-outlined_@item.GiaTri" style="background-color:@item.GiaTri;border:gray 1px solid;cursor:pointer" id="label_@item.ID">
+                                    </label>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="fw-bold">Kích cỡ</span>
+                        <div class="colors">
+                            <ul id="sizes" style="height:35px">
+                                @foreach (var item in Model.KichCos)
+                                {
+                                    @*<li style="width:70px;height:100%">
+                                <input type="radio" value="@item.GiaTri" name="kichco" class="btn btn-light" style="border:1px solid gray!important;width:100%;height:100%" id="@item.GiaTri" onclick="getKichCo(this)" />
+                                </li>*@
+                                    <label>
+                                        <input type="radio" class="btn-check" value="@item.GiaTri" id="rd_@item.GiaTri" autocomplete="off" name="kichco" onclick="getKichCo(this)" />
+                                        <span class="btn btn-outline-primary" for="rd_@item.GiaTri" id="label_@item.GiaTri">@item.GiaTri</span>
+                                    </label>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="fw-bold">Số lượng: <strong id="slSP">@Model.ChiTietSanPhams.First(x => x.TrangThai == 1).SoLuong</strong> sản phẩm có sẵn</span>
+                        <div class="colors">
+                            <ul id="sizes" style="height:35px">
+                                <td class="quantity__item">
+                                    <div class="quantity">
+                                        <div class="pro-qty-2">
+                                            <input id="sl" style="width: 50px; border: none; text-align: center;" type="number" value="1">
+                                        </div>
+                                    </div>
+                                </td>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="buttons d-flex flex-row mt-3">
+                        <div class="d-flex w-50 fw-bold pr-2 ">
+                            <button onclick="buyNow()" class="btn btn-block btn-outline-dark">MUA NGAY</button>
+                        </div>
+                        <div class="d-flex w-50 fw-bold pl-2">
+                            <button onclick="addCart()" class="btn btn-block btn-dark">THÊM VÀO GIỎ HÀNG</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*ssss*@
+
+    <section class="bg-light border-top py-4">
+        <div class="container">
+            <div class="row gx-4">
+                <div class="col-lg-8 mb-4">
+                    <div class="border rounded-2 px-3 py-2 bg-white">
+                        <!-- Pills navs -->
+                        <h3>MÔ TẢ SẢN PHẨM</h3>
+                        <!-- Pills navs -->
+                        <!-- Pills content -->
+                        <div class="tab-content" id="ex1-content">
+                            <div class="tab-pane fade show active" id="ex1-pills-1" role="tabpanel" aria-labelledby="ex1-tab-1">
+                                <p>
+                                    @Model.MoTa
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Pills content -->
+                    </div>
+                    <div class="border rounded-2 px-3 py-2 bg-white" style="margin-top:24px">
+                        <!-- Pills navs -->
+                        <h3>ĐÁNH GIÁ SẢN PHẨM</h3>
+                        <div class="container" style="border-top:1px solid;">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-6 text-center">
+                                            <h3 class="text-warning mt-4 mb-4">
+                                                @if (Model.SoSao.ToString() == "NaN")
+                                                {
+                                                    <b><span id="average_rating">0</span> / 5</b>
+                                                }
+                                                else
+                                                {
+                                                    <b><span id="average_rating">@Math.Round(Model.SoSao, 1)</span> / 5</b>
+                                                }
+
+                                            </h3>
+                                            <div class="mb-3">
+                                                <div id="Sao">
+                                                    <div class="stars-outer">
+                                                        <div class="stars-inner"></div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                        <div class="col-sm-6 text-center" style="display: flex; align-items: center; justify-content: center;">
+                                            <h3><span id="total_review">@Model.SoDanhGia</span> Đánh giá</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="danhgia">
+                           
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="mx-2" id="pagingsp">
+                                <ul id="pagination-demo" class="pagination-sm"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="rateYo"></div>
+
+                <div class="col-lg-4">
+                    <div class="px-0 border rounded-2 shadow-0">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">SẢN PHẨM TƯƠNG TỰ</h5>
+                                @{
+                                    foreach (var item in Model.LSTSPTuongTu)
+                                    {
+                                        <div class="d-flex mb-3">
+                                            <a asp-action="ProductDetail" asp-route-idSanPham="@item.IDSP" class="me-3">
+                                                <img src="~/img/product/@item.DuongDanSPTT" style="min-width: 96px; height: 96px;" class="img-md img-thumbnail" />
+                                            </a>
+                                            <div class="info">
+                                                <a href="#" class="nav-link mb-1">
+                                                    @item.TenSP <br />
+                                                </a>
+                                                <strong style="padding-left: 16px;" class="text-dark"> @item.GiaSPTT.ToString("n0") VNĐ</strong>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<script src="~/js/jquery-3.3.1.min.js"></script>
+<script>
+    var anhs = @Html.Raw(Json.Serialize(Model.Anhs));
+    var chiTietSanPhams = @Html.Raw(Json.Serialize(Model.ChiTietSanPhams));
+    var kichCos = @Html.Raw(Json.Serialize(Model.KichCos));
+    var mauSacs = @Html.Raw(Json.Serialize(Model.MauSacs));
+    var color = "";
+    var size = "";
+    $(document).ready(function () {
+        var chiTietSanPham = chiTietSanPhams.find(x => x.trangThai == 1);
+        color = chiTietSanPham.mauSac;
+        size = chiTietSanPham.kichCo;
+        console.log(chiTietSanPhams);
+        var anhMacDinh = anhs.find(x => x.maMau == color).duongDan;
+        document.getElementById("main_product_image").src = "/img/product/" + anhMacDinh;
+        if (chiTietSanPham.soLuong > 0) {
+            document.getElementById("trangthai").innerHTML = "Còn hàng"
+        } else {
+            document.getElementById("trangthai").innerHTML = "Hết hàng"
+        }
+        if (anhs.length <= 5) {
+            document.getElementById("next-slide").style.display = "none";
+            document.getElementById("prev-slide").style.display = "none";
+        }
+        document.getElementById("maSP").innerHTML = chiTietSanPham.maCTSP;
+        document.getElementById("slSP").innerHTML = chiTietSanPham.soLuong;
+        document.getElementById("giaCTSP").innerHTML = Intl.NumberFormat().format(chiTietSanPham.giaBan) + " " + "VNĐ";
+        if (chiTietSanPham.giaTriKM != null) {
+            document.getElementById("giaTKM").style.display = "block";
+            document.getElementById("giaGoc").innerHTML = Intl.NumberFormat().format(chiTietSanPham.giaGoc) + " " + "VNĐ";
+            if (chiTietSanPham.trangThaiKM == 0) {
+                document.getElementById("giaTKM").innerHTML = "-" + Intl.NumberFormat().format(chiTietSanPham.giaTriKM) + " " + "VNĐ";
+            } else if (chiTietSanPham.trangThaiKM == 1) {
+                document.getElementById("giaTKM").innerHTML = "-" + chiTietSanPham.giaTriKM + "%";
+            }
+        }
+        else {
+            document.getElementById("giaTKM").style.display = "none";
+        }
+
+        loadDGsp();
+        initslider();
+    });
+    const initslider = () => {
+        const imageList = document.querySelector("#thumbnail");
+        const slideButton = document.querySelectorAll(".slide-button");
+        //
+        slideButton.forEach(button => {
+            button.addEventListener("click", () => {
+                const direction = button.id === "prev-slide" ? - 1 : 1;
+                const scrollAmount = imageList.clientWidth * direction;
+                imageList.scrollBy({ left: scrollAmount, behavior: "smooth" });
+            });
+        });
+    }
+    function changeImage(element) {
+
+        var main_prodcut_image = document.getElementById('main_product_image');
+        main_prodcut_image.src = element.src;
+    }
+    function getMauSac(element) {
+        color = element.value;
+        for (let i = 0; i < kichCos.length; i++) {
+            var chiTietSP = chiTietSanPhams.find(x => x.mauSac == element.value && x.kichCo == kichCos[i].id);
+            console.log(chiTietSP);
+            if (typeof (chiTietSP) != "undefined") {
+                if (chiTietSP.soLuong > 0) {
+                    if (chiTietSP.trangThai > 0) {
+                        var giatrikichco = kichCos.find(x => x.id == chiTietSP.kichCo).giaTri;
+                        var giatrimausac = mauSacs.find(x => x.id == chiTietSP.mauSac).tenMau;
+                        document.getElementById("color-name").innerHTML = giatrimausac;
+                        document.getElementById("rd_" + giatrikichco).disabled = false;
+                        document.getElementById("rd_" + giatrikichco).checked = false;
+                        document.getElementById("trangthai").innerHTML = "Còn hàng";
+                        document.getElementById("label_" + giatrikichco).style.opacity = "1";
+                        document.getElementById("label_" + giatrikichco).style.cursor = "pointer";
+                    } else {
+                        var giatrikichco = kichCos.find(x => x.id == chiTietSP.kichCo).giaTri;
+                        // var giatrimausac = mauSacs.find(x => x.id == chiTietSP.mauSac).tenMau;
+                        // document.getElementById("color-name").innerHTML = giatrimausac;
+                        console.log(giatrikichco);
+                        document.getElementById("rd_" + giatrikichco).disabled = true;
+                        document.getElementById("rd_" + giatrikichco).checked = false;
+                        document.getElementById("label_" + giatrikichco).style.cursor = "no-drop";
+                        document.getElementById("label_" + giatrikichco).style.opacity = "0.5";
+                        document.getElementById("trangthai").innerHTML = "Hết hàng";
+                    }
+                } else {
+                    var giatrikichco = kichCos.find(x => x.id == chiTietSP.kichCo).giaTri;
+                    // var giatrimausac = mauSacs.find(x => x.id == chiTietSP.mauSac).tenMau;
+                    // document.getElementById("color-name").innerHTML = giatrimausac;
+                    console.log(giatrikichco);
+                    document.getElementById("rd_" + giatrikichco).disabled = true;
+                    document.getElementById("rd_" + giatrikichco).checked = false;
+                    document.getElementById("label_" + giatrikichco).style.cursor = "no-drop";
+                    document.getElementById("label_" + giatrikichco).style.opacity = "0.5";
+                    document.getElementById("trangthai").innerHTML = "Hết hàng";
+
+                }
+            } else {
+                var giatrikichco = kichCos.find(x => x.id == kichCos[i].id).giaTri;
+                // var giatrimausac = mauSacs.find(x => x.id == chiTietSP.mauSac).tenMau;
+                // document.getElementById("color-name").innerHTML = giatrimausac;
+                console.log(giatrikichco);
+                document.getElementById("rd_" + giatrikichco).disabled = true;
+                document.getElementById("rd_" + giatrikichco).checked = false;
+                document.getElementById("label_" + giatrikichco).style.cursor = "no-drop";
+                document.getElementById("label_" + giatrikichco).style.opacity = "0.5";
+                //document.getElementById("trangthai").innerHTML = "Hết hàng"
+            }
+
+        }
+        var chiTietSP = chiTietSanPhams.find(x => x.mauSac == element.value);
+        //console.log(chiTietSP);
+        var anh = anhs.find(x => x.maMau == element.value);
+        var lstMauSacElement = document.getElementById("filter-color").children;
+        for (let i = 0; i < lstMauSacElement.length; i++) {
+            // if (lstMauSacElement[i].children[1].style.border = "1px black solid") {
+                lstMauSacElement[i].children[1].style.border = "1px gray solid";
+                lstMauSacElement[i].children[1].style.boxShadow = "none";
+            // }
+        }
+        var label = document.getElementById("label_" + element.value);
+        label.style.border = "2px black solid";
+        label.style.boxShadow = "inset 0 0 0 2px white";
+        document.getElementById("main_product_image").src = "/img/product/" + anh.duongDan;
+        document.getElementById("maSP").innerHTML = chiTietSP.maCTSP;
+        document.getElementById("slSP").innerHTML = chiTietSP.soLuong;
+        document.getElementById("giaCTSP").innerHTML = Intl.NumberFormat().format(chiTietSP.giaBan) + " " + "VNĐ";
+        if (chiTietSP.soLuong > 0) {
+            if (chiTietSP.trangThai > 0) {
+                document.getElementById("trangthai").innerHTML = "Còn hàng";
+            } else {
+                document.getElementById("trangthai").innerHTML = "Hết hàng";
+            }
+        } else {
+            document.getElementById("trangthai").innerHTML = "Hết hàng";
+        }
+        if (chiTietSP.giaTriKM != null) {
+            document.getElementById("giaTKM").style.display = "block";
+            document.getElementById("giaGoc").style.display = "block";
+            document.getElementById("giaGoc").innerHTML = Intl.NumberFormat().format(chiTietSP.giaGoc) + " " + "VNĐ";
+            if (chiTietSP.trangThaiKM == 0) {
+                document.getElementById("giaTKM").innerHTML = "-" + Intl.NumberFormat().format(chiTietSP.giaTriKM) + " " + "VNĐ";
+            } else if (chiTietSP.trangThaiKM == 1) {
+                document.getElementById("giaTKM").innerHTML = "-" + chiTietSP.giaTriKM + "%";
+            }
+        }
+        else {
+            document.getElementById("giaTKM").style.display = "none";
+            document.getElementById("giaGoc").style.display = "none";
+        }
+    }
+    function getKichCo(element) {
+        size = kichCos.find(x => x.giaTri == element.value).id;
+        var chiTietSP = chiTietSanPhams.find(x => x.kichCo == size && x.mauSac == color);
+        document.getElementById("maSP").innerHTML = chiTietSP.maCTSP;
+        document.getElementById("slSP").innerHTML = chiTietSP.soLuong;
+        document.getElementById("giaCTSP").innerHTML = Intl.NumberFormat().format(chiTietSP.giaBan) + " " + "VNĐ";
+        if (chiTietSP.soLuong > 0) {
+            document.getElementById("trangthai").innerHTML = "Còn hàng";
+        } else {
+            document.getElementById("trangthai").innerHTML = "Hết hàng";
+        }
+        if (chiTietSP.giaTriKM != null) {
+            document.getElementById("giaTKM").style.display = "block";
+            document.getElementById("giaGoc").style.display = "block";
+            document.getElementById("giaGoc").innerHTML = Intl.NumberFormat().format(chiTietSP.giaGoc) + " " + "VNĐ";
+            if (chiTietSP.trangThaiKM == 0) {
+                document.getElementById("giaTKM").innerHTML = "-" + Intl.NumberFormat().format(chiTietSP.giaTriKM) + " " + "VNĐ";
+            } else if (chiTietSP.trangThaiKM == 1) {
+                document.getElementById("giaTKM").innerHTML = "-" + chiTietSP.giaTriKM + "%";
+            }
+        }
+        else {
+            document.getElementById("giaTKM").style.display = "none";
+            document.getElementById("giaGoc").style.display = "none";
+        }
+    }
+    function KichCo() {
+        var checkboxes = $('#sizes input[type="radio"]:checked')
+        var value = []
+        checkboxes.each(function () {
+            value.push($(this).attr('value'))
+        })
+        return value
+    }
+    function MauSac() {
+        var checkboxes = $('#filter-color input[type="radio"]:checked')
+        var value = []
+        checkboxes.each(function () {
+            value.push($(this).attr('value'))
+        })
+        return value
+    }
+    function addCart() {
+        var ctsp = chiTietSanPhams.find(p => p.maCTSP == document.getElementById("maSP").innerHTML);
+        var idctsp = ctsp.id;
+        var slctsp = ctsp.soLuong;
+        var kichco = KichCo();
+        var mausac = MauSac();
+        var soLuong = parseInt(document.getElementById("sl").value);
+        if (mausac.length === 0 || kichco.length === 0) {
+            toastr.error('Vui lòng chọn biến thể', 'Thông báo', { timeOut: 3000 });
+            return;
+        }
+
+        if (soLuong <= 0 || isNaN(soLuong)) {
+            toastr.error('Vui lòng đặt số lượng > 0', 'Thông báo', { timeOut: 3000 });
+            return;
+        }
+        // if (soLuong > 15) {
+        // toastr.error('Giới hạn đặt cho sản phẩm này dưới 15', 'Thông báo', { timeOut: 1000 });
+        // return;
+        // }
+        if (soLuong > slctsp) {
+            toastr.error('Số lượng không đủ, vui lòng giảm số lượng', 'Thông báo', { timeOut: 3000 });
+            return;
+        }
+
+        // Gọi AJAX thêm vào giỏ hàng
+        $.ajax({
+            async: true,
+            type: 'POST',
+            dataType: "json",
+            data: { id: idctsp, sl: soLuong, slcl: slctsp },
+            url: '/Home/AddToCart',
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message, 'Thông báo', { timeOut: 3000 });
+
+                    // Chỉ gọi AJAX cập nhật tổng số lượng nếu thêm giỏ hàng thành công
+                    $.ajax({
+                        async: true,
+                        type: 'POST',
+                        dataType: "json",
+                        data: { sl: soLuong },
+                        url: '/Home/TongSoLuong',
+                        success: function (response) {
+                            if (response.success) {
+                                $('#tongsoluong').text(response.sl);
+                            }
+                        },
+                        error: function () {
+                            toastr.error('Lỗi khi cập nhật tổng số lượng', 'Thông báo', { timeOut: 3000 });
+                        }
+                    });
+                } else {
+                    toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+                }
+            },
+            error: function () {
+                toastr.error('Lỗi khi thêm vào giỏ hàng', 'Thông báo', { timeOut: 3000 });
+            }
+        });
+    }
+    function buyNow() {
+    var ctsp = chiTietSanPhams.find(p => p.maCTSP == document.getElementById("maSP").innerHTML);
+    var idctsp = ctsp.id;
+    var slctsp = ctsp.soLuong;
+    var kichco = KichCo();
+    var mausac = MauSac();
+    var soLuong = parseInt(document.getElementById("sl").value);
+
+    if (mausac.length === 0 || kichco.length === 0) {
+        toastr.error('Vui lòng chọn biến thể', 'Thông báo', { timeOut: 3000 });
+        return;
+    }
+    if (soLuong <= 0 || isNaN(soLuong)) {
+        toastr.error('Vui lòng đặt số lượng > 0', 'Thông báo', { timeOut: 3000 });
+        return;
+    }
+    // if (soLuong > 15) {
+    // toastr.error('Giới hạn đặt cho sản phẩm này dưới 15', 'Thông báo', { timeOut: 1000 });
+    // return;
+    // }
+    if (soLuong > slctsp) {
+        toastr.error('Số lượng không đủ, vui lòng giảm số lượng', 'Thông báo', { timeOut: 3000 });
+        return;
+    }
+
+    // Gọi AJAX để mua ngay
+    $.ajax({
+        async: true,
+        type: 'POST',
+        dataType: "json",
+        data: { id: idctsp, soLuong: soLuong, slcl: slctsp },
+        url: '/Home/BuyNow',
+        success: function (response) {
+            if (response.success) {
+                toastr.success(response.message, 'Thông báo', { timeOut: 3000 });
+                // Cập nhật tổng số lượng nếu mua ngay thành công
+                $.ajax({
+                    async: true,
+                    type: 'POST',
+                    dataType: "json",
+                    data: { sl: soLuong },
+                    url: '/Home/TongSoLuong',
+                    success: function (response) {
+                        if (response.success) {
+                            $('#tongsoluong').text(response.sl);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Lỗi khi cập nhật tổng số lượng', 'Thông báo', { timeOut: 3000 });
+                    }
+                });
+
+                // Chuyển hướng tới trang giỏ hàng
+                location.href = 'ShoppingCart';
+            } else {
+                toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+            }
+        },
+        error: function () {
+            toastr.error('Lỗi khi thực hiện mua ngay', 'Thông báo', { timeOut: 3000 });
+        }
+    });
+}
+
+    // function buyNow() {
+    //     var ctsp = chiTietSanPhams.find(p => p.maCTSP == document.getElementById("maSP").innerHTML);
+    //     var idctsp = ctsp.id;
+    //     var kichco = KichCo();
+    //     var mausac = MauSac();
+    //     var soLuong = parseInt(document.getElementById("sl").value);
+    //     if (mausac.length != 0 && kichco.length != 0) {
+    //         if (ctsp.soLuong < soLuong) {
+    //             toastr.error('Số lượng không đủ vui lòng giảm số lượng', 'Thông báo', { timeOut: 1000 });
+    //         } else if (soLuong == 0 || isNaN(soLuong) == true) {
+    //             toastr.error('Vui lòng chọn số lượng > 0', 'Thông báo', { timeOut: 1000 });
+    //         } else {
+    //             $.ajax({
+    //                 async: true,
+    //                 type: 'POST',
+    //                 dataType: "json",
+    //                 data: { id: idctsp, soLuong: document.getElementById("sl").value },
+    //                 url: '/Home/BuyNow',
+    //                 success: function (response) {
+    //                     if (response.success == true) {
+    //                         location.href = 'ShoppingCart';
+
+    //                     } else {
+    //                         toastr.error(response.message, 'Thông báo', { timeOut: 1000 });
+    //                     }
+    //                 },
+    //                 error: function (response) {
+    //                     toastr.error(response.message, 'Thông báo', { timeOut: 1000 });
+    //                 }
+    //             });
+    //             $.ajax({
+    //                 async: true,
+    //                 type: 'POST',
+    //                 dataType: "json",
+    //                 data: { sl: document.getElementById("sl").value },
+    //                 url: '/Home/TongSoLuong',
+    //                 success: function (response) {
+    //                     if (response.success == true) {
+    //                         $('#tongsoluong').text(response.sl);
+
+    //                     } else {
+
+    //                     }
+    //                 },
+    //                 error: function (response) {
+
+    //                 }
+    //             });
+    //         }
+    //     } else {
+    //         toastr.error('Vui lòng chọn biến thể', 'Thông báo', { timeOut: 1000 });
+    //     }
+    // }
+    //----
+
+
+    // Total Stars
+    const starsTotal = 5;
+
+    // Run getRatings when DOM loads
+    document.addEventListener('DOMContentLoaded', getRatings);
+
+    // Init product
+    let product;
+
+    // Get ratings
+    function getRatings() {
+
+        // Get percentage
+        var starPercentage = @Model.sosaoPercent;
+        // Round to nearest 10
+        var starPercentageRounded = `${Math.round(starPercentage / 10) * 10}%`;
+        // Set width of stars-inner to percentage
+        document.querySelector(`#Sao .stars-inner`).style.width = starPercentageRounded;
+
+        // Add number rating
+        //document.querySelector(`.#review_content .number-rating`).innerHTML = ratings[rating];
+    }
+    var pageIndex = 1;
+    var pagesize = 5;
+    var idSP = '@Model.IDSanPham';
+    function loadDGsp() {
+        var request = { id: idSP, page: pageIndex, pageSize: pagesize };
+        $.ajax({
+            url: "/Home/ShowDanhGiabyIdSP",
+            type: "GET",
+            data: request,
+            success: function (response) {
+                $("#danhgia").empty();
+                console.log(response.data.length != 0);
+                if (response.data.length != 0) {
+                    $.each(response.data, function (i, item) {
+                        if (item.sao === 1) {
+                            $("#danhgia").append("<div class='container' style='border-top: 1px solid #dee2e6;padding-top: 15px;'> <div class='row' style='border-bottom:1px solid #dee2e6; padding-bottom: 20px; padding-top: 20px;'> <div class='col-2'> <h4 style='text-align: center; width: 60px; height: 60px; vertical-align: middle; background-color: gray; border-radius: 50%; display: table-cell;'>" + item.tenKH.substring(0, 1).toUpperCase() + "</h4> </div> <div class='col-10'> <div> <span>" + item.tenKH + "</span> </div><div><i class='fas fa-star text-warning'></i> <i class='fas fa-star star-light mr-1 main_star'></i><i class='fas fa-star star-light mr-1 main_star'></i><i class='fas fa-star star-light mr-1 main_star'></i><i class='fas fa-star star-light mr-1 main_star'></i></div> <div style='margin-top: 6px;' > <span style='color:gray'> " + new Date(item.ngayDanhGia).toLocaleString("en-GB") + " </span> </div > <div style='margin-top: 6px; ' > <span style='color:gray' > Chất liệu: </span>" + item.chatLieu + " </div > <div style='margin-top: 6px;' > <span style='color:gray' > Màu sắc: </span>" + item.mauSac + " </div > <div style='margin-top: 6px;' > <span style='color:gray' > Kích cỡ: </span>" + item.kichCo + " </div > <div style='margin-top: 6px; ' > <span>" + item.binhLuan + " </span> </div > </div> </div > </div>");
+                        } else if (item.sao === 2) {
+                            $("#danhgia").append("<div class='container' style='border-top: 1px solid #dee2e6;padding-top: 15px;'> <div class='row' style='border-bottom:1px solid #dee2e6; padding-bottom: 20px; padding-top: 20px;'> <div class='col-2'> <h4 style='text-align: center; width: 60px; height: 60px; vertical-align: middle; background-color: gray; border-radius: 50%; display: table-cell;'>" + item.tenKH.substring(0, 1).toUpperCase() + "</h4> </div> <div class='col-10'> <div> <span>" + item.tenKH + "</span> </div><div><i class='fas fa-star text-warning'></i> <i class='fas fa-star text-warning'></i> <i class='fas fa-star star-light mr-1 main_star'></i><i class='fas fa-star star-light mr-1 main_star'></i><i class='fas fa-star star-light mr-1 main_star'></i> </div> <div style='margin-top: 6px;' > <span style='color:gray'> " + new Date(item.ngayDanhGia).toLocaleString("en-GB") + " </span> </div > <div style='margin-top: 6px; ' > <span style='color:gray' > Chất liệu: </span>" + item.chatLieu + " </div > <div style='margin-top: 6px;' > <span style='color:gray' > Màu sắc: </span>" + item.mauSac + " </div > <div style='margin-top: 6px;' > <span style='color:gray' > Kích cỡ: </span>" + item.kichCo + " </div > <div style='margin-top: 6px; ' > <span>" + item.binhLuan + " </span> </div > </div> </div > </div>");
+                        }
+                        else if (item.sao === 3) {
+                            $("#danhgia").append("<div class='container' style='border-top: 1px solid #dee2e6;padding-top: 15px;'> <div class='row' style='border-bottom:1px solid #dee2e6; padding-bottom: 20px; padding-top: 20px;'> <div class='col-2'> <h4 style='text-align: center; width: 60px; height: 60px; vertical-align: middle; background-color: gray; border-radius: 50%; display: table-cell;'>" + item.tenKH.substring(0, 1).toUpperCase() + "</h4> </div> <div class='col-10'> <div> <span>" + item.tenKH + "</span> </div><div><i class='fas fa-star text-warning'></i> <i class='fas fa-star text-warning'></i> <i class='fas fa-star text-warning'></i> <i class='fas fa-star star-light mr-1 main_star'></i><i class='fas fa-star star-light mr-1 main_star'></i></div> <div style='margin-top: 6px;' > <span style='color:gray'> " + new Date(item.ngayDanhGia).toLocaleString("en-GB") + " </span> </div > <div style='margin-top: 6px; ' > <span style='color:gray' > Chất liệu: </span>" + item.chatLieu + " </div > <div style='margin-top: 6px;' > <span style='color:gray' > Màu sắc: </span>" + item.mauSac + " </div > <div style='margin-top: 6px;' > <span style='color:gray' > Kích cỡ: </span>" + item.kichCo + " </div > <div style='margin-top: 6px; ' > <span>" + item.binhLuan + " </span> </div > </div> </div > </div>");
+                        }
+                        else if (item.sao === 4) {
+                            $("#danhgia").append("<div class='container' style='border-top: 1px solid #dee2e6;padding-top: 15px;'> <div class='row' style='border-bottom:1px solid #dee2e6; padding-bottom: 20px; padding-top: 20px;'> <div class='col-2'> <h4 style='text-align: center; width: 60px; height: 60px; vertical-align: middle; background-color: gray; border-radius: 50%; display: table-cell;'>" + item.tenKH.substring(0, 1).toUpperCase() + "</h4> </div> <div class='col-10'> <div> <span>" + item.tenKH + "</span> </div><div><i class='fas fa-star text-warning'></i> <i class='fas fa-star text-warning'></i> <i class='fas fa-star text-warning'></i> <i class='fas fa-star text-warning'></i> <i class='fas fa-star star-light mr-1 main_star'></i></div> <div style='margin-top: 6px;' > <span style='color:gray'> " + new Date(item.ngayDanhGia).toLocaleString("en-GB") + " </span> </div > <div style='margin-top: 6px; ' > <span style='color:gray' > Chất liệu: </span>" + item.chatLieu + " </div > <div style='margin-top: 6px;' > <span style='color:gray' > Màu sắc: </span>" + item.mauSac + " </div > <div style='margin-top: 6px;' > <span style='color:gray' > Kích cỡ: </span>" + item.kichCo + " </div > <div style='margin-top: 6px; ' > <span>" + item.binhLuan + " </span> </div > </div> </div > </div>");
+                        }
+                        else if (item.sao === 5) {
+                            $("#danhgia").append("<div class='container' style='border-top: 1px solid #dee2e6;padding-top: 15px;'> <div class='row' style='border-bottom:1px solid #dee2e6; padding-bottom: 20px; padding-top: 20px;'> <div class='col-2'> <h4 style='text-align: center; width: 60px; height: 60px; vertical-align: middle; background-color: gray; border-radius: 50%; display: table-cell;'>" + item.tenKH.substring(0, 1).toUpperCase() + "</h4> </div> <div class='col-10'> <div> <span>" + item.tenKH + "</span> </div><div><i class='fas fa-star text-warning'></i> <i class='fas fa-star text-warning'></i> <i class='fas fa-star text-warning'></i> <i class='fas fa-star text-warning'></i> <i class='fas fa-star text-warning'></i> </div> <div style='margin-top: 6px;' > <span style='color:gray'> " + new Date(item.ngayDanhGia).toLocaleString("en-GB") + " </span> </div > <div style='margin-top: 6px; ' > <span style='color:gray' > Chất liệu: </span>" + item.chatLieu + " </div > <div style='margin-top: 6px;' > <span style='color:gray' > Màu sắc: </span>" + item.mauSac + " </div > <div style='margin-top: 6px;' > <span style='color:gray' > Kích cỡ: </span>" + item.kichCo + " </div > <div style='margin-top: 6px; ' > <span>" + item.binhLuan + " </span> </div > </div> </div > </div>");
+                        }
+
+                    });
+                    pagingsp(response.total, function () {
+                        loadDGsp();
+                    });
+                }
+            },
+            error: function (err) {
+                console.log('Error:', err);
+            }
+        });
+    }
+    function pagingsp(totalrow, callback) {
+        var totalgages = Math.ceil(totalrow / pagesize);
+        $("#pagingsp").twbsPagination({
+            totalPages: totalgages,
+            visiblePages: 7,
+            first: 'Đầu',
+            last: 'Cuối',
+            prev: 'Trước',
+            next: 'Tiếp',
+            onPageClick: function (event, page) {
+                pageIndex = page;
+                setTimeout(callback, 200);
+            }
+        });
+    }
+</script>
+<script src="https://kit.fontawesome.com/a75b73df5d.js" crossorigin="anonymous"></script>

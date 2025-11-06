@@ -1,0 +1,98 @@
+﻿@model AppView.PhanTrang.PhanTrangLSTD
+@{
+    ViewData["Title"] = "GetAllLSTDByIDKH";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    int stt = 1;
+}
+
+<h1>Lịch Sử Mua Hàng</h1>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                STT
+            </th>
+            <th>
+                Ngày Tích Hoặc Tiêu Điểm
+            </th>
+            <th>
+                Tên Khách Hàng
+            </th>
+            <th>
+                Số Điện Thoại
+            </th>
+            <th>
+                Số Điểm Tích Hoặc Tiêu
+            </th>
+            <th>
+                Điểm Tích Khách Hàng
+            </th>
+            <th>
+               Mã Hóa Đơn
+            </th>
+            <th>
+                Trạng Thái
+            </th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listLSTDs)
+        {
+            <tr>
+                <td>
+                    <strong style="color:black">@stt</strong>
+                </td>
+                <td>
+                    <strong style="color:green">@item.NgayTichOrTieuDiem</strong>
+                </td>
+                <td>
+                    <strong style="color:green">@item.TenKhachHang</strong>
+                </td>
+                <td>
+                    <strong style="color:black">@item.SDT</strong>
+                </td>
+                <td>
+                    <strong style="color:red">@item.SoDiemTichOrTieu</strong>
+                </td>
+
+                <td>
+                    <strong style="color:green">@item.DiemTichKH</strong>
+                </td>
+                <td>
+                    <strong style="color:green">@item.IDHoaDon</strong>
+                </td>
+                <td>
+                    @if (item.TrangThai == 0)
+                    {
+                        <strong style="color:red">Hết</strong>
+                    }
+                    else
+                    {
+                        <strong style="color:green ">Còn</strong>
+                    }
+                </td>
+               
+                @{
+                    stt++;
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="col-12">
+    <nav>
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled"><a class="page-link" href="#">Previous</span></a></li>
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item"><a class="page-link" href="/ThongKe/GetAllLSTDByIDKH?ProductPage=@i">@i</a></li>
+
+            }
+
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+    </nav>
+</div>

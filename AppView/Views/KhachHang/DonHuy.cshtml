@@ -1,0 +1,67 @@
+﻿@model AppView.PhanTrang.PhanTrangDon
+
+@{
+    ViewData["Title"] = "DonHuy";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    int stt = 1;
+}
+
+<h1 style="text-align:center"><b>Danh sách đơn </b></h1>
+
+
+<br />
+
+<table class="table" style="margin-left: 20px">
+    <thead>
+        <tr>
+            <th style=" background-color: darkslategray;
+    color: white;">STT</th>
+
+            <th style=" background-color: darkslategray;
+    color: white;">Mã hóa đơn</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Ngày thanh toán</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Số tiền</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listdon)
+        {
+            <tr>
+                <td>
+                    <strong style="color:black">@stt</strong>
+                </td>
+
+                <td>
+                    <div style="color:black">@item.MaDon</div>
+                </td>
+                <td>
+                    <div style="color:black">@item.NgayThanhToan</div>
+                </td>
+                <td>
+                    <div style="color:black">@item.SoTien.Value.ToString("n0") VND</div>
+                </td>
+
+                @{
+                    stt++;
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="col-12">
+    <nav>
+        <ul class="pagination justify-content-center">
+
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item"><a class="page-link" href="/KhachHang/DonHuy?ProductPage=@i">@i</a></li>
+
+            }
+
+
+        </ul>
+    </nav>
+</div>

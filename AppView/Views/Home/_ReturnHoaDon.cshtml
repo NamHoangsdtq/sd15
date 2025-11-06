@@ -1,0 +1,55 @@
+﻿@using AppData.ViewModels;
+@using AppData.ViewModels.SanPham;
+@model List<DonMuaViewModel>
+<div style="display:inherit;" id="AllHoaDon">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Mã đơn hàng</th>
+                <th scope="col">Ngày Đặt</th>
+                <th scope="col">Thành tiền</th>
+                <th scope="col">Trạng thái giao hàng</th>
+                <th scope="col">Điểm tích</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <th scope="row"><a asp-controller="Home" asp-action="PurchaseOrderDetail" asp-route-idHoaDon="@item.IDHoaDon">@item.IDHoaDon.ToString().Substring(0,8)</a></th>
+                    <td>@item.NgayTao</td>
+                    <td>@Convert.ToInt32(item.TongTien).ToString("n0") VNĐ</td>
+                    @if (item.TrangThaiGiaoHang == 2)
+                    {
+                        <td>Chờ xác nhận</td>
+                    }
+                    else if (item.TrangThaiGiaoHang == 3)
+                    {
+                        <td>Đang giao</td>
+                    }
+                    else if (item.TrangThaiGiaoHang == 6)
+                    {
+                        <td>Giao hàng thành công</td>
+                    }
+                    else if (item.TrangThaiGiaoHang == 7)
+                    {
+                        <td>Đơn hủy</td>
+                    }
+                    else
+                    {
+                        <td>Chờ xác nhận</td>
+                    }
+                    @if (item.TrangThaiLSTD == 1)
+                    {
+                        <td>@item.Diem</td>
+                    }
+                    else
+                    {
+                        <td>Người dùng sử dụng điểm</td>
+                    }
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

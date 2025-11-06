@@ -1,0 +1,108 @@
+﻿@model AppData.ViewModels.VoucherView
+
+@{
+    ViewData["Title"] = "Update";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+}
+
+<h1>Sửa Voucher</h1>
+
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form  asp-action="Updates" >
+            <div asp-validation-summary="ModelOnly" class="text-danger" ></div>
+            <div class="form-group"  hidden>
+                <label class="control-label">ID Voucher</label>
+                <input asp-for="Id" class="form-control" />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+            <div class="form-group" hidden>
+                <label class="control-label">Mã Voucher</label>
+                <input asp-for="Ten"  class="form-control" />
+                <span asp-validation-for="Ten" class="text-danger"></span>
+            </div>
+            @*<div class="form-group">
+                <label class="control-label">Loại giảm giá</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="hinhthucgiamgia" value="1" @(Model.HinhThucGiamGia== 1 ? "checked" : "")>
+                    <label class="form-check-label" for="flexRadioDefault1">
+                        Phần Trăm
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="hinhthucgiamgia" value="0" @(Model.HinhThucGiamGia == 0 ? "checked" : "")>
+                    <label class="form-check-label" for="flexRadioDefault2">
+                        Tiền Mặt
+                    </label>
+                </div>
+            </div>*@
+            
+
+            <div class="form-group">
+                <label class="control-label"> Số tiền cần</label>
+                <input asp-for="SoTienCan" class="form-control" />
+                <span  class="text-danger">@ViewData["SoTienCan"]</span>
+            </div>
+            @*@if (Model.HinhThucGiamGia == 0)
+            {
+                <div class="form-group">
+                    <label class="control-label"> Giảm theo tiền mặt</label>
+                    <input asp-for="GiaTri" class="form-control" />
+                    <span class="text-danger">@ViewData["GiaTri"]</span>
+                </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <label class="control-label"> Giảm theo phần trăm</label>
+                    <input asp-for="GiaTri" class="form-control" />
+                    <span class="text-danger">@ViewData["GiaTri"]</span>
+                </div>
+            }*@
+            <div class="form-group">
+                <label class="control-label">Ngày áp dụng</label>
+                <input asp-for="NgayApDung" class="form-control" />
+                <span class="text-danger">@ViewData["NgayApDung"]</span>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> Ngày kết thúc</label>
+                <input asp-for="NgayKetThuc" class="form-control" />
+                <span class="text-danger">@ViewData["NgayKetThuc"]</span>
+                <span class="text-danger">@ViewData["Ngay"]</span>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> Số lượng</label>
+                <input asp-for="SoLuong" class="form-control" />
+                <span class="text-danger">@ViewData["SoLuong"]</span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Mô tả</label>
+                <input asp-for="MoTa" class="form-control" />
+                <span asp-validation-for="MoTa" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="Sửa Voucher" class="btn btn-success" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<br />
+<button class="btn btn-primary">
+    <a asp-action="GetAllVoucher" style="color:white;">Quay lại</a>
+</button>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+     @*<script>
+            // JavaScript để quản lý trạng thái của radio buttons
+            document.addEventListener("DOMContentLoaded", function () {
+            var hinhthucgiamgia = @Model.HinhThucGiamGia;
+
+            document.querySelector('input[name="hinhthucgiamgia"][value="' + hinhthucgiamgia + '"]').checked = true;
+            });
+        </script>*@

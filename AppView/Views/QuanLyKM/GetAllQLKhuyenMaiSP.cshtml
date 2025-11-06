@@ -1,0 +1,183 @@
+﻿@using AppData.ViewModels
+@model AppView.PhanTrang.PhanTrangAllQLKMSP
+
+@{
+    ViewData["Title"] = "GetAllQLKhuyenMaiSP";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    AppData.Models.AssignmentDBContext Dbcontext = new AppData.Models.AssignmentDBContext();
+    List<KhuyenMaiView> listkms = ViewBag.KhuyenMaiView;
+    int stt = 1;
+}
+
+<h1>Quản Lý Khuyến Mãi Sản Phẩm </h1>
+<form asp-controller="QuanLyKM" asp-action="TimKiemSPByKM" method="get" enctype="multipart/form-data">
+    <div>
+        <select   name="idkhuyenmai" class="form-control" style="width:600px;height:40px">
+            if (idkhuyenmai == null)
+                        {
+                        <option value="">Chọn Mã Khuyến Mãi</option>
+                        }
+            @foreach (var loaisp in listkms.ToList())
+            {
+                <option  value="@loaisp.ID">@loaisp.Ten</option>
+            }
+            
+        </select>  
+        <select   name="idloaisp" class="form-control" style="width:600px;height:40px">
+            if (idloaisp == null)
+            {
+            <option value="">Chọn Tên Loại SP</option>
+            }
+            @foreach (var loaisp in Dbcontext.LoaiSPs.ToList())
+            {
+                <option  value="@loaisp.ID">@loaisp.Ten</option>
+            }
+            
+        </select>  
+
+        <select name="idchatlieu" class="form-control" style="width:600px;height:40px">
+            if (idchatlieu == null)
+                        {
+                        <option value="">Chọn Tên Chất Liệu</option>
+                        }
+            @foreach (var loaisp in Dbcontext.ChatLieus.ToList())
+            {
+                <option value="@loaisp.ID">@loaisp.Ten</option>
+            }
+
+        </select>
+    </div>
+   
+        <button type="submit" class="fa fa-search"></button>
+   
+
+</form>
+<br />
+<br />
+<br />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                STT
+            </th>
+            <th>
+                Tên Sản Phẩm 
+            </th>
+            <th>
+                Mô Tả 
+            </th>
+            <th>
+                Tên Ảnh
+            </th>
+          
+            <th>
+                Tổng số sao
+            </th>
+            <th>
+                Tổng đánh giá
+            </th>
+           
+            <th>
+                Giá Bán
+            </th>
+            <th>
+                Tên Loại SP
+            </th>
+            
+            <th>
+                Tên Chất Liệu
+            </th>
+            <th>
+                Trạng Thái
+            </th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.listallsp) {
+        <tr>
+            <td>
+                <strong style="color:black">@stt</strong>
+            </td>
+            <td>
+                    <strong style="color:black">@item.Ten</strong>
+            </td>
+            <td>
+                    <strong style="color:black">@item.MoTa</strong>
+            </td>
+            <td>
+                    <strong style="color:black">@item.TenAnh</strong>
+            </td>
+           
+            <td>
+                    <strong style="color:black">@item.TongSoSao</strong>
+            </td>
+            <td>
+                    <strong style="color:black">@item.TongDanhGia</strong>
+            </td>
+            
+            <td>
+                    <strong style="color:black">@item.GiaBan</strong>
+            </td>
+            
+           
+            <td>
+                    @{
+                        var tenloaisp = Dbcontext.LoaiSPs.FirstOrDefault(x => x.ID == item.IDLoaiSP);
+                        if(tenloaisp!=null){
+                            <strong style="color:black">@tenloaisp.Ten</strong>
+                        }
+                    }
+            </td>
+            <td>
+                    @{
+                        var tencl = Dbcontext.ChatLieus.FirstOrDefault(x => x.ID == item.IDChatLieu);
+                        if (tencl != null)
+                        {
+                            <strong style="color:black">@tencl.Ten</strong>
+                        }
+                    }
+            </td>
+                <td>
+                    @{
+                        if(item.TrangThai==0){
+                            <strong style="color:red">Hết Hàng</strong>
+                        }
+                        else{
+                            <strong style="color:green">Còn Hàng</strong>
+                        }
+                    }
+                </td>
+            <td>
+                   
+                    <button class="btn btn-primary">
+                        @Html.ActionLink("Chi tiết", "AddKHuyenMaiVoSP", new { id = item.ID }, new { @style = "color:white;" })
+                    </button>
+                   
+            </td>
+            @{
+                stt++;
+            }
+        </tr>
+}
+    </tbody>
+</table>
+<div class="col-12">
+    <nav>
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled"><a class="page-link" href="#">Previous</span></a></li>
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item"><a class="page-link" href="/QuanLyKM/GetAllQLKhuyenMaiSP?ProductPage=@i">@i</a></li>
+
+            }
+
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+    </nav>
+</div>
+<div>
+    <a asp-action="GetAllKM">Quay Lại</a>
+</div>

@@ -1,0 +1,141 @@
+﻿@model AppView.PhanTrang.PhanTrangLoaiSP
+@{
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/nv.css">
+
+    ViewData["Title"] = "Show";
+    AppData.Models.AssignmentDBContext dBContext = new AppData.Models.AssignmentDBContext();
+    int stt = 1;
+    string searchData = "";
+}
+
+<h1>
+    <b>Danh sách loại sản phẩm cha</b>
+</h1>
+<div class="row" style=" margin: 5px">
+    <div class="col-7">
+        <a class="btn btn-success" asp-action="Create">Thêm mới</a>
+    </div>
+    <div class="col-5">
+        <form asp-action="TimKiemLoaiSPTheoTen" asp-controller="LoaiSP" method="get" enctype="multipart/form-data" style="margin-left: 30px;text-align:end">
+            <input class="tk1" type="text" name="Ten" placeholder="Tìm kiếm theo tên " autocomplete="off" />
+            <input class="btn btn-outline-secondary" type="submit" value="Tìm kiếm" style="margin-bottom: 3px;" />
+        </form>
+    </div>
+    <div id="searchErrorMessage" class="alert alert-warning" role="alert" style="display: @(ViewData["SearchError"] != null ? "block" : "none") ; margin-top: 10px; margin-left: 11px">@ViewData["SearchError"]</div>
+</div>
+<table class="table" style="margin-left: 20px">
+    <thead style=" background-color: #3b83ff">
+        <tr>
+            <th style=" background-color: #3b83ff;
+    color: white;">STT</th>
+            <th style=" background-color: #3b83ff;
+    color: white;">Tên loại sản phẩm cha</th>
+            <th style=" background-color: #3b83ff;
+    color: white;">Trạng thái</th>
+            <th style=" background-color: #3b83ff"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listlsp)
+        {
+            <tr>
+                <td>
+                    @stt
+                </td>
+                <td>
+                    @if (item.IDLoaiSPCha == null) 
+                    {
+                        @Html.DisplayFor(modelItem => item.Ten)
+                    }
+                </td>
+                <td>
+                    @if (item.TrangThai == 0)
+                    {
+                        <div style="color:red">
+                            <div style="color:red">Không hoạt động </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="color:black">Hoạt động</div>
+                    }
+                </td>
+                <td style="text-align:end">
+                    <button class="btn btn-info " style="text-align:end">
+                        @Html.ActionLink("Sửa", "Edit", new { id= item.ID }, new { @style = "color:white;"})
+                    </button>
+                    <button class="btn btn-primary " style="text-align:end">
+                        @Html.ActionLink("Chi tiết", "GetLoaiSpById", new { id= item.ID }, new { @style = "color:white;"})
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="return confirm('Bạn có muốn dừng trạng thái Loại sản phẩm @item.Ten sang trạng thái @(item.TrangThai == 1 ? "Không hoạt động" : "Hoạt động") không?');">
+                        @Html.ActionLink("Dừng hoạt động", "Sua", new { id = item.ID }, new { @style = "color:white;" })
+                    </button>
+                </td>
+                @{
+                    stt++;
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<div style="display: flex; justify-content: center; margin: 0; padding: 0;">
+    <button disabled="@(Model.PagingInfo.CurrentPage == 1)" style="background-color: @(Model.PagingInfo.CurrentPage == 1 ? "#f5f5f5" : "transparent"); border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 0; margin: 0;">
+        <a style="text-decoration: none; color: black;" href="@Url.Action("Show", new { ProductPage = 1 })">Đầu</a>
+    </button>
+    @if (Model.PagingInfo.CurrentPage > 1)
+    {
+        <button style="background-color: @(Model.PagingInfo.CurrentPage - 1 == Model.PagingInfo.CurrentPage ? "#99CCFF" : "transparent"); border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 0; margin: 0;">
+            <a style="text-decoration: none; color: black;" href="@Url.Action("Show", new { ProductPage = Model.PagingInfo.CurrentPage - 1 })">Trước</a>
+        </button>
+    }
+    @for (int i = Math.Max(1, Model.PagingInfo.CurrentPage - 1); i <= Math.Min(Model.PagingInfo.TotalPages, Model.PagingInfo.CurrentPage + 1); i++)
+    {
+        <button style="background-color: @(i == Model.PagingInfo.CurrentPage ? "#99CCFF" : "transparent"); border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 0; margin: 0;">
+            <a style="text-decoration: none; color: black;" href="@Url.Action("Show", new { ProductPage = i })">@i</a>
+        </button>
+    }
+    @if (Model.PagingInfo.CurrentPage < Model.PagingInfo.TotalPages)
+    {
+        <button style="background-color: @(Model.PagingInfo.CurrentPage + 1 == Model.PagingInfo.CurrentPage ? "#99CCFF" : "transparent");border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 0; margin: 0;">
+            <a style="text-decoration: none; color: black;" href="@Url.Action("Show", new { ProductPage = Model.PagingInfo.CurrentPage + 1 })">Tiếp</a>
+        </button>
+    }
+    <button disabled="@(Model.PagingInfo.CurrentPage == Model.PagingInfo.TotalPages)" style="background-color: @(Model.PagingInfo.CurrentPage == Model.PagingInfo.TotalPages ? "#f5f5f5" : "transparent");border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 0; margin: 0;">
+        <a style="text-decoration: none; color: black;" href="@Url.Action("Show", new { ProductPage = Model.PagingInfo.TotalPages })">Cuối</a>
+    </button>
+</div>
+<script>
+    document.getElementById('searchForm').addEventListener('submit', function (event) {
+        // Lấy dữ liệu tìm kiếm từ biến toàn cục
+        var searchInput = document.querySelector('.tk1');
+        searchData = sessionStorage.getItem('searchData');
+        // Sử dụng dữ liệu tìm kiếm để thực hiện tìm kiếm
+        if (!searchInput.value.trim()) {
+            event.preventDefault(); // Prevent form submission if search input is empty
+            document.getElementById('searchErrorMessage').style.display = 'block';
+        } else {
+            var url = '/LoaiSP/SearchTheoTen?Ten=' + searchData;
+            window.location.href = url;
+        }
+    });
+
+    window.addEventListener('load', function (event) {
+        // Lấy dữ liệu tìm kiếm từ biến toàn cục
+        var searchInput = document.querySelector('.tk1');
+        searchData = sessionStorage.getItem('searchData');
+        // Nếu có dữ liệu tìm kiếm, thì điền dữ liệu đó vào ô tìm kiếm
+        if (searchData) {
+            searchInput.value = searchData;
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        // Nếu ấn backspace, thì load lại trang ban đầu
+        if (event.key === 'Backspace') {
+            var url = '/MauSac/Show';
+            window.location.href = url;
+        }
+    });
+
+</script>

@@ -1,0 +1,136 @@
+﻿@model AppView.PhanTrang.PhanTrangKhachHang
+
+@{
+    ViewData["Title"] = "GetAllKhachHang";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    int stt = 1;
+}
+
+<h1 style="text-align:center">
+    <b>Quản lý khách hàng</b>
+
+</h1>
+
+<div class="col-8">
+    <a class="btn btn-primary" asp-action="Create">Thêm mới</a>
+</div>
+<br />
+<form asp-action="GetAllKHTheoTimKiem" asp-controller="KhachHang" method="get" enctype="multipart/form-data">
+    <div class="input-group">
+        <input type="text" name="Ten" class="form-control" placeholder="Tìm kiếm  theo tên khách hàng ">
+        <input type="text" name="SDT" class="form-control" placeholder="Tìm kiếm theo SDT khách hàng">
+        <div class="input-group-append">
+            <span class="input-group-text bg-transparent text-primary">
+                <button type="submit" class="fa fa-search"></button>
+            </span>
+        </div>
+    </div>
+</form>
+<br />
+<table class="table">
+    <thead>
+        <tr>
+            <th style=" background-color: darkslategray;
+    color: white;">STT</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Tên</th>
+
+            <th style=" background-color: darkslategray;
+    color: white;">Giới tính</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Ngày sinh</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Email</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Địa chỉ</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Số điện thoại</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Điểm tích</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Trạng thái</th>
+            <th style=" background-color: darkslategray;
+    color: white;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listkh)
+        {
+            <tr>
+                <td>
+                    <strong style="color:black">@stt</strong>
+                </td>
+                <td>
+                    @item.Ten
+                </td>
+
+                <td>
+                    @if (item.GioiTinh == 0)
+                    {
+                        <div style="color:black">Nữ</div>
+                    }
+                    @if(item.GioiTinh == 1)
+                    {
+                        <div style="color:black">Nam</div>
+                    }
+                    @if (item.GioiTinh == null){
+                        <div style="color:green"></div>
+                    }
+                </td>
+                <td>
+                    @item.NgaySinh?.ToString("dd/MM/yyyy")
+                </td>
+                <td>
+                    <div>@item.Email</div>
+                </td>
+                <td>
+                    @item.DiaChi
+                </td>
+                <td>
+                    @item.SDT
+                </td>
+                <td>
+                    <div style="color:green"> @item.DiemTich</div>
+                </td>
+                <td>
+                    @if (item.TrangThai == 0)
+                    {
+                        <div style="color:red">Không Hoạt Động</div>
+                    }
+                    else
+                    {
+                        <div style="color:green">Hoạt Động</div>
+                    }
+                </td>
+                <td>
+                    <button class="btn btn-success">
+                        @Html.ActionLink("Sửa", "Updates", new { id = item.IDKhachHang }, new { @style = "color:white;" })
+                    </button>
+                    <button class="btn btn-primary">
+                        @Html.ActionLink("Xem lịch sử", "GetAllLSTDByIDKH", new { id = item.IDKhachHang }, new { @style = "color:white;" })
+                    </button>
+                    @*<button class="btn btn-danger">
+                @Html.ActionLink("Xóa", "Delete", new { id = item.IDKhachHang }, new { @style = "color:white;" })
+                </button>*@
+                </td>
+                @{
+                    stt++;
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="col-12">
+    <nav>
+        <ul class="pagination justify-content-center">
+
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item"><a class="page-link" href="/KhachHang/GetAllKhachHang?ProductPage=@i">@i</a></li>
+
+            }
+
+
+        </ul>
+    </nav>
+</div>

@@ -1,0 +1,173 @@
+﻿@using AppData.Models
+@{
+    var lstLSP = ViewData["lstLSP"] as List<LoaiSP>;
+    <style>
+        input[type="checkbox"]:not(:first-child) {
+            margin-left: 20px;
+        }
+
+        input[type="checkbox"] {
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        label {
+            font-family: "Poppins",sans-serif;
+            font-weight: 500;
+            color: #1f194c;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+    </style>
+}
+<div class="card d-flex flex-column h-100">
+    <div class="overflow-auto scroll-cthd p-3" style="height:700px">
+        <div class="accordion accordion-flush" id="faq-group-1">
+            <div class="accordion-item pb-2">
+                <h2 class="accordion-header text-white fw-bolder px-3" style="background:#7690DA">
+                    <button class="accordion-button collapsed" data-bs-target="#faqsOne-1" type="button" data-bs-toggle="collapse">
+                        <span class="text-white fw-bolder">DANH MỤC HÀNG</span>
+                    </button>
+                </h2>
+                <div id="faqsOne-1" class="accordion-collapse collapse show px-3 py-1" data-bs-parent="#faq-group-1">
+                    @foreach (var item in lstLSP.Where(c => c.IDLoaiSPCha == null))
+                    {
+                        <div class="accordion-body">
+                            <input type="checkbox" id="@item.ID" onchange="checkAll(this)">
+                            <label><span>@item.Ten.ToUpper()</span></label>
+                            <br>
+                            @foreach (var lspc in lstLSP.Where(c => c.IDLoaiSPCha == @item.ID))
+                            {
+                                <div class="form-check">
+                                    <input type="checkbox" id="@lspc.ID" name="dm" data-dm="@lspc.IDLoaiSPCha">
+                                    <label for="option-a">@lspc.Ten</label>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="accordion accordion-flush" id="faq-group-2">
+            <div class="accordion-item pb-1">
+                <h2 class="accordion-header text-white fw-bolder px-3" style="background:#7690DA">
+                    <button class="accordion-button collapsed" data-bs-target="#faqsOne-2" type="button" data-bs-toggle="collapse">
+                        <span class="text-white fw-bolder">GIÁ SẢN PHẨM</span>
+                    </button>
+                </h2>
+                <div id="faqsOne-2" class="accordion-collapse collapse show px-3 py-1" data-bs-parent="#faq-group-2">
+                    <div class="accordion-body">
+                        <div class="form-check">
+                            <input type="radio" name="kgia" id="1">
+                            <label for="option-a">Dưới 100,000</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="kgia" id="2">
+                            <label for="option-a">100,000 - 200,000</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="kgia" id="3">
+                            <label for="option-a">200,000 - 300,000</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="kgia" id="4">
+                            <label for="option-a">300,000 - 400,000</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="kgia" id="5">
+                            <label for="option-a">400,000 - 500,000</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="kgia" id="6">
+                            <label for="option-a">Trên 500,000</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-auto d-flex">
+        <button class="btn btn-outline-primary w-50 m-2" onclick="resetFilter()">THIẾT LẬP LẠI</button>
+        <button class="btn btn-primary w-50 m-2 " onclick="loc()">ÁP DỤNG</button>
+    </div>
+</div><!-- End F.A.Q Group 1 -->
+<script>
+    $(document).ready(function(){
+
+    })
+    //Reset trạng thái
+    function resetFilter(){
+        $("#locspbody").load("/BanHangTaiQuay/ShowFilterSP");
+    }
+    // Chọn tất cả
+    function checkAll(myCheckbox){
+        var id = myCheckbox.getAttribute('id');
+        var checkboxes = document.querySelectorAll('input[data-dm="' + id + '"]');
+        if(myCheckbox.checked == true){
+            checkboxes.forEach(function(checkbox){
+                checkbox.checked = true;
+            });
+        }
+        else{
+            checkboxes.forEach(function(checkbox){
+                checkbox.checked = false;
+            });
+        }
+    }
+    function loc(){
+        $('#pagingsp').twbsPagination('destroy');
+        filterSP();
+    }
+    // Loc
+    function filterSP(){
+        let lstdm = [];
+        let checkedInputs = document.querySelectorAll('input[type="checkbox"][name="dm"]:checked');
+        checkedInputs.forEach(function(checkedInput) {
+          let idValue = checkedInput.getAttribute('id');
+          lstdm.push(idValue);
+        });
+        let locgia = $('input[name="kgia"]:checked').attr('id');
+        console.log(locgia);
+        let request = {lstDM: lstdm, pageSize: pageSizesp,page: pageIndexsp, khoangGia : locgia};
+        $.ajax({
+             url: "/BanHangTaiQuay/LocSP",
+             type: "POST",
+             dataType: "json",
+             data: request,
+             success: function(response) {
+               $("#locsp").modal("hide");
+               $(".product-list").empty();
+               if(response.data.length === 0){
+                 var html = `
+                             <span>Không có sản phẩm nào</span>
+                            `;
+                 $(".product-list").append(html);
+               }else{
+                        for (let i = 0; i < response.data.length; i++) {
+                            $(".product-list").append(`
+                                                        <li class="product-item d-flex flex-row" onclick="showSPDetail('${response.data[i].id}')">
+                                                                <div class="product-img">
+                                                                    <img src="/img/product/${response.data[i].anh}" class="img-fluid rounded-start" alt="...">
+                                                                </div>
+                                                                <div class="product-detail d-flex flex-column flex-grow-1">
+                                                                    <span class="product-name mt-1">${response.data[i].ten}</span>
+                                                                    <div class="product-infor mt-auto">
+                                                                        <span style="flex-basis:100%"><b style="color:blue;font-size:14px; font-weight:700">${response.data[i].giaBan.toLocaleString()}</b></span>
+
+                                                                    </div>
+                                                                </div>
+                                                        </li>
+                                                        `);
+                        }
+                        pagingsp(response.total, function(){
+                            filterSP();
+                        });
+               }
+             },
+             error: function(err) {
+                 console.log('Error:', err);
+             }
+         });
+
+    }
+</script>

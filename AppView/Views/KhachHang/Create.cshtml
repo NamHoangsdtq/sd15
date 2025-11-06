@@ -1,0 +1,99 @@
+﻿@model AppData.ViewModels.KhachHangView
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    AppData.Models.AssignmentDBContext dbcontext = new AppData.Models.AssignmentDBContext();
+}
+
+<h1>Thêm khách hàng</h1>
+
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="form-group">
+                <label  class="control-label">Tên khách hàng</label>
+                <input asp-for="Ten" class="form-control" />
+                <span asp-validation-for="Ten" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label  class="control-label">Mật khẩu </label>
+                <input type="password" asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+                <span class="text-danger">@ViewBag.MatKhau</span>
+              
+                
+            </div>
+            <div class="form-group">
+                <label class="control-label">Nhập lại mật khẩu </label>
+                <input type="password" name="nhaplai" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+                
+                <span class="text-danger">@ViewBag.NhapLai</span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Giới tính</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gioiTinh" value="1" asp-for="GioiTinh">
+                    <label class="form-check-label" for="flexRadioDefault1">
+                        Nam
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gioiTinh" value="0" asp-for="GioiTinh">
+                    <label class="form-check-label" for="flexRadioDefault2">
+                        Nữ
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label  class="control-label">Ngày sinh</label>
+                <input asp-for="NgaySinh" class="form-control" />
+               
+            </div>
+            <div class="form-group">
+                <label  class="control-label">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+                <span class="text-danger">@ViewBag.email</span>
+               
+               
+            </div>
+            <div class="form-group">
+                <label  class="control-label">Địa chỉ</label>
+                <input asp-for="DiaChi" class="form-control" />
+                <span asp-validation-for="DiaChi" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label  class="control-label">Số điện thoại</label>
+                <input asp-for="SDT" class="form-control" />
+                <span asp-validation-for="SDT" class="text-danger"></span>
+                <span class="text-danger">@ViewBag.SDT</span>
+                
+               
+            </div>
+            @*<div class="form-group">
+                <label class="control-label">Điểm tích</label>
+                <input asp-for="DiemTich" class="form-control" />
+                <span asp-validation-for="DiemTich" class="text-danger"></span>
+            </div>*@
+            <div class="form-group">
+                <input type="submit" value="Thêm khách hàng" class="btn btn-success" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<br />
+<button class="btn btn-primary">
+    <a asp-action="GetAllKhachHang" style="color:white;">Quay lại</a>
+</button>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+    

@@ -1,0 +1,162 @@
+﻿@model AppView.PhanTrang.PhanTrangAllQLKMSP
+
+@{
+    ViewData["Title"] = "GetSPNoKM";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    AppData.Models.AssignmentDBContext Dbcontext = new AppData.Models.AssignmentDBContext();
+    int stt = 1;
+    var idkm = ViewBag.IdKhuyenMai;
+    List<string> imageExtensions = new List<string>()
+    {
+         ".png", ".jpg", ".jpeg", ".gif", ".tiff", ".pdf",".webp",".jfif"
+    };
+}
+<form asp-controller="QuanLyKM" asp-action="GetSPNoKMLoaiSPCL" method="get" enctype="multipart/form-data">
+    <div>
+        
+        <select name="idloaisp" class="form-control" style="width:600px;height:40px">
+            if (idloaisp == null)
+            {
+            <option value="">Chọn tên loại sản phẩm</option>
+            }
+            @foreach (var loaisp in Dbcontext.LoaiSPs.ToList())
+            {
+                <option value="@loaisp.ID">@loaisp.Ten</option>
+            }
+
+        </select>
+
+        <select name="idchatlieu" class="form-control" style="width:600px;height:40px">
+            if (idchatlieu == null)
+            {
+            <option value="">Chọn tên chất liệu</option>
+            }
+            @foreach (var loaisp in Dbcontext.ChatLieus.ToList())
+            {
+                <option value="@loaisp.ID">@loaisp.Ten</option>
+            }
+
+        </select>
+    </div>
+
+    <button type="submit" class="fa fa-search"></button>
+
+
+</form>
+<br />
+<br />
+<br />
+<table class="table" style="margin-left: 20px">
+    <thead>
+        <tr>
+            <th style=" background-color: darkslategray;
+    color: white;">STT</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Mã sản phẩm</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Tên sản phẩm</th>
+
+
+            <th style=" background-color: darkslategray;
+    color: white;">Tên ảnh</th>
+
+
+            <th style=" background-color: darkslategray;
+    color: white;">Giá bán</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Tên loại sản phẩm</th>
+
+            <th style=" background-color: darkslategray;
+    color: white;">Tên chất liệu</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Trạng thái</th>
+            <th style=" background-color: darkslategray;
+    color: white;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listallsp)
+        {
+            <tr>
+                <td>
+                    <strong style="color:black">@stt</strong>
+                </td>
+                <td>
+                    <div style="color:black">@item.MaSP</div>
+                </td>
+                <td>
+                    <div style="color:black">@item.Ten</div>
+                </td>
+
+                <td>
+                    <img src="~/img/product/@item.TenAnh" style="width:70px;height:70px" />
+                </td>
+
+
+                <td>
+                    <div style="color:black">@item.GiaBan.ToString("n0") VND</div>
+                </td>
+
+
+                <td>
+                    @{
+                        var tenloaisp = Dbcontext.LoaiSPs.FirstOrDefault(x => x.ID == item.IDLoaiSP);
+                        if (tenloaisp != null)
+                        {
+                            <div style="color:black">@tenloaisp.Ten</div>
+                        }
+                    }
+                </td>
+                <td>
+                    @{
+                        var tencl = Dbcontext.ChatLieus.FirstOrDefault(x => x.ID == item.IDChatLieu);
+                        if (tencl != null)
+                        {
+                            <div style="color:black">@tencl.Ten</div>
+                        }
+                    }
+                </td>
+                <td>
+                    @{
+                        if (item.TrangThai == 0)
+                        {
+                            <div style="color:red">không sử dụng </div>
+                        }
+                        else
+                        {
+                            <div style="color:green">Sử dụng</div>
+                        }
+                    }
+                </td>
+                <td>
+
+                    <button class="btn btn-primary">
+                        @Html.ActionLink("Chi tiết", "AddCTSPByIdKMLayTuSession", new { id = item.ID }, new { @style = "color:white;" })
+                    </button>
+
+                </td>
+                @{
+                    stt++;
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="col-12">
+    <nav>
+        <ul class="pagination justify-content-center">
+           
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item"><a class="page-link" href="/QuanLyKM/GetSpNoKM?ProductPage=@i">@i</a></li>
+
+            }
+
+           
+        </ul>
+    </nav>
+</div>
+<button class="btn btn-primary">
+    @Html.ActionLink("Quay lại", "GetSPByIdKM", new { ID= idkm }, new { @style = "color:white;" })
+</button>
+

@@ -1,0 +1,410 @@
+﻿@{
+    ViewData["Title"] = "5Ting-Hóa đơn";
+}
+<div class="d-flex flex-row align-items-stretch" style="background:rgba(1, 41, 112, 0.1);">
+    <div class="d-flex flex-column me-2" style="width:330px;">
+        <div class="d-flex align-items-center p-3" style="height:80px">
+            <h3 class="heading-page">
+                <span><b>Hóa đơn</b></span>
+            </h3>
+        </div>
+        <!--Thời gian-->
+        <div class="container mt-2 fixed">
+            <div class="radiothoigian">
+                <span class="btn-text">Thời gian</span> <span id="timepicker1"><i class="bx bxs-calendar" style="color:#000; font-size:22px;"></i></span>
+                <div class="content">
+                    <label class="box first">
+                        <div class="plan">
+                            <span>Bắt đầu: </span><span class="p-1" id="bdau" style="font-weight:600"></span>
+                        </div>
+                    </label>
+
+                    <label for="one" class="box first">
+                        <div class="plan">
+                            <span>Kết thúc: </span><span class="p-1" id="ketthuc" style="font-weight:600"> </span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <!--Lọc trạng thái-->
+        <div class="container mt-2 fixed">
+            <div class="select-btn" id="select-trangThai">
+                <span class="btn-text">Trạng thái</span>
+                <span class="arrow-dwn">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </span>
+            </div>
+            <ul class="list-items tt">
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="2"></i>
+                    </span>
+                    <span class="item-text">Chờ xác nhận</span>
+                </li>
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="10"></i>
+                    </span>
+                    <span class="item-text">Đang đóng hàng</span>
+                </li>
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="3"></i>
+                    </span>
+                    <span class="item-text">Đang giao hàng</span>
+                </li>
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="11"></i>
+                    </span>
+                    <span class="item-text">Giao hàng không thành công</span>
+                </li>
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="6"></i>
+                    </span>
+                    <span class="item-text">Thành công</span>
+                </li>
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="8"></i>
+                    </span>
+                    <span class="item-text">Chờ xác nhận hủy</span>
+                </li>
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="7"></i>
+                    </span>
+                    <span class="item-text">Đơn hủy</span>
+                </li>
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="9"></i>
+                    </span>
+                    <span class="item-text">Chờ xác nhận hoàn hàng</span>
+                </li>
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="4"></i>
+                    </span>
+                    <span class="item-text">Đang hoàn hàng</span>
+                </li>
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="5"></i>
+                    </span>
+                    <span class="item-text">Hoàn hàng thành công</span>
+                </li>
+            </ul>
+        </div>
+        <!--Lọc kênh bán-->
+        <div class="container mt-2 fixed">
+            <div class="select-btn" id="select-kenh">
+                <span class="btn-text">Kênh bán</span>
+                <span class="arrow-dwn">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </span>
+            </div>
+            <ul class="list-items kb">
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="1"></i>
+                    </span>
+                    <span class="item-text">Bán tại quầy</span>
+                </li>
+                <li class="item">
+                    <span class="checkbox">
+                        <i class="fa-solid fa-check check-icon" data-value="0"></i>
+                    </span>
+                    <span class="item-text">Website</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!--DANH SÁCH HÓA ĐƠN-->
+    <div class="d-flex flex-column p-3 bg-white flex-grow-1 ">
+        <div class="d-flex flex-row p-1 bg-white align-items-center">
+            <div class="d-flex me-auto" style="justify-content:center">
+                <div class="searchhd">
+                    <div class="dropdown">
+                        <div class="defaultOption"><span id="searchtype">Hóa đơn</span> <i class="bi bi-caret-down-fill ms-auto"></i></div>
+
+                        <ul class="ul chonkieu">
+                            <li data-value="1">Hóa đơn</li>
+                            <li data-value="2">Khách hàng</li>
+                        </ul>
+                    </div>
+                    <div class="searchField">
+                        <input type="text" class="input" id="inputhd" autocomplete="off" placeholder="Nhập mã hóa đơn, SĐT đặt hàng">
+                        <div class="btnsearch" onclick="timKiemHD()">
+                            <i class="fa fa-search"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+        <div class="d-flex flex-column mt-2">
+            <table class="table table-hover table-bordered tbbills" align=center cellpadding=10>
+                <thead>
+                    <tr>
+                        <th scope="col">Mã hóa đơn</th>
+                        <th scope="col">Thời gian</th>
+                        <th scope="col">Khách hàng</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col" class="text-center">Loại HD</th>
+                        <th scope="col" class="text-end">Tổng tiền hàng</th>
+                        @*<th scope="col" class="text-end">Voucher</th>*@
+                        <th scope="col" class="text-end">Khách đã trả</th>
+                    </tr>
+                </thead>
+                <tbody id="billRecord">
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex ms-auto" style="justify-content:center">
+            <ul id="pagination-demo" class="pagination mx-2 my-2"></ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="chitiethd" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content cthdcontent">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Chi tiết hóa đơn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body cthd-body">
+            </div>
+            @* <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>*@
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    var pageSizehd = 10; // Tối đa 10sp 1 trang
+    var pageIndexhd = 1;
+    var selectTT = $("#select-trangThai");
+    var selectKB = $("#select-kenh");
+    var itemtt = document.querySelectorAll('.tt .item');
+    var itemkb = document.querySelectorAll('.kb .item');
+
+    $(document).ready(function () {
+        LoadPage();
+    });
+    // Load trang
+    function LoadPage() {
+        $('#pagination-demo').twbsPagination('destroy');
+        loadBill();
+    }
+    //Chọn loại tìm kiếm hóa đơn
+    var defaultOption = document.querySelector('.defaultOption');
+    var ul = document.querySelector('.ul');
+    defaultOption.onclick = function () {
+        ul.classList.toggle("active");
+    }
+    // Chọn kiểu tìm kiếm
+    $(".chonkieu li").each(function () {
+        $(this).on("click", function () {
+            var value = $(this).text();
+            var loaitk = $(this).data('value');
+            $("#searchtype").text(value);
+
+            if (loaitk === 1) {
+                $("#inputhd").attr("placeholder", "Nhập mã hóa đơn, SĐT đặt hàng");
+            } else {
+                $("#inputhd").attr("placeholder", "Nhập tên, SĐT khách hàng");
+            }
+            ul.classList.toggle("active");
+        })
+    })
+    // Drop down trạng thái
+    selectTT.toggleClass("open");
+    selectTT.on("click", function () {
+        $(this).toggleClass("open");
+    });
+    // Dropdown Kênh bán
+    selectKB.toggleClass("open");
+    selectKB.on("click", function () {
+        $(this).toggleClass("open");
+    });
+
+    itemtt.forEach(item => {
+        item.addEventListener("click", () => {
+            item.classList.toggle("checked");
+            LoadPage();
+        })
+    })
+    itemkb.forEach(item => {
+        item.addEventListener("click", () => {
+            item.classList.toggle("checked");
+            LoadPage();
+        })
+    })
+    function getCheckedValues(checkboxes) {
+        const checkedValues = [];
+        checkboxes.forEach(checkbox => {
+            if (checkbox.classList.contains('checked')) {
+                const icon = checkbox.querySelector('i');
+                const value = icon.getAttribute('data-value');
+                checkedValues.push(value);
+            }
+        });
+        return checkedValues;
+    }
+    //TimKiemHD
+    function timKiemHD() {
+        LoadPage();
+    }
+    // Load danh sách hóa đơn
+    function loadBill() {
+        let lsttt = getCheckedValues(itemtt);
+        let lstkb = getCheckedValues(itemkb);
+        let tgbd = $("#bdau").text();
+        let tgkt = $("#ketthuc").text();
+        let keyWord = $("#inputhd").val();
+        let loaitimkiem = 1;
+        if ($("#searchtype").text() == "Khách hàng") {
+            loaitimkiem = 2;
+        };
+        var request = { loaiHD: lstkb, lstTT: lsttt, pageSize: pageSizehd, page: pageIndexhd, loaitk: loaitimkiem, keyWord: keyWord, ngaybd: tgbd, ngaykt: tgkt };
+        $.ajax({
+            url: "/QuanLyHoaDon/LoadAllHoaDon",
+            type: "POST",
+            dataType: "json",
+            data: request,
+            success: function (response) {
+                if (response.data.length !== 0) {
+                    $("#billRecord").empty();
+                    var html = '';
+                    if (pageIndexhd === 1) {
+                        html = `
+                                    <tr>
+                                        <td colspan="6" class="text-end fw-bold">
+                                            ${Intl.NumberFormat().format(response.tienhang)}
+                                        </td>
+
+                                        <td class="text-end fw-bold">
+                                             ${Intl.NumberFormat().format(response.khachtra)}
+                                        </td>
+                                    </tr>
+                                    `;
+                    }
+                    for (let i = 0; i < response.data.length; i++) {
+                        const thoiGian = response.data[i].thoiGian;
+                        const formattedDate = new Date(thoiGian).toLocaleDateString("en-GB");
+                        html += `
+                                   <tr onclick="billDetail('${response.data[i].id}');">
+                                   <th scope="row">${response.data[i].maHD}</th>
+                                   <td>${new Date(response.data[i].thoiGian).toLocaleString("en-GB")}</td>
+                                   <td>${response.data[i].khachHang}</td>
+                                   <td>
+                                       ${response.data[i].trangThai === 2 ? '<label class="badge bg-info">Chờ xác nhận</label>' :
+                                response.data[i].trangThai === 10 ? '<label class="badge bg-info">Đang đóng hàng</label>' :
+                                    response.data[i].trangThai === 3 ? '<label class="badge bg-primary">Đang giao hàng</label>' :
+                                        response.data[i].trangThai === 11 ? '<label class="badge bg-primary">Giao hàng không thành công</label>' :
+                                        response.data[i].trangThai === 4 ? '<label class="badge bg-danger">Đang hoàn hàng</label>' :
+                                            response.data[i].trangThai === 5 ? '<label class="badge bg-danger">Hoàn hàng thành công</label>' :
+                                                response.data[i].trangThai === 6 ? '<label class="badge bg-success">Thành công</label>' :
+                                                    response.data[i].trangThai === 7 ? '<label class="badge bg-dark">Đơn hủy</label>' :
+                                                        response.data[i].trangThai === 8 ? '<label class="badge bg-secondary">Chờ xác nhận hủy</label>' :
+                                                            '<label class="badge bg-danger">Chờ xác nhận hoàn hàng</label>'}
+                                   </td>
+                                   ${response.data[i].loaiHD === 1 ? `<td class="text-center">Tại quầy</td>` : `<td class="text-center">Website</td>`}
+
+                                   <td class="text-end">${Intl.NumberFormat().format(response.data[i].tongTienHang)}</td>
+                                   <td class="text-end">${Intl.NumberFormat().format(response.data[i].khachDaTra)}</td>
+                               </tr>
+                             `;
+                    }
+                    $("#billRecord").append(html);
+                    paginghd(response.total, function () {
+                        loadBill();
+                    });
+                } else {
+                    $("#billRecord").empty();
+                    html = `
+                                    <tr>
+                                        <td colspan="7" class="text-center">
+                                            Không có hóa đơn nào
+                                        </td>
+                                    </tr>
+                                `;
+                    $("#billRecord").append(html);
+                }
+            },
+            error: function (err) {
+                console.log('Error:', err);
+            }
+        });
+    }
+
+    //Hiển thị ChiTietHD
+    function billDetail(idhd) {
+        $(".cthd-body").load("/QuanLyHoaDon/ViewChiTietHD/" + idhd);
+        $("#chitiethd").modal("show");
+    }
+    // Phân trang
+    function paginghd(totalrow, callback) {
+        var totalpages = Math.ceil(totalrow / pageSizehd);
+        $("#pagination-demo").twbsPagination({
+            totalPages: totalpages,
+            visiblePages: 5,
+            startPage: 1,
+            first: 'Đầu',
+            last: 'Cuối',
+            prev: 'Trước',
+            next: 'Tiếp',
+            onPageClick: function (event, page) {
+                pageIndexhd = page;
+                setTimeout(callback, 200);
+            }
+        });
+    }
+    //Hiển thị datetime
+    $(function () {
+
+        var start = moment().subtract(29, 'days');
+        var end = moment().endOf('day');
+
+        function cb(start, end) {
+            $('#bdau').text(start.format('DD/MM/YYYY HH:mm'));
+            $('#ketthuc').text(end.format('DD/MM/YYYY HH:mm'));
+            LoadPage();
+        }
+
+        $('#timepicker1').daterangepicker({
+            opens: 'right',
+            showDropdowns: true,
+            startDate: start,
+            timePicker: true,
+            minYear: 2010,
+            endDate: end,
+            locale: {
+                customRangeLabel: 'Điều chỉnh',
+                format: 'DD/MM/YYYY HH:mm',
+                applyLabel: 'Áp dụng',
+                cancelLabel: 'Thoát',
+                daysOfWeek: ['H', 'B', 'T', 'N', 'S', 'B', 'CN'],
+                monthNames: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+            },
+            ranges: {
+                'Hôm nay': [moment().startOf('day'), moment().endOf('day')],
+                'Hôm qua': [moment().subtract(1, 'days').startOf('day'), moment().subtract(1, 'days').endOf('day')],
+                '7 ngày trước': [moment().subtract(6, 'days').startOf('day'), moment()],
+                '30 ngày trước': [moment().subtract(29, 'days').startOf('day'), moment()],
+                'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+                'Tháng trước': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Năm nay': [moment().startOf('year'), moment().endOf('year')],
+                'Năm trước': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+            }
+        }, cb);
+
+        cb(start, end);
+    });
+</script>

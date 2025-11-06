@@ -1,0 +1,47 @@
+﻿@model AppView.PhanTrang.PhanTrangLoaiSP
+
+@{
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/nv.css">
+    ViewData["Title"] = "GetLoaiSpById";
+    AppData.Models.AssignmentDBContext dBContext = new AppData.Models.AssignmentDBContext();
+    int stt = 1;
+    string searchData = "";
+}
+
+<h1>Danh mục loại sản phẩm con</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th style=" background-color: #3b83ff;color: white;">
+                STT
+            </th>
+            <th style=" background-color: #3b83ff;color: white;">
+                Tên
+            </th>
+            <th style=" background-color: #3b83ff"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listlsp)
+        {
+            <tr>
+                <td>
+                    <div style="color:black">@stt</div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ten)
+                </td>
+                <td style="text-align:end">
+                    <button class="btn btn-info ">
+                        @Html.ActionLink("Sửa", "EditLoaiSPCon", new { id= item.ID }, new { @style = "color:white;"})
+                    </button>
+                </td>
+                @{
+                    stt++;
+                }
+            </tr>
+        }
+    </tbody>
+</table>

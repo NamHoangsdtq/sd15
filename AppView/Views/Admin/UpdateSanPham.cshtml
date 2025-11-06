@@ -1,0 +1,112 @@
+﻿@model AppData.ViewModels.SanPham.SanPhamUpdateRequest
+
+@{
+    ViewData["Title"] = "AddSanPham";
+}
+
+<h1>Sửa sản phẩm</h1>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="UpdateSanPham">
+            <div class="d-flex justify-content-between">
+                <!-- Button Quay Lại bên trái -->
+                <div>
+                    <a asp-action="ProductManager" class="btn btn-primary"><i class="bi bi-caret-left-fill"></i>Quay Lại</a>
+                </div>
+                <!-- Button Thêm bên phải -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </button>
+                </div>
+            </div>
+            <input asp-for="ID" class="form-control" hidden />
+            <div class="form-group">
+                <label asp-for="Ten" class="control-label">Tên</label>
+                <input asp-for="Ten" class="form-control" autocomplete="off" />
+                <span asp-validation-for="Ten" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MoTa" class="control-label">Mô Tả</label>
+                <textarea asp-for="MoTa" class="form-control" rows="4" autocomplete="off"></textarea>
+                <span asp-validation-for="MoTa" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Chất liệu</label>
+                <input asp-for="TenChatLieu" class="form-control" list="chatLieu" autocomplete="off" />
+                <datalist id="chatLieu"></datalist>
+                <span asp-validation-for="TenChatLieu" class="text-danger"></span>
+            </div>
+            <datalist id="kichCo"></datalist>
+            <div class="form-group">
+                <label class="control-label">Loại sản phẩm cha</label>
+                <input asp-for="TenLoaiSPCha" class="form-control" list="loaiSPCha" id="ipLoaiSPCha" autocomplete="off" />
+                <datalist id="loaiSPCha"></datalist>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Loại sản phẩm con</label>
+                <input asp-for="TenLoaiSPCon" class="form-control" list="loaiSPCon" autocomplete="off" />
+                <datalist id="loaiSPCon"></datalist>
+                <span asp-validation-for="TenLoaiSPCon" class="text-danger"></span>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script src="~/js/jquery-3.3.1.min.js"></script>
+<script>
+    var countMauSac = 1;
+    var lstMauSac = [];
+    $(document).ready(function () {
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "/Admin/GetLoaiSPCha",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    var rows = "<option value='" + response[i].ten + "'>" + response[i].ten + "</option>";
+                    $('#loaiSPCha').append(rows);
+                }
+            }
+        });
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "/Admin/GetAllChatLieu",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    var rows = "<option value='" + response[i].ten + "'>" + response[i].ten + "</option>";
+                    $('#chatLieu').append(rows);
+                }
+            }
+        });
+    });
+    $("#ipLoaiSPCha").change(function () {
+        var value = $("#ipLoaiSPCha").val();
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            data: { tenLoaiSPCha: value },
+            url: "/Admin/GetLoaiSPCon",
+            success: function (response) {
+                if (response.trangThai == true) {
+                    $('#loaiSPCon').empty();
+                    for (var i = 0; i < response.ketQua.length; i++) {
+                        var rows = "<option value='" + response.ketQua[i].ten + "'>" + response.ketQua[i].ten + "</option>";
+                        $('#loaiSPCon').append(rows);
+                    }
+                }
+            }
+        });
+    });
+</script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

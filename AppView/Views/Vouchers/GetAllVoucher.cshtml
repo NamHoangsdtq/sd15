@@ -1,0 +1,165 @@
+﻿@model AppView.PhanTrang.PhanTrangVouchers
+
+@{
+ViewData["Title"] = "GetAllVoucher";
+int stt = 1;
+}
+
+<h1 style="text-align:center"><b>Quản lý Voucher </b></h1>
+
+<div class="row mb-3">
+  <div class="col-7">
+    <a class="btn btn-success" asp-action="Create">Thêm mới</a>
+  </div>
+  <div class="col-5">
+        <form asp-action="TimKiemTenVC" asp-controller="Vouchers" method="get" style="margin-left: 30px; text-align:end" enctype="multipart/form-data">
+            <div class="input-group">
+                <input style="width: 150px;" type="text" name="Ten" class="form-control" placeholder="Tìm kiếm Voucher">
+                <button type="submit" class="btn btn-outline-info"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+  </div>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th style=" background-color: #3b83ff;
+    color: white;">STT</th>
+      <th style=" background-color: #3b83ff;
+    color: white;">Mã Voucher</th>
+      <th style=" background-color: #3b83ff;
+    color: white;">Hình thức giảm giá</th>
+      <th style=" background-color: #3b83ff;
+    color: white;">Số tiền cần</th>
+      <th style=" background-color: #3b83ff;
+    color: white;">Giá trị</th>
+      <th style=" background-color: #3b83ff;
+    color: white;">Ngày áp dụng</th>
+      <th style=" background-color: #3b83ff;
+    color: white;">Ngày kết thúc</th>
+      <th style=" background-color: #3b83ff;
+    color: white;">Số lượng</th>
+      <th style=" background-color: #3b83ff;
+    color: white;">Mô tả</th>
+      <th style=" background-color: #3b83ff;
+    color: white;">Tình trạng</th>
+      <th style=" background-color: #3b83ff;
+    color: white;">Trạng thái </th>
+      <th style=" background-color: #3b83ff;
+    color: white;"> </th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var item in Model.listvouchers)
+    {
+    <tr>
+      <td>
+        <strong style="color:black">@stt</strong>
+      </td>
+
+      <td>
+        @item.Ten
+      </td>
+      <td>
+        @if(item.HinhThucGiamGia==0){
+        <div style="color:red">Giảm Theo Tiền Mặt</div>
+        }
+        else{
+        <div style="color:green">Giảm Theo Phần Trăm</div>
+        }
+
+      </td>
+      <td>
+        <div style="color:green">@item.SoTienCan.ToString("n0") VND</div>
+      </td>
+      <td>
+        @if (item.HinhThucGiamGia == 0)
+        {
+        <div style="color:red">@item.GiaTri.ToString("n0") VND</div>
+        }
+        else
+        {
+        <div style="color:green">@item.GiaTri %</div>
+        }
+      </td>
+      <td>
+        <div style="color:green">@item.NgayApDung.ToString("dd/MM/yyyy HH:mm")</div>
+      </td>
+      <td>
+        @if (item.NgayKetThuc >= DateTime.Now)
+        {
+        <div style="color:green">@item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</div>
+        }
+        else
+        {
+        <div style="color:red">@item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</div>
+        }
+
+      </td>
+      <td>
+        <div style="color:red">@item.SoLuong</div>
+      </td>
+      <td>
+        <div style="color:black">@item.MoTa</div>
+      </td>
+      <td>
+        @{
+        if (item.NgayKetThuc >= DateTime.Now&&item.SoLuong>0)
+        {
+        <div style="color:green">Còn khuyến mãi</div>
+        }
+        else
+        {
+        <div style="color:red">Hết Khuyến mãi</div>
+        }
+        }
+
+      </td>
+      <td>
+        @{
+        if (item.TrangThai ==1)
+        {
+        <div style="color:green"> Sử dụng </div>
+        }
+        else
+        {
+        <div style="color:red">Không sử dụng</div>
+        }
+        }
+      </td>
+      <td>
+        <button class="btn btn-info">
+          @Html.ActionLink("Sửa", "Updates", new { id = item.Id }, new { @style = "color:black;" })
+        </button>
+        @if(item.TrangThai==1){
+        <button class="btn btn-danger">
+          @Html.ActionLink("Không sử dụng", "KoSuDung", new { id = item.Id }, new { @style = "color:white;" })
+        </button>
+        }
+        else{
+        <button class="btn btn-success">
+          @Html.ActionLink("Sử dụng", "SuDung", new { id = item.Id }, new { @style = "color:white;" })
+        </button>
+        }
+
+      </td> @{
+      stt++;
+      }
+    </tr>
+    }
+  </tbody>
+</table>
+<div class="col-12">
+  <nav>
+    <ul class="pagination justify-content-center">
+
+      @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++) { <li class="page-item"><a class="page-link"
+          href="/Vouchers/GetAllVoucher?ProductPage=@i">@i</a></li>
+
+        }
+
+
+    </ul>
+  </nav>
+</div>

@@ -1,0 +1,179 @@
+﻿@using AppData.ViewModels;
+@model ChiTietHoaDonDanhGiaViewModel
+@{
+    Layout = "_Layout";
+}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    .rate {
+        float: left;
+        height: 46px;
+        padding: 0 10px;
+    }
+
+        .rate:not(:checked) > input {
+            position: absolute;
+            top: -9999px;
+        }
+
+        .rate:not(:checked) > label {
+            float: right;
+            width: 1em;
+            overflow: hidden;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 30px;
+            color: #ccc;
+        }
+
+            .rate:not(:checked) > label:before {
+                content: '★ ';
+            }
+
+        .rate > input:checked ~ label {
+            color: #ffc700;
+        }
+
+        .rate:not(:checked) > label:hover,
+        .rate:not(:checked) > label:hover ~ label {
+            color: #deb217;
+        }
+
+        .rate > input:checked + label:hover,
+        .rate > input:checked + label:hover ~ label,
+        .rate > input:checked ~ label:hover,
+        .rate > input:checked ~ label:hover ~ label,
+        .rate > label:hover ~ input:checked ~ label {
+            color: #c59b08;
+        }
+    #navbar {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 10px 0px 10px 0px;
+        background-color: white;
+        margin-bottom: 24px;
+    }
+
+    #AllHoaDon {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        background-color: white;
+    }
+
+    #navbar div label {
+        margin: 0px;
+    }
+
+        #navbar div label span {
+            cursor: pointer;
+            padding: 10px;
+        }
+
+    #navbar input[type="radio"] {
+        display: none;
+    }
+
+    #navbar label input[type="radio"]:checked ~ span {
+        border-bottom: 1px solid black;
+    }
+</style>
+<section style="background-color: #eee;">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="https://localhost:5001/">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="PurchaseOrder">Đơn hàng</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="PurchaseOrderDetail" asp-route-idHoaDon="@Model.IDHoaDon">Đơn hàng chi tiết</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Đánh giá</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="shopping__cart__table">
+            <table class="table" style="background-color:white;margin-bottom:0px">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Chất lượng</th>
+                        <th>Đánh giá</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        <tr>
+                            <td class="product__cart__item">
+                                <div class="product__cart__item__pic">
+                                    <img style="width:90px;height:90px;" src="/img/product/@Model.DuongDan" alt="">
+                                </div>
+                                <div class="product__cart__item__text">
+                                    <h6>@Model.TenSanPham</h6>
+                                    <h5>@Model.TenKichThuoc/@Model.TenMau</h5>
+                                </div>
+                            </td>
+                            <td class="cart__price">
+                                <div class="rate">
+                                    <input type="radio" id="star5" name="rate" value="5" checked/>
+                                    <label for="star5" title="text">5 stars</label>
+                                    <input type="radio" id="star4" name="rate" value="4" />
+                                    <label for="star4" title="text">4 stars</label>
+                                    <input type="radio" id="star3" name="rate" value="3" />
+                                    <label for="star3" title="text">3 stars</label>
+                                    <input type="radio" id="star2" name="rate" value="2" />
+                                    <label for="star2" title="text">2 stars</label>
+                                    <input type="radio" id="star1" name="rate" value="1" />
+                                    <label for="star1" title="text">1 star</label>
+                                </div>
+                            </td>
+                        <td class="cart__price">
+                            <div class="mb-3">
+                                <label for="exampleFormControlTextarea1" class="form-label">Đánh giá</label>
+                                <textarea name="danhGia" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                            </div>
+                        </td>
+                </tbody>
+            </table>
+        </div>
+        <div style="text-align:right">
+            <button onclick="DanhGia()" style="border: none;color: white; background-color: black;width: 150px;height: 50px;">
+                Đánh giá sản phẩm
+            </button>
+        </div>
+    </div>
+    
+</section>
+<script>
+    function DanhGia() {
+        var star = document.querySelector('input[name="rate"]:checked').value;
+        var danhgia = document.getElementById("exampleFormControlTextarea1").value;
+        var idCTHD = '@Model.ID';
+        var idHoaDon = '@Model.IDHoaDon';
+        var data = {
+            idCTHD: idCTHD,
+            idHD: idHoaDon,
+            soSao: star,
+            danhGia: danhgia
+        }
+        fetch("/Home/DanhGiaSanPham", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        }).then(function (reponse) {
+            if (reponse.ok) {
+                window.location = 'https://localhost:5001/Home/PurchaseOrderDetail?idHoaDon=' + idHoaDon;
+            } else {
+                throw new Error("Error sending data to controller");
+            }
+        }).catch(function (error) {
+            console.log("An error occured", error)
+        })
+    }
+</script>

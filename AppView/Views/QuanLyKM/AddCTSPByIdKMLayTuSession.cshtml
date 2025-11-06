@@ -1,0 +1,283 @@
+﻿@using AppData.ViewModels
+@model AppView.PhanTrang.PhanTrangCTSPBySP
+
+@{
+    ViewData["Title"] = "AddCTSPByIdKMLayTuSession";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    int stt = 1;
+    List<KhuyenMaiView> listkms = ViewBag.KhuyenMaiView;
+    var idkm = ViewBag.IdKhuyenMai;
+    List<string> imageExtensions = new List<string>()
+    {
+         ".png", ".jpg", ".jpeg", ".gif", ".tiff", ".pdf",".webp",".jfif"
+    };
+}
+<button class="btn btn-primary mb-2">
+    @Html.ActionLink("Quay lại", "GetSPByIdKM", new { ID = idkm }, new { @style = "color:white;" })
+</button>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style=" background-color: darkslategray;
+    color: white;">Chọn</th>
+            <th style=" background-color: darkslategray;
+    color: white;">STT</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Mã CTSP</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Ảnh</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Tên màu sắc</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Mã màu sắc</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Tên kích cỡ</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Số lượng</th>
+
+            <th style=" background-color: darkslategray;
+    color: white;">Giá gốc </th>
+            <th style=" background-color: darkslategray;
+    color: white;">Giá trị KM</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Giá khuyến mãi</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Ngày tạo</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Trạng thái</th>
+            <th style=" background-color: darkslategray;
+    color: white;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listallctspbysp)
+        {
+            <tr>
+
+                <td><input type="checkbox" class="sanpham-checkbox" data-id="@item.ID"></td>
+                <td>
+                    @stt
+                </td>
+                <td>
+                    <div style="color:black">@item.MaCTSP</div>
+                </td>
+                
+                <td>
+                    <img src="~/img/product/@item.TenAnh" style="width:70px;height:70px" />
+                </td>
+                <td>
+                    <div style="color:black">@item.TenMauSac</div>
+                </td>
+                <td>
+                    <input type="color" value="@item.MaMauSac" style="border:none;width:27px;height:25px" disabled>
+                </td>
+                <td>
+                    @*@{
+                var timkiemidbt = listbt.FirstOrDefault(x => x.ID == item.ID);
+                if(timkiemidbt!=null){
+                <strong style="color:green">@timkiemidbt.SoLuong</strong>
+                }
+                }*@
+                    <div style="color:black">@item.TenKichCo</div>
+                </td>
+                <td>
+                    <div style="color:black">@item.SoLuong</div>
+                </td>
+                <td>
+                    <div style="color:red"><del>@item.GiaGoc.ToString("n0") VND</del></div>
+                </td>
+                <td>
+                    @{
+                        var tk = listkms.FirstOrDefault(x => x.ID == item.IdKhuyenMai);
+                        if (tk != null)
+                        {
+                            if (tk.NgayKetThuc >= DateTime.Now)
+                            {
+                                if (tk.TrangThai == 0)
+                                {
+                                    <div style="color:green">@tk.GiaTri VND</div>
+                                }
+                                else
+                                {
+                                    <div style="color:green">@tk.GiaTri %</div>
+                                }
+                            }
+                            else if (tk.NgayKetThuc < DateTime.Now)
+                            {
+                                <div style="color:red"></div>
+                            }
+                        }
+                        else
+                        {
+                            <div style="color:red"></div>
+                        }
+                    }
+
+                </td>
+                <td>
+                    @{
+
+                        if (tk != null)
+                        {
+                            if (tk.NgayKetThuc >= DateTime.Now)
+                            {
+                                if (tk.TrangThai == 0)
+                                {
+                                    if(item.GiaGoc<=tk.GiaTri){
+                                        <div style="color:green">0 VND</div>
+                                    }
+                                    else{
+                                        <div style="color:green">@(item.GiaGoc-tk.GiaTri) VND</div>
+                                    }
+                                   
+                                }
+                                else
+                                {
+                                    if(item.GiaGoc-item.GiaGoc*tk.GiaTri/100>0){
+                                        <div style="color:green">@(item.GiaGoc - item.GiaGoc * tk.GiaTri / 100) VND</div>
+                                    }
+                                    else{
+                                        <div style="color:green">0 VND</div>
+                                    }
+                                    
+                                }
+                            }
+                            else if (tk.NgayKetThuc < DateTime.Now)
+                            {
+                                <div style="color:red">@item.GiaGoc.ToString("n0") VND</div>
+                            }
+                        }
+                        else
+                        {
+                            <div style="color:red">@item.GiaGoc.ToString("n0") VND</div>
+                        }
+                    }
+
+                </td>
+                <td>
+                    <div style="color:green">@item.NgayTao.ToString("dd/MM/yyyy")</div>
+
+                </td>
+
+                <td>
+                    @{
+
+                        if (item.TrangThai == 0)
+                        {
+                            <div style="color:red">không sử dụng</div>
+                        }
+                        else
+                        {
+                            <div style="color:green">Sử dụng</div>
+                        }
+                    }
+
+                </td>
+
+                @{
+                    stt++;
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="col-12">
+    <nav>
+        <ul class="pagination justify-content-center">
+           
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item"><a class="page-link" href="/QuanLyKM/AddKHuyenMaiVoSP?ProductPage=@i">@i</a></li>
+
+            }
+
+            
+        </ul>
+    </nav>
+</div>
+<button id="selectAllCheckbox" class="btn btn-info mb-2">Chọn tất cả</button>
+
+<br />
+<div class="form-group">
+    <button id="updateButton" class="btn btn-success">Thêm sản phẩm khuyến mãi</button> <button id="XoaButton" class="btn btn-danger">Không áp dụng khuyến mãi</button>
+</div>
+<br />
+
+<script src="~/js/jquery-3.3.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }
+    <script>
+        $(document).ready(function () {
+            // Sự kiện khi click vào "Chọn tất cả"
+            $("#selectAllCheckbox").click(function () {
+                $(".sanpham-checkbox").prop("checked", true);
+            });
+
+            // Sự kiện khi click vào "Cập nhật"
+            $("#updateButton").click(function () {
+               
+                var selectedSanPham = [];
+
+                $(".sanpham-checkbox:checked").each(function () {
+                    selectedSanPham.push($(this).data("id"));
+                });
+
+                // Gửi dữ liệu lên server để cập nhật
+                $.ajax({
+                    url: "/QuanLyKM/AddCTSPByIdKMLayTuSession",
+                    type: "POST",
+                    data: {
+                       
+                        bienthes: selectedSanPham
+                    },
+                    success: function (response) {
+                        if (response.success == true) {
+                            location.reload();
+                        } else {
+                            toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+                        }
+                    },
+                    error: function (response) {
+                        console.log(response);
+                        toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+                    }
+                });
+            });
+            $("#XoaButton").click(function () {
+
+                var selectedSanPham = [];
+
+                $(".sanpham-checkbox:checked").each(function () {
+                    selectedSanPham.push($(this).data("id"));
+                });
+
+                // Gửi dữ liệu lên server để cập nhật
+                $.ajax({
+                    url: "/QuanLyKM/XoaKHuyenMaiRaSP",
+                    type: "POST",
+                    data: {
+
+                        bienthes: selectedSanPham
+                    },
+                    success: function (response) {
+                        if (response.success == true) {
+                            location.reload();
+                        } else {
+                            toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+                        }
+                    },
+                    error: function (response) {
+                        console.log(response);
+                        toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+                    }
+                });
+            });
+        });
+
+
+    </script>

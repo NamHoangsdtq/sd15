@@ -1,0 +1,134 @@
+﻿@using AppData.ViewModels
+@model AppView.PhanTrang.PhanTrangAllQLKMSP
+
+@{
+    ViewData["Title"] = "GetSPByIdKM";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    int stt = 1;
+    AppData.Models.AssignmentDBContext Dbcontext = new AppData.Models.AssignmentDBContext();
+    List<KhuyenMaiView> listkms = ViewBag.KhuyenMaiView;
+    List<string> imageExtensions = new List<string>()
+    {
+         ".png", ".jpg", ".jpeg", ".gif", ".tiff", ".pdf",".webp",".jfif"
+    };
+}
+
+<h1 style="text-align:center"><b> Các sản phẩm có trong khuyến mãi</b></h1>
+<hr />
+
+<button class="btn btn-primary mt-2">
+    <a asp-action="GetAllKM" style="color:white;">Quay lại</a>
+</button>
+<div class="col-8 mt-2 mb-2">
+    <a class="btn btn-primary" asp-action="GetSPNoKM">Thêm khuyến mãi sản phẩm</a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th style=" background-color: #3b83ff;
+    color: white;">STT</th>
+            <th style=" background-color: #3b83ff;
+    color: white;">Mã sản phẩm</th>
+            <th style=" background-color: #3b83ff;
+    color: white;">Tên sản phẩm</th>
+
+
+            <th style=" background-color: #3b83ff;
+    color: white;">Tên ảnh</th>
+
+
+            <th style=" background-color: #3b83ff;
+    color: white;">Giá bán</th>
+            <th style=" background-color: #3b83ff;
+    color: white;">Tên loại sản phẩm</th>
+
+            <th style=" background-color: #3b83ff;
+    color: white;">Tên chất liệu</th>
+            <th style=" background-color: #3b83ff;
+    color: white;">Trạng thái</th>
+            <th style=" background-color: #3b83ff;
+    color: white;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listallsp)
+        {
+            <tr>
+                <td>
+                    <strong style="color:black">@stt</strong>
+                </td>
+                <td>
+                    <div style="color:black">@item.MaSP</div>
+                </td>
+                <td>
+                    <div style="color:black">@item.Ten</div>
+                </td>
+                
+                <td>
+                    <img src="~/img/product/@item.TenAnh" style="width:70px;height:70px" />
+                </td>
+               
+
+                <td>
+                    <div style="color:black">@item.GiaBan.ToString("n0") VND</div>
+                </td>
+
+
+                <td>
+                    @{
+                        var tenloaisp = Dbcontext.LoaiSPs.FirstOrDefault(x => x.ID == item.IDLoaiSP);
+                        if (tenloaisp != null)
+                        {
+                                        <div style="color:black">@tenloaisp.Ten</div>
+                        }
+                    }
+                </td>
+                <td>
+                    @{
+                        var tencl = Dbcontext.ChatLieus.FirstOrDefault(x => x.ID == item.IDChatLieu);
+                        if (tencl != null)
+                        {
+                                        <div style="color:black">@tencl.Ten</div>
+                        }
+                    }
+                </td>
+                <td>
+                    @{
+                        if (item.TrangThai == 0)
+                        {
+                                    <div style="color:red">không sử dụng </div>
+                        }
+                        else
+                        {
+                                    <div style="color:green">Sử dụng</div>
+                        }
+                    }
+                </td>
+                <td>
+
+                    <button class="btn btn-primary">
+                        @Html.ActionLink("Chi tiết", "AddCTSPByIdKMLayTuSession", new { id = item.ID }, new { @style = "color:white;" })
+                    </button>
+
+                </td>
+                @{
+                    stt++;
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="col-12">
+    <nav>
+        <ul class="pagination justify-content-center">
+
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item"><a class="page-link" href="/QuanLyKM/GetAllQLKhuyenMaiSP?ProductPage=@i">@i</a></li>
+
+            }
+            
+        </ul>
+    </nav>
+</div>
+<br />

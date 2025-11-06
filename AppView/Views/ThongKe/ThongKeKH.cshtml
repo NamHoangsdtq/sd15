@@ -1,0 +1,98 @@
+﻿@model AppView.PhanTrang.PhanTrangThongKeKH
+
+@{
+    ViewData["Title"] = "ThongKeKH";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    int stt = 1;
+}
+
+<h1>Thống Kê Khách Hàng</h1>
+<form method="get" asp-controller="ThongKe" asp-action="ThongKeSPKHTheoThang">
+    <label for="thangInput">Bắt Đầu Từ Tháng:</label>
+    <input type="Month" id="thangInput" name="ThangStart">
+    <label for="thangInput">Kết Thúc Đến Tháng:</label>
+    <input type="month" id="thangInput" name="ThangEnd">
+   
+    <button type="submit">Thống Kê</button>
+</form>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                STT
+            </th>
+           
+            <th>
+                Tên Khách Hàng
+            </th>
+            <th>
+                Số Điện Thoại
+            </th>
+            <th>
+               Email 
+            </th>
+            <th>
+                Tổng Số Tiền
+            </th>
+            <th>
+               Số Đơn mua
+            </th>
+            <th>
+                Ngày Thanh Toán
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.listkhs) {
+            <tr>
+                <td>
+               <strong style="color:black">@stt</strong>
+            </td>
+            
+            <td>
+                    <strong style="color:black">@item.Ten</strong>
+            </td>
+            <td>
+                    <strong style="color:black">@item.SDT</strong>
+            </td>
+            <td>
+                    <strong style="color:black">@item.Email</strong>
+            </td>
+                <td>
+                    <strong style="color:red">@item.TongSoTien.ToString("n0") VND</strong>
+                </td>
+            <td>
+                    <strong style="color:green">@item.SoDonMua</strong>
+            </td>
+            <td>
+                    <strong style="color:black">@item.Ngay</strong>
+            </td>
+            <td>
+                    <button class="btn btn-primary">
+                        @Html.ActionLink("Chi tiết", "GetAllLSTDByIDKH", new { id = item.idkh }, new { @style = "color:white;" })
+                    </button>
+            </td>
+            @{
+                stt++;
+            }
+        </tr>
+}
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination justify-content-center">
+        <li class="page-item disabled"><a class="page-link" href="#">Previous</span></a></li>
+        @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+        {
+            <li class="page-item"><a class="page-link" href="/ThongKe/ThongKeKH?ProductPage=@i">@i</a></li>
+
+        }
+
+        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+    </ul>
+</nav>
+</div>

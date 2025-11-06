@@ -1,0 +1,74 @@
+﻿@model AppData.ViewModels.KhuyenMaiView
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+}
+
+<h1>Thêm khuyến mãi</h1>
+
+
+<hr />
+
+<button class="btn btn-primary mb-2">
+    <a asp-action="GetAllKM" style="color:white;">Quay lại</a>
+</button>
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">Mã</label>
+                <input asp-for="Ten" class="form-control" />
+                <span asp-validation-for="Ten" class="text-danger"></span>
+                <span class="text-danger">@ViewData["Ma"]</span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Loại khuyến mãi</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="trangthai" value="1" asp-for="TrangThai">
+                    <label class="form-check-label" for="flexRadioDefault1">
+                        Phần trăm 
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="trangthai" value="0" asp-for="TrangThai" >
+                    <label class="form-check-label" for="flexRadioDefault2">
+                        Tiền mặt
+                    </label>
+                </div>
+               
+            </div>
+            <div class="form-group">
+                <label class="control-label">Giá trị</label>
+                <input asp-for="GiaTri" class="form-control" />
+                <span  class="text-danger">@ViewData["GiaTri"]</span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Ngày áp dụng</label>
+                <input asp-for="NgayApDung" class="form-control" />
+                <span class="text-danger">@ViewData["NgayApDung"]</span>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> Ngày kết thúc</label>
+                <input asp-for="NgayKetThuc" class="form-control" />
+                <span  class="text-danger">@ViewData["NgayKetThuc"]</span>
+                <span class="text-danger">@ViewData["Ngay"]</span>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> Mô tả </label>
+                <input asp-for="MoTa" class="form-control" />
+                <span asp-validation-for="MoTa" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" class="btn btn-success mt-3" value="Thêm khuyến mãi" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

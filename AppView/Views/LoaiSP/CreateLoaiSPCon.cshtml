@@ -1,0 +1,70 @@
+﻿@using AppData.Models;
+@model AppData.Models.LoaiSP
+@{
+    ViewData["Title"] = "CreateLoaiSPCon";
+
+    var listLoaiSP = ViewData["listLoaiSP"] as List<LoaiSP>;
+}
+<h1>Thêm loại sản phẩm con</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger">
+                @ViewBag.ErrorMessage
+            </div>
+        }
+        <form asp-action="CreateLoaiSPCon">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group" hidden>
+                <label asp-for="ID" class="control-label"></label>
+                <input asp-for="ID" type="hidden" class="form-control" />
+                <span asp-validation-for="ID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Tên Loại SP</label>
+                <input asp-for="Ten" class="form-control" />
+                <div id="emptyNameError" class="invalid-feedback d-none">Vui lòng nhập tên loại sản phẩm!</div>
+            </div>
+           @* <div class="form-group">
+                <label asp-for="IDLoaiSPCha" class="control-label"> Tên Loại SP Cha</label>
+                <select class="form-control" asp-for="IDLoaiSPCha">
+                    @if (listLoaiSP != null)
+                    {
+                        <option value="null">Chọn loại sản phẩm cha</option>
+                        @foreach (var item in listLoaiSP.Where(p => p.IDLoaiSPCha == null).ToList())
+                        {
+                            <option value="@item.ID">@item.Ten</option>
+                        }
+                    }
+                </select>
+            </div>*@
+            <input type="hidden" asp-for="TrangThai" value="1" />
+            <div class="form-group">
+                <input type="submit" value="Thêm Loại SP" class="btn btn-success" style="margin-top: 10px" />
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    $("input[name='Ten']").on("input", function () {
+        $(this).removeClass("is-invalid");
+        $("#emptyNameError").text("");
+    });
+    $("form").submit(function () {
+        var tenInput = $("input[name='Ten']");
+        var tenValue = tenInput.val();
+        if (tenValue.trim() === "") {
+            tenInput.addClass("is-invalid");
+            $("#emptyNameError").text("Tên không được bỏ trống");
+            return false;
+        }
+        return true;
+    });
+</script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

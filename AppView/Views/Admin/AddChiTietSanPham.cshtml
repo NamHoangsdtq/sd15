@@ -1,0 +1,150 @@
+﻿@model AppData.ViewModels.SanPham.ChiTietSanPhamUpdateRequest
+
+@{
+    ViewData["Title"] = "Thêm chi tiết sản phẩm";
+}
+
+<h1>Thêm chi tiết sản phẩm</h1>
+
+<hr />
+<div class="row">
+    <div>
+        <form asp-action="AddChiTietSanPham">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Nút Quay Lại bên trái -->
+                <div class="col-auto">
+                    <a class="btn btn-primary" onclick="history.back();">
+                        <i class="bi bi-caret-left-fill"></i> Quay Lại
+                    </a>
+                </div>
+                <!-- Nút Create bên phải -->
+                <div class="form-group">
+                    <input type="submit" value="Thêm" class="btn btn-success" />
+                </div>
+            </div>
+            <div class ="row">
+                <div class="form-group col-md-6">
+                    <h4 class="control-label">Màu sắc</h4>
+                    <input type="button" class="form-control btn btn-outline-info mb-3" style="color: black;" value="Thêm màu" onclick="themMauSac(this)" />
+                    <datalist id="mauSac"></datalist>
+                    <table id="tbmausac" style="width:450px">
+                        <tbody class="table mb-2" id="tbbody">
+                            <tr id="mau0">
+                                <td style="width:70%">
+                                    <input name="MauSacs[0].Ten" class="form-control" list="mauSac" id="tenMau0"
+                                           onchange="changeTenMau(0)" autocomplete="off" />
+                                </td>
+                                <td style="width:45.6px">
+                                    <input name="MauSacs[0].Ma" type="color" class="form-control" value="#000000" id="maMau0"
+                                           onchange="changeMaMau(0)" style="height:41.6px;width:100%" />
+                                </td>
+                                <td style="width:50px">
+                                    <input type="button" class="form-control btn btn-outline-danger" value="Xoá" hidden id="xoamau0" onclick="xoaMau(0)" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                  
+                </div>
+                <div class="form-group col-md-6" id="lstKichCo">
+                    <h4 class="control-label">Kích cỡ</h4>
+                    <input type="button" class="form-control btn btn-outline-info mb-3" style="color: black;" value="Thêm Size" onclick="themKichCo(1,this)" />
+                    <div class="row" style='width:450px' id="size0">
+                        <div class="col-lg-10" style='padding-right:0px'>
+                            <input name="KichCos[0]" class="form-control mb-1" list="kichCo" id="tenkc0" autocomplete="off" />
+                        </div>
+                        <div class="col-lg-2" style='padding-left:0px'>
+                            <input type="button" class="form-control btn btn-outline-danger mb-1 ms-1" style="color: black;" value="Xoá" hidden id="xoasize0" onclick="xoaSize(0)" />
+                        </div>
+                    </div>
+                   
+                </div>
+                <datalist id="kichCo"></datalist>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+<script src="~/js/jquery-3.3.1.min.js"></script>
+<script>
+    var countMauSac = 1;
+    var countKichCo = 1;
+    var lstMauSac = [];
+    $(document).ready(function () {
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "/Admin/GetAllMauSac",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    response[i].ma = response[i].ma.toLowerCase();
+                    lstMauSac.push(response[i]);
+                    var rows = "<option value='" + response[i].ten + "'>" + response[i].ten + "</option>";
+                    $('#mauSac').append(rows);
+                }
+            }
+        });
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "/Admin/GetAllKichCo",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    var rows = "<option value='" + response[i].ten + "'>" + response[i].ten + "</option>";
+                    $('#kichCo').append(rows);
+                }
+            }
+        });
+    });
+
+    function themKichCo() {
+        $("#lstKichCo").append(`
+            <div class="row" style="width: 450px" id="size${countKichCo}">
+                <div class="col-lg-10" style="padding-right: 0px">
+                        <input name="KichCos[${countKichCo}]" class="form-control mb-1" list="kichCo" id="tenkc${countKichCo}" autocomplete="off" />
+                </div>
+                <div class="col-lg-2" style="padding-left: 0px">
+                                <input type="button" class="form-control btn btn-outline-danger mb-1 ms-1" style="color: black;" value="Xoá" hidden id="xoasize${countKichCo}" onclick="xoaSize(${countKichCo})" />
+                </div>
+            </div>
+        `);
+        document.getElementById("xoasize" + (countKichCo - 1)).hidden = false;
+        countKichCo++;
+    }
+    function themMauSac() {
+        $("#tbbody").append("<tr id='mau" + countMauSac + "'><td style='width:70%'> <input name='MauSacs[" + countMauSac + "].Ten' class='form-control' list='mauSac' id='tenMau" + countMauSac + "' onchange='changeTenMau(" + countMauSac + ")' autocomplete=\"off\" /></td><td style='width: 45.6px'><input name='MauSacs[" + countMauSac + "].Ma' type='color' onchange='changeMaMau(" + countMauSac + ")' class='form-control' id='maMau" + countMauSac + "' style='height: 41.6px;width:100%'/></td><td style='width: 50px'><input type='button' class='form-control btn btn-outline-danger' value='Xoá' hidden id = 'xoamau" + countMauSac + "' onclick='xoaMau(" + countMauSac + ")' /></td></tr > ");
+        document.getElementById("xoamau" + (countMauSac - 1)).hidden = false;
+        countMauSac++;
+    }
+    function changeTenMau(count) {
+        var tenMau = $("#tenMau" + count).val();
+        var maMau = lstMauSac.find(x => x.ten == tenMau).ma;
+        document.getElementById("maMau" + count).value = maMau;
+    }
+    function changeMaMau(count) {
+        var maMau = $("#maMau" + count).val();
+        var tenMau = "";
+        var mauSac = lstMauSac.find(x => x.ma == maMau);
+        if (mauSac == null) {
+            tenMau = "";
+        }
+        else {
+            tenMau = mauSac.ten;
+        }
+        document.getElementById("tenMau" + count).value = tenMau;
+    }
+    function xoaMau(count) {
+        document.getElementById("mau" + count).hidden = true;
+        document.getElementById("tenMau" + count).value = 'Deleted';
+    }
+    function xoaSize(count) {
+        document.getElementById("size" + count).hidden = true;
+        document.getElementById("tenkc" + count).value = 'Deleted';
+    }
+</script>

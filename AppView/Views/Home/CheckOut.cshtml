@@ -1,0 +1,529 @@
+﻿@using AppData.Models;
+@using AppData.ViewModels;
+@using Newtonsoft.Json;
+@{
+    LoginViewModel loginInfor = new LoginViewModel();
+    string? session = Context.Session.GetString("LoginInfor");
+    if (session != null)
+    {
+        loginInfor = JsonConvert.DeserializeObject<LoginViewModel>(Context.Session.GetString("LoginInfor"));
+        string apiUrl = $"https://localhost:7095/api/KhachHang/GetById?id={loginInfor.Id}";
+        using (var client = new System.Net.Http.HttpClient())
+        {
+            var response = client.GetAsync(apiUrl).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var apiResponse = response.Content.ReadAsStringAsync().Result;
+                var user = JsonConvert.DeserializeObject<KhachHangViewModel>(apiResponse);
+                if (user != null)
+                {
+                    loginInfor.DiemTich = user.DiemTich;
+                }
+            }
+        }
+    }
+    string? tongtien = TempData.Peek("TongTien") as string;
+    string? soLuong = TempData.Peek("Quantity") as string;
+
+    long tienship = 0;
+    Layout = "_Layout";
+}
+<style>
+    a:hover {
+        text-decoration: none;
+        outline: none;
+        color: black;
+    }
+</style>
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Thanh toán</h4>
+                    <div class="breadcrumb__links">
+                        <a href="./index.html">Trang chủ</a>
+                        <a href="./shop.html">Cửa hàng</a>
+                        <span>Thanh toán</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <div class="row">
+                <div class="col-lg-8 col-md-6">
+                    <h6 class="checkout__title">Chi tiết thanh toán</h6>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="checkout__input">
+                                <label for="ten">Họ và tên</label>
+                                <input type="text" class="form-control" id="name" placeholder="" value="@loginInfor.Ten" required="" style="height:38px; color:#000;">
+                                <div class="invalid-feedback"> Không để trống tên</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="checkout__input">
+                                <label for="sdt">Số điện thoại</label>
+                                <input type="text" class="form-control" id="phone" placeholder="" value="@loginInfor.SDT" required="" style="height:38px;color: #000;">
+                                <div class="invalid-feedback"> Không để trống SDT </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="checkout__input">
+                                <label for="email">Email</label>
+                                <input type="text" class="form-control" id="email" placeholder="" value="@loginInfor.Email" required="" style="height:38px;color: #000;">
+                                <div class="invalid-feedback"> Không để trống email </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="checkout__input">
+                                <label for="diachi">Địa chỉ</label>
+                                <input type="text" class="form-control" id="address" placeholder="" required="" style="height:38px">
+                                <div class="invalid-feedback"> Valid first name is required. </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="checkout__input">
+                                <label for="tinh">Tỉnh / thành</label>
+                                <select class="custom-select d-block w-100" id="province" required="">
+                                    <option selected id="dfprovince">Chọn tỉnh / thành</option>
+                                </select>
+                                <div class="invalid-feedback"> Tên hợp lệ là bắt buộc. </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="checkout__input">
+                                <label for="huyen">Quận / huyện</label>
+                                <select class="custom-select d-block w-100" id="district" required="">
+                                </select>
+                                <div class="invalid-feedback"> Tên hợp lệ là bắt buộc. </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="checkout__input">
+                                <label for="xa">Phường / xã</label>
+                                <select class="custom-select d-block w-100" id="ward" required="">
+                                </select>
+                                <div class="invalid-feedback"> Tên hợp lệ là bắt buộc. </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="checkout__input">
+                                <label for="pttt">Phương thức thanh toán</label>
+                                <div style="box-shadow:0 0 0 1px #d9d9d9;border-radius:0.25rem">
+                                    <div style="display:flex!important;align-items:center;padding:0.8rem">
+                                        <input type="radio" name="pttt" value="COD" style="margin-bottom: 0px;width:20px;" />
+                                        <img style="padding-left:0.75rem" src="https://hstatic.net/0/0/global/design/seller/image/payment/cod.svg?v=6">
+                                        <p style="margin-bottom: 0px;padding-left: 10px;">Thanh toán khi giao hàng (COD)</p>
+                                    </div>
+                                    <div style="border-top: 1px solid #d9d9d9;display:flex!important;align-items:center;padding:0.8rem">
+                                        <input type="radio" name="pttt" value="VNPay" style="margin-bottom: 0px;width:20px" />
+                                        <div style="width:40px;height:40px;margin-left:0.75rem;border:1px solid #d9d9d9;border-radius:0.25rem">
+                                            <img style="width:30px;height:30px;margin:5px" src="/img/icon/vnpay.png">
+                                        </div>
+                                        <p style="margin-bottom: 0px;padding-left: 10px;">Chuyển khoản qua VNPay</p>
+                                    </div>
+                                </div>
+                                <div id="pttt-error" style="display:none;color:red">Vui lòng chọn phương thức thanh toán</div>
+                                <div id="pttt-error" style="display:none;color:red; font-size:12px;">Vui lòng chọn phương thức thanh toán</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="checkout__input">
+                                <label for="ten">Ghi chú</label>
+                                <textarea class="form-control" id="note" placeholder="" value=""></textarea>
+                                <div class="invalid-feedback"> Không để trống tên</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="cart__discount" style="margin-bottom:20px!important">
+                        <h6>Hình thức giảm giá</h6>
+                        <div style="position:relative;margin-bottom:5px">
+                            <input type="text" id="voucher" placeholder="Nhập mã giảm giá" style="font-size:14px;color: #000;;height: 50px;width: 100%;border: 1px solid #e1e1e1;padding-left: 20px;" list="vouchers" />
+                            <datalist id="vouchers">
+                            </datalist>
+                            <button onclick="usevoucher()" style="font-size: 14px;color: #ffffff;font-weight: 700;letter-spacing: 2px;text-transform: uppercase;background: #111111;padding: 0 30px;border: none;position: absolute;right: 0;top: 0;height: 100%;">
+                                Áp dụng
+                            </button>
+                        </div>
+                        @if (session != null)
+                        {
+                        }
+                        else
+                        {
+                        }
+                    </div>
+                    <div class="checkout__order">
+                        <h4 class="order__title">Đơn hàng của bạn</h4>
+                        <ul class="checkout__order__products">
+                            <li>Tiền hàng <span id="tienHang"></span></li>
+                            <li id="moneyvoucher" hidden></li>
+                            <li id="moneyscore" hidden></li>
+                            <li>Tiền ship <span id="fee">0 VND</span></li>
+                            <li>Tổng tiền <span id="total"></span></li>
+                        </ul>
+                        <button onclick="createhoadon()" class="site-btn">
+                            XÁC NHẬN
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="~/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+    var tienShip = 0;
+    var tienDiem = 0;
+    var tienVoucher = 0;
+    var tinh = "";
+    var huyen = "";
+    var xa = "";
+    var voucher = "";
+    var diemTich = 0;
+
+    $(document).ready(function () {
+        var tienHang = @tongtien;
+        document.getElementById("tienHang").innerHTML = tienHang.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
+        document.getElementById("total").innerHTML = tienHang.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetAllVoucherByTien",
+            dataType: "json",
+            data: { tongTien: tienHang },
+            success: function (response) {
+                $.each(response.ketQua, function (i, item) {
+                    if (item.hinhThucGiamGia == 1) {
+                        $("#vouchers").append(`<option value='${item.ten}'>(-${item.giaTri}%)</option>`)
+                    }
+                    else {
+                        $("#vouchers").append(`<option value='${item.ten}'>(-${item.giaTri.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })})</option>`)
+                    }
+                });
+            },
+            error: function (reponse) {
+                console(reponse);
+            }
+        });
+        $.ajax({
+            type: "GET",
+            url: "https://online-gateway.ghn.vn/shiip/public-api/master-data/province",
+            headers: { token: '9f4e42e4-fde8-11ed-a281-3aa62a37e0a5' },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                for (var i = 0; i < data.data.length; i++) {
+                    var rows = "<option id='" + data.data[i].ProvinceID + "' value='" + data.data[i].ProvinceID + "'>" + data.data[i].ProvinceName + "</option>";
+                    $('#province').append(rows);
+                }
+            },
+            error: function (reponse) {
+                alert(reponse.responseText);
+            }
+        });
+        $("#province").change(function () {
+            var value = document.getElementById("province").value;
+            tinh = document.getElementById(value).innerHTML;
+            $.ajax({
+                type: "GET",
+                url: "https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=" + value,
+                headers: { token: '9f4e42e4-fde8-11ed-a281-3aa62a37e0a5' },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    $('#dfprovince').remove();
+                    document.getElementById('district').innerHTML = '';
+                    $('#district').append('<option selected id="dfdistrict">Chọn quận / huyện</option>');
+                    for (var i = 0; i < data.data.length; i++) {
+                        var rows = "<option id='" + data.data[i].DistrictID + "' value='" + data.data[i].DistrictID + "'>" + data.data[i].DistrictName + "</option>";
+                        $('#district').append(rows);
+                    }
+                },
+                error: function (reponse) {
+                    alert(reponse.responseText);
+                }
+            });
+        });
+        $("#district").change(function () {
+            var value = document.getElementById("district").value;
+            huyen = document.getElementById(value).innerHTML;
+            $.ajax({
+                type: "GET",
+                url: "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=" + value,
+                headers: { token: '9f4e42e4-fde8-11ed-a281-3aa62a37e0a5' },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    $('#dfdistrict').remove();
+                    document.getElementById('ward').innerHTML = '';
+                    $('#ward').append('<option selected id="dfward">Chọn phường / xã</option>');
+                    for (var i = 0; i < data.data.length; i++) {
+                        var rows = "<option id='" + data.data[i].WardCode + "' value='" + data.data[i].WardCode + "'>" + data.data[i].WardName + "</option>";
+                        $('#ward').append(rows);
+                    }
+                },
+                error: function (reponse) {
+                    alert(reponse.responseText);
+                }
+            });
+        });
+        $("#ward").change(function () {
+            var value1 = document.getElementById("ward").value;
+            var value2 = document.getElementById("district").value;
+            xa = document.getElementById(value1).innerHTML;
+            $.ajax({
+                type: "GET",
+                url: "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee?shop_id=4643378&to_ward_code=" + value1 + "&to_district_id=" + value2 + "&weight=" + 500 * @soLuong+"&service_type_id=2",
+                headers: { token: '9f4e42e4-fde8-11ed-a281-3aa62a37e0a5' },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    $('#dfward').remove();
+                    tienShip = data.data.total;
+                    document.getElementById("fee").innerHTML = data.data.total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
+                    var total = tienShip + @tongtien-tienVoucher - tienDiem;
+                    if (total < 0) {
+                        total = 0
+                    }
+                    document.getElementById("total").innerHTML = total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
+                },
+                error: function (reponse) {
+                    alert(reponse.responseText);
+                }
+            });
+        });
+        $('.checkout__input input').on('input', function () {
+            $(this).removeClass('is-invalid');
+            $(this).next('.invalid-feedback').text('');
+        });
+        $('.checkout__input select').change(function () {
+            $(this).removeClass('is-invalid');
+            $(this).next('.invalid-feedback').text('');
+        });
+        $('input[name="pttt"]').change(function () {
+            $('#pttt-error').hide();
+        });
+    });
+    function createhoadon() {
+        var ten = $("#name").val();
+        var email = $("#email").val();
+        var sdt = $("#phone").val();
+        var tinh = $("#province option:selected").text().trim();
+        var huyen = $("#district option:selected").text().trim();
+        var xa = $("#ward option:selected").text().trim();
+        var diachi = $("#address").val();
+        var pttt = $('input[name="pttt"]:checked').val();
+        var ghiChu = $("#note").val();
+        $('.invalid-feedback').text('');
+        $('.is-invalid').removeClass('is-invalid');
+        var hasError = false;
+        if (ten.trim().length == 0) {
+            $('#name').addClass('is-invalid');
+            $('#name').next('.invalid-feedback').text('Vui lòng nhập họ tên');
+            hasError = true;
+        }
+        var phoneNumberRegex = /^(0|\+84)(3[2-9]|5[25689]|7[06-9]|8[1-5]|9[0-9])[0-9]{7}$/;
+        if (sdt.trim().length == 0) {
+            $('#phone').addClass('is-invalid');
+            $('#phone').next('.invalid-feedback').text('Số điện thoại không được trống');
+            hasError = true;
+        }
+        else if (!phoneNumberRegex.test(sdt)) {
+            $('#phone').addClass('is-invalid');
+            $('#phone').next('.invalid-feedback').text('Số điện thoại không hợp lệ (độ dài từ 9 - 10 ký tự, không chứa ký tự đặc biệt và khoảng trắng)');
+            hasError = true;
+        }
+        var emailRegex = /^[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (email.trim().length == 0) {
+            $('#email').addClass('is-invalid');
+            $('#email').next('.invalid-feedback').text('Vui lòng nhập email');
+            hasError = true;
+        }
+        else if (!emailRegex.test(email)) {
+            $('#email').addClass('is-invalid');
+            $('#email').next('.invalid-feedback').text('Địa chỉ email không hợp lệ');
+            hasError = true;
+        }
+        if (tinh == "Chọn tỉnh / thành") {
+            $('#province').addClass('is-invalid');
+            $('#province').next('.invalid-feedback').text('Vui lòng chọn tỉnh thành');
+            hasError = true;
+        }
+        if (huyen.trim().length == 0 || huyen == "Chọn quận / huyện") {
+            $('#district').addClass('is-invalid');
+            $('#district').next('.invalid-feedback').text('Vui lòng chọn quận huyện');
+            hasError = true;
+        }
+        if (xa.trim().length == 0 || xa == "Chọn phường / xã") {
+            $('#ward').addClass('is-invalid');
+            $('#ward').next('.invalid-feedback').text('Vui lòng chọn phường xã');
+            hasError = true;
+        }
+        if (diachi.trim().length == 0) {
+            $('#address').addClass('is-invalid');
+            $('#address').next('.invalid-feedback').text('Không để trống địa chỉ');
+            hasError = true;
+        }
+        if (pttt == undefined) {
+            $('#pttt-error').show();
+            hasError = true;
+        } else {
+            $('#pttt-error').hide();
+        }
+
+        if (hasError) {
+            // SỬ DỤNG SWEETALERT2 TẠI ĐÂY
+            Swal.fire({
+                icon: 'error',
+                title: 'Thông báo',
+                text: 'Vui lòng điền đầy đủ thông tin!',
+                confirmButtonText: 'Đã hiểu',
+                confirmButtonColor: '#111111' // Tùy chỉnh màu nút OK cho hợp
+            });
+        }
+        else {
+            var objHoaDon = { Ten: ten, Email: email, SDT: sdt, DiaChi: diachi + ", " + xa + ", " + huyen + ", " + tinh, TienShip: tienShip, PhuongThucThanhToan: pttt, TongTien: tienShip + @tongtien-tienVoucher - tienDiem, TenVoucher: voucher, Diem: diemTich, GhiChu: ghiChu };
+            $.ajax({
+                async: false,
+                type: 'POST',
+                dataType: 'text',
+                url: '/Home/Order',
+                data: objHoaDon,
+                success: function (response) {
+                    console.log(response);
+                    location.href = response;
+                },
+                error: function (response) {
+                    alert("Error");
+                }
+            });
+        }
+    }
+
+    function usevoucher() {
+        value = $("#voucher").val();
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: 'json',
+            url: '/Home/UseVoucher',
+            data: { ma: value, tongTien: @tongtien},
+            success: function (response) {
+                if (response.trangThai == true) {
+                    voucher = value;
+                    if (response.hinhThuc == 1) {
+                        tienVoucher = (@tongtien * response.giaTri) / 100;
+                    }
+                    else if (response.hinhThuc == 0) {
+                        tienVoucher = response.giaTri;
+                    }
+                    var ipVoucher = document.getElementById("moneyvoucher");
+                    ipVoucher.hidden = false;
+                    ipVoucher.innerHTML = "Số tiền giảm (Voucher)<span>" + tienVoucher.toLocaleString('it-IT', { style: 'currency', currency: 'VND' }) + " </span>";
+                    var total = tienShip + @tongtien-tienVoucher - tienDiem;
+                    if (total < 0) {
+                        total = 0
+                    }
+                    document.getElementById("total").innerHTML = total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
+                }
+                else {
+                    // Thông báo voucher lỗi bằng SweetAlert
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Voucher không hợp lệ',
+                        text: response.loi,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#111111'
+                    });
+                }
+            },
+            error: function (response) {
+                alert("Error");
+            }
+        });
+    }
+    function usediem() {
+        var value = $("#diemTich").val();
+        if (value > @(loginInfor.DiemTich == null ? 0 : loginInfor.DiemTich)) {
+            // Thông báo lỗi điểm
+            Swal.fire({
+                icon: 'warning',
+                title: 'Không đủ điểm',
+                text: 'Số điểm của bạn không đủ!',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#111111'
+            });
+        }
+        else if (value < 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Điểm không hợp lệ',
+                text: 'Số điểm không thể âm!',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#111111'
+            });
+        } else if (isNaN(value)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Điểm không hợp lệ',
+                text: 'Giá trị không hợp lệ!',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#111111'
+            });
+        }
+        else {
+            $.ajax({
+                async: true,
+                type: 'GET',
+                dataType: 'json',
+                url: '/Home/UseDDiemTich',
+                data: { diem: value, id: '@loginInfor.Id', tongTien: @tongtien },
+                success: function (response) {
+                    if (response.trangThai == true) {
+                        diemTich = value;
+                        var ipDiem = document.getElementById("moneyscore");
+                        ipDiem.hidden = false;
+                        tienDiem = response.soTienGiam;
+                        ipDiem.innerHTML = "Số tiền giảm (Điểm)<span>" + tienDiem.toLocaleString('it-IT', { style: 'currency', currency: 'VND' }) + "</span>";
+                        var total = tienShip + @tongtien-tienVoucher - tienDiem;
+                        if (total < 0) {
+                            total = 0
+                        }
+                        document.getElementById("total").innerHTML = total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: response.loi,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#111111'
+                        });
+                    }
+                },
+                error: function (response) {
+                    alert("Error");
+                }
+            });
+        }
+    }
+</script>

@@ -1,0 +1,67 @@
+﻿@using AppData.Models;
+@model AppData.Models.LoaiSP
+
+@{
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    ViewData["Title"] = "Create";
+    var listLoaiSP = ViewData["listLoaiSP"] as List<LoaiSP>;
+}
+
+<h1>Thêm loại sản phẩm</h1>
+<div>
+    <a asp-action="Show" class="btn btn-primary mb-2"><i class="bi bi-caret-left-fill"></i>Quay Lại</a>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+            }
+            <div class="form-group">
+                <label class="control-label">Tên Loại SP</label>
+                <input asp-for="Ten" class="form-control" class="form-control" />
+                <div id="emptyNameError" class="invalid-feedback d-none">Vui lòng nhập tên loại sản phẩm!</div>
+            </div>
+            <div class="form-group">
+                <label asp-for="IDLoaiSPCha" class="control-label"> Tên Loại SP Cha</label>
+                <select class="form-control" asp-for="IDLoaiSPCha" name="IDLoaiSPCha">
+                    @if (listLoaiSP != null)
+                    {
+                        <option value="null">Chọn loại sản phẩm cha</option>
+                        @foreach (var item in listLoaiSP.Where(p => p.IDLoaiSPCha == null).ToList())
+                        {
+                            <option value="@item.ID">@item.Ten</option>
+                        }
+                    }
+                </select>
+            </div>
+            <input type="hidden" asp-for="TrangThai" value="1" />
+            <div class="form-group">
+                <input type="submit" value="Thêm Loại SP" class="btn btn-success" style="margin-top: 10px" />
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    $("input[name='Ten']").on("input", function () {
+        $(this).removeClass("is-invalid");
+        $("#emptyNameError").text("");
+    });
+    $("form").submit(function () {
+        var tenInput = $("input[name='Ten']");
+        var tenValue = tenInput.val();
+        if (tenValue.trim() === "") {
+            tenInput.addClass("is-invalid");
+            $("#emptyNameError").text("Tên không được bỏ trống");
+            return false;
+        }
+        return true;
+    });
+</script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

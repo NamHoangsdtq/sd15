@@ -1,0 +1,425 @@
+﻿@using AppData.Models
+@model AppData.ViewModels.BanOffline.HoaDonViewModelBanHang
+
+
+@{
+    ViewData["Title"] = "GioHang";
+    <style>
+        #result {
+            position: absolute;
+            width: 100%;
+            max-width: 330px;
+            cursor: pointer;
+            overflow-y: auto;
+            max-height: 400px;
+            box-sizing: border-box;
+            z-index: 1001;
+            padding-top: 20px;
+        }
+    </style>
+}
+<div class="d-flex flex-column">
+    <div class="d-flex flex-row align-items-center" style="background:#e8eaed">
+        <div class="d-flex flex-column justify-content-center me-auto ms-2 me-auto">
+            <input value="@Model.Id" id="IDHD" hidden />
+            <span>Mã HD: <span style="font-weight:600">@Model.MaHD</span> </span>
+        </div>
+        <div class="search-product d-flex align-items-center">
+            <div class="search-bar">
+                @if (@Model.TenKhachHang == null)
+                {
+
+                    <form class="search-form d-flex align-items-center">
+                        <input type="text" name="search" autocomplete="off" style="outline: none;" id="searchkh" placeholder="Tìm kiếm khách hàng theo tên, SĐT">
+                        <button type="button" title="Thêm mới khách hàng" data-bs-toggle="modal" data-bs-target="#themkhachhang"><i class="fa-regular fa-plus" style="color: #a6a8ab;"></i></button>
+                    </form>
+                    <div>
+                        <ul class="list-group pt-2" id="result"></ul>
+                    </div>
+                }
+                else
+                {
+                    <form class="search-form d-flex align-items-center">
+                        <input type="text" style="outline: none; color:#007bff; font-weight:700" id="searchkh" value="@Model.TenKhachHang" readonly>
+                        <button type="button" id="deletekh"><i class="bi bi-x-circle" style="color: #a6a8ab;"></i></button>
+                    </form>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--Model Thêm nhanh khách hàng-->
+<div class="modal" id="themkhachhang" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-700">Thêm khách hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form class="row g-3">
+                    <div class="col-md-12">
+                        <label for="inputName5">Tên khách hàng <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="inputTenKhachHang" placeholder="Nhập tên khách hàng"  autocomplete="off">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="inputPassword5">Điện thoại <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="inputSDT" placeholder="Nhập số điện thoại"  required>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="inputEmail5">Email</label>
+                        <input type="email" class="form-control" id="inputEmail" placeholder="Nhập email"  autocomplete="off">
+                    </div>
+
+                    <div class="col-12">
+                        <label for="inputAddress5">Địa chỉ</label>
+                        <input type="text" class="form-control" id="inputDiaChi" placeholder="Nhập địa chỉ"  autocomplete="off">
+                    </div>
+                    <div class="col-6">
+                        <label for="inputCity">Ngày sinh</label>
+                        <input type="date" class="form-control" id="inputNgaySinh">
+                    </div>
+                    <div class="col-6">
+                        <label for="inputState">GioiTinh</label>
+                        <fieldset class="d-flex flex-row mb-3 p-2">
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gioitinh" value="1" checked>
+                                <label class="form-check-label" for="gridRadios1">
+                                    Nam
+                                </label>
+                            </div>
+                            <div class="form-check ms-3">
+                                <input class="form-check-input" type="radio" name="gioitinh" value="0">
+                                <label class="form-check-label" for="gridRadios2">
+                                    Nữ
+                                </label>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="alert alert-danger" role="alert" id="validatekh" style="display:none">
+
+                    </div>
+                    <div class="d-flex flex-row text-center">
+                        <button type="button" class="btn btn-secondary w-50 btn-block m-2" data-bs-dismiss="modal">Bỏ qua</button>
+                        <button id="btn-saveKH" type="button" class="btn btn-primary w-50 btn-block m-2">Lưu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cthd d-flex flex-column mt-2" style="height:440px;">
+    @{
+        var index = Model.lstHDCT.Count;
+        var tsl = 0;
+        var ttien = 0;
+    }
+    <div class="d-flex flex-column mb-2 p-2 overflow-auto scroll-cthd">
+        @foreach (var item in Model.lstHDCT)
+        {
+            <div class="cart-item p-2">
+                <div class="cell-order">@index</div>
+                <div class="cell-active">
+                    <button class="btn" onclick="deleteHDCT('@item.Id','@item.IdHoaDon')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="cell-content">
+                    <div class="cell-content-top">
+                        <div class="cell-code text-primary" >@item.MaCTSP</div>
+                        <div class="cell-name">@item.Ten <span class="badge bg-warning" style="color:#fff; font-weight:600">@item.PhanLoai</span></div>
+                    </div>
+                    <div class="cell-content-bottom">
+                        <div style="width:30%">
+                            <div class="number">
+                                <span class="minus" data-value="@item.Id"><i class="fa-solid fa-chevron-left"></i></span>
+                                <input type="number" class="changesl" value="@item.SoLuong" />
+                                <span class="plus" data-value="@item.Id"><i class="fa-solid fa-chevron-right"></i></span>
+                            </div>
+                        </div>
+                        @if (item.GiaGoc != item.GiaKM)
+                        {
+                            <div class="cell-changeprice1">@item.GiaKM.ToString("n0") <span><del style="color:#808080; font-size:14px; margin-left:20px">@item.GiaGoc?.ToString("n0")</del></span></div>
+                            <div class="cell-changeprice2">@((item.GiaKM*item.SoLuong).ToString("n0"))</div>
+                        }
+                        else
+                        {
+                            <div class="cell-changeprice1">@item.GiaKM.ToString("n0") </div>
+                            <div class="cell-changeprice2">@((item.GiaKM*item.SoLuong).ToString("n0"))</div>
+                        }
+
+                    </div>
+                </div>
+                <div class="cell-add">
+                    <button class="btn" onclick="showSPDetail('@item.IdSP')">
+                        <i class="fa-solid fa-circle-plus"></i>
+                    </button>
+                </div>
+            </div>
+            index--;
+            tsl += @item.SoLuong;
+            ttien += (@item.SoLuong * @item.GiaKM);
+        }
+    </div>
+</div>
+<div class="d-flex flex-column bg-light mt-auto align-items-stretch" style="justify-content:center;font-size:24px">
+    <div class="d-flex flex-row p-2 justify-content-center" style="font-size:18px;background:#e8eaed">
+        <div class="flex-fill">
+            <p>SL: </p>
+        </div>
+        <div class="flex-fill">
+            <p id="tsl">@tsl</p>
+        </div>
+        <div class="flex-fill">
+            <p>Tổng tiền hàng: </p>
+        </div>
+        <div class="justify-content-end">
+            <p style="text-align:right; padding-right:70px"><b id="tongtienhang">@ttien.ToString("n0")</b></p>
+        </div>
+    </div>
+    <div class="d-flex flex-row mt-2 p-2">
+        <div class="flex-fill pe-2">
+            <div class="input-group">
+                <span class="input-group-text border border-secondary">
+                    Ghi chú
+                </span>
+                <textarea class="form-control border border-secondary" aria-label="With textarea" id="ghichu">@Model.GhiChu</textarea>
+            </div>
+        </div>
+        <button type="button" id="btnThanhToan" class="btn btn-primary fw-bold btn-block" style="font-size:20px; width:400px">
+            THANH TOÁN
+        </button>
+    </div>
+</div>
+
+</div>
+<script>
+     $(document).ready(function(){
+     });
+     //Tìm kiếm khách hàng
+            $("#searchkh").keyup(function() {
+            var keyword = $("#searchkh").val();
+            if (keyword !== '') {
+                $("#result").empty();
+                $.ajax({
+                    type: "GET",
+                    url: "/BanHangTaiQuay/SearchKH/" + keyword,
+                    dataType: 'json',
+                    success: function(response) {
+                        for (let i = 0; i < response.data.length; i++) {
+                            const item = response.data[i];
+                            if(item.sdt === null || item.sdt ===''){
+                                $("#result").append(`
+                               <li class="list-group-item link-class" onclick="suaKhachHang('${item.idKhachHang}')">
+                                    <input value="${item.idKhachHang}" hidden />${item.ten}
+                               </li>
+                            `);
+                            }else{
+                                $("#result").append(`
+                               <li class="list-group-item link-class" onclick="suaKhachHang('${item.idKhachHang}')">
+                                    <input value="${item.idKhachHang}" hidden />${item.ten} | <span class="text-muted">${item.sdt}</span>
+                               </li>
+                            `);
+                            }
+                        }
+                    },
+                    error: function(response) {
+
+                    }
+                });
+            }else{
+                 $("#result").empty();
+            }
+        });
+       //Thêm nhanh khách hàng
+         $("#btn-saveKH").on("click",function(){
+         var phoneNumberRegex = /^\d{10}$/;
+         var emailRegex = /^[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+         var tenkh = $("#inputTenKhachHang").val();
+         var sdt = $("#inputSDT").val();
+         var email = $("#inputEmail").val();
+         var dchi = $("#inputDiaChi").val();
+         var dob = $("#inputNgaySinh").val();
+         var gtinh = $('input[name="gioitinh"]:checked').val();
+         var idhd = $("#IDHD").val();
+         if(tenkh.trim().length == 0){
+            $("#validatekh").css('display','block');
+            $("#validatekh").text('Tên khách hàng không được để trống');
+         }else if(sdt.trim().length == 0 && email.trim().length == 0){
+            $("#validatekh").css('display','block');
+            $("#validatekh").text('Nhập SĐT hoặc Email');
+         }else if(sdt.trim().length != 0 && !phoneNumberRegex.test(sdt)){
+            $("#validatekh").css('display','block');
+            $("#validatekh").text('Số điện thoại không hợp lệ');
+         }else if(email.trim().length != 0 &&!emailRegex.test(email)){
+            $("#validatekh").css('display','block');
+            $("#validatekh").text('Email không hợp lệ');
+         }else{
+              $("#validatekh").css('display','none');
+              var khachHang = {IDKhachHang: idhd, Ten: tenkh, GioiTinh: gtinh, NgaySinh: dob, Email: email, DiaChi: dchi, SDT: sdt};
+             console.log(khachHang);
+             $.ajax({
+                 url: "/BanHangTaiQuay/AddKhachHang",
+                 async: false,
+                 type: 'POST',
+                 dataType: 'json',
+                 data:khachHang,
+                 success: function(response) {
+                    if(response.success == true){
+                        gethdct(idhd);
+                        $("#themkhachhang").modal("hide");
+                        toastr.success(response.message, "Thông báo", {timeOut : 3000});
+                    }else{
+                        $("#validatekh").css('display','block');
+                        $("#validatekh").text(response.message);
+                    }
+                 },
+                 error: function(response) {
+                    toastr.error(response.message, 'Thông báo', { timeOut: 3000 });       
+                 }
+             });
+         }
+     })
+        // Mở modal thanh toán
+    $("#btnThanhToan").on("click", function() {
+        var activeTab = $(".tabs-box .tab").filter(".active");
+        var elementValue = activeTab.find("span").attr("value");
+        $("#thanhtoanbody").load("/BanHangTaiQuay/ViewThanhToan/"+elementValue);
+            $("#thanhtoan").modal("show");
+    });
+
+
+     //Sửa khách hàng
+    function suaKhachHang(IDKH){{
+        var IDHD = $("#IDHD").val();
+        $.ajax({
+            url: "/BanHangTaiQuay/UpdateKHinHD",
+            type: 'GET',
+            data:{
+                idkh:IDKH,
+                idhd:IDHD,
+            },
+            dataType: "json",
+            success: function(response) {
+                gethdct(IDHD);
+            },
+            error:function(response){
+                toastr.error('Sửa thất bại', "Thông báo", { timeOut: 3000 });
+            },
+        })
+    }}
+    //Xóa khách hàng
+    var khinput = document.getElementById("searchkh");
+    khinput.addEventListener("blur", function(event) {
+        var inputValue = event.target.value;
+        var idhd = $("#IDHD").val();
+        if (inputValue === '') {
+            $.ajax({
+                url: "/BanHangTaiQuay/DeleteKHinHD/" + idhd,
+                async: false,
+                type: 'GET',
+                success: function(response) {
+                    gethdct('@Model.Id');
+                },
+                error: function(response) {
+                    toastr.error('Xóa khách hàng thất bại', 'Thông báo', { timeOut: 3000 });
+                }
+            });
+        }
+    });
+    $("#deletekh").click(function(){
+        var idhd = $("#IDHD").val();
+        $.ajax({
+            url: "/BanHangTaiQuay/DeleteKHinHD/" + idhd,
+            async: false,
+            type: 'GET',
+            success: function(response) {
+                gethdct('@Model.Id');
+            },
+            error: function(response) {
+                toastr.error('Xóa khách hàng thất bại', 'Thông báo', { timeOut: 3000 });
+            }
+        });
+    })
+     //Update số lượng
+     function UpdateSL(IDHDCT,SL){
+         $.ajax({
+             url: "/BanHangTaiQuay/UpdateSL",
+             async: false,
+             type: 'GET',
+             dataType: 'json',
+             data:{
+                 idhdct:IDHDCT,
+                 sl: SL
+             },
+             success: function(response) {
+                 if(response.success === true){
+                    gethdct('@Model.Id');
+                    
+                 }else{
+                    gethdct('@Model.Id');
+                    toastr.error(response.message, 'Thông báo', { timeOut: 500 });
+                 }
+             },
+             error: function(response) {
+                 gethdct('@Model.Id');
+                 toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
+                 
+             }
+         });
+     }
+     // Tăng giảm số lượng
+     $('.minus').click(function () {
+         var idcthd = $(this).data('value');
+         var $input = $(this).parent().find('input');
+         var count = parseInt($input.val()) - 1;
+         count = count < 1 ? 1 : count;
+         $input.val(count);
+         $input.change();
+         UpdateSL(idcthd,count);
+         return false;
+     });
+     $('.plus').click(function () {
+         var idcthd = $(this).data('value');
+         var $input = $(this).parent().find('input');
+         var count = parseInt($input.val()) + 1;
+         $input.val(count);
+         $input.change();
+         UpdateSL(idcthd,count);
+         return false;
+     });
+     //Thay đổi số lượng
+    $('.changesl').on('input', function() {
+       var idcthd = $(this).parent().find('span').data('value');
+       let count = $(this).val();
+       UpdateSL(idcthd, count);
+     });
+
+      //Lưu ghi chú
+    var inputElement = document.getElementById("ghichu");
+    inputElement.addEventListener("blur", function(event) {
+        var inputValue = event.target.value;
+        if(inputValue === '' || inputValue.trim == ''){
+            inputValue = null;
+        }
+        $.ajax({
+            url: "/BanHangTaiQuay/UpdateGhichu",
+            type: "PUT",
+            dataType: "json",
+            data:{
+                idhd: '@Model.Id',
+                ghichu: inputValue,
+            },
+            success: function() {
+                gethdct('@Model.Id');
+            },
+            error: function(response) {
+                toastr.error('Lưu ghi chú thất bại', 'Thông báo', { timeOut: 3000 });
+            }
+        });
+    });
+</script>
+

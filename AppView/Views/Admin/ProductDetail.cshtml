@@ -1,0 +1,277 @@
+﻿@{
+    ViewData["Title"] = "ProductDetail";
+    string idSanPham = TempData["IDSanPham"] as string;
+}
+
+<h1>Chi tiết sản phẩm</h1>
+<br />
+<div class="row d-flex justify-content-between align-items-center mb-3">
+    <!-- Nút Quay Lại -->
+    <div class="col-auto">
+        <a asp-action="ProductManager" class="btn btn-primary"><i class="bi bi-caret-left-fill"></i>Quay Lại</a>
+    </div>
+
+    <!-- Phần tìm kiếm -->
+    <div class="col-lg-6 d-flex justify-content-end align-items-center">
+        <!-- Label -->
+        <div class="me-2">
+            <p style="text-align:end ; margin-top: 5px; margin-right: 5px;">Sắp xếp</p>
+        </div>
+
+        <!-- Dropdown -->
+        <div class="me-2">
+            <select class="form-select" id="sort" onchange="ReloadPagination()">
+                <option selected value="1">Sắp xếp theo mã</option>
+                <option value="2">Sắp xếp theo giá tăng dần</option>
+                <option value="3">Sắp xếp theo giá giảm dần</option>
+                <option value="4">Sắp xếp theo số lượng tăng dần</option>
+                <option value="5">Sắp xếp theo số lượng giảm dần</option>
+            </select>
+        </div>
+
+        <!-- Nút Filter -->
+        <div>
+            <button class="btn" style="border:1px solid black" type="button" data-bs-toggle="collapse" data-bs-target=".filter">
+                <i class="bx bx-filter-alt"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row filter collapse" style="margin-bottom:10px">
+    <div class="col-lg-3" style="padding-left:0px;padding-right:2px">
+        <p style="margin:0px;">Mã sản phẩm:</p>
+        <input type="text" class="form-control" placeholder="Tìm kiếm theo mã sản phẩm" style="width:100%" id="searchName">
+    </div>
+    <div class="col-lg-2" style="padding-left:2px;padding-right:2px">
+        <p style="margin:0px">Giá bán:</p>
+        <input type="number" class="form-control" placeholder="Min" style="width:100%" id="priceMin">
+    </div>
+    <div class="col-lg-2" style="padding-left:2px;padding-right:2px">
+        <p style="margin:0px">&ensp;</p>
+        <input type="number" class="form-control" placeholder="Max" style="width:100%" id="priceMax">
+    </div>
+    <div class="col-lg-2" style="padding-left:2px;padding-right:2px">
+        <p style="margin:0px">Số lượng:</p>
+        <input type="number" class="form-control" placeholder="Min" style="width:100%" id="quantityMin">
+    </div>
+    <div class="col-lg-2" style="padding-left:2px;padding-right:2px">
+        <p style="margin:0px">&ensp;</p>
+        <input type="number" class="form-control" placeholder="Max" style="width:100%" id="quantityMax">
+    </div>
+    <div class="col-lg-1" style="padding-left:2px;padding-right:2px">
+        <p style="margin:0px">&ensp;</p>
+        <button class="btn btn-primary" type="button" onclick="ReloadPagination()">Lọc</button>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Mã
+            </th>
+            <th>
+                Tên màu
+            </th>
+            <th>
+                Mã màu
+            </th>
+            <th>
+                Size
+            </th>
+            <th>
+                Số lượng
+            </th>
+            <th>
+                Giá gốc
+            </th>
+            <th>
+                Giá bán
+            </th>
+            <th style="width:110px;text-align:center">
+                Giá trị khuyến mãi
+            </th>
+            <th>
+                Mặc định
+            </th>
+            <th>
+                Trạng thái
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="list_productdetails">
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-end">
+    <a asp-action="QuanLyAnh" asp-route-idSanPham="@idSanPham" class="btn btn-success" style="margin-left:5px">Quản lý ảnh</a>
+    <a asp-action="AddChiTietSanPham" asp-route-idSanPham="@idSanPham" class="btn btn-primary" style="margin-left:5px">Thêm chi tiết sản phẩm</a>
+</div>
+<div class="row">
+    <div class="col-lg-12 d-flex justify-content-center">
+        <ul id="pagination-demo" class="pagination"></ul>
+    </div>
+</div>
+
+<script src="~/js/jquery-3.3.1.min.js"></script>
+<script>
+    var pageIndex = 1;
+    var pagesize = 10;
+    var idSanPham = '@idSanPham';
+    $(document).ready(function () {
+        loadsp();
+    });
+    function loadsp() {
+        var maSP = $("#searchName").val();
+        var minGia = $("#priceMin").val();
+        var maxGia = $("#priceMax").val();
+        var minSL = $("#quantityMin").val();
+        var maxSL = $("#quantityMax").val();
+        var sx = $("#sort").val();
+        var request = { page: pageIndex, pageSize: pagesize, id: idSanPham, ma: maSP, minPrice: minGia, maxPrice: maxGia, minQuantity: minSL, maxQuantity: maxSL, sort: sx };
+        $.ajax({
+            url: "/Admin/ShowProductDetail",
+            type: "GET",
+            data: request,
+            success: function (response) {
+                $("#list_productdetails").empty();
+                $.each(response.data, function (i, item) {
+                    if (item.trangThai == 1) {
+                        $("#list_productdetails").append(`<tr><td>${item.ma}</td><td>${item.tenMauSac}</td><td><input type="color" value="${item.maMauSac}" style="border:none;width:27px;height:25px" disabled></td><td>${item.tenKichCo}</td><td style="width:100px"><input type="number" value="${item.soLuong}" style="border:none;width:100%" id="soLuong_${item.id}" onchange="changeSoLuong('${item.id}')"></td><td style="width:100px"><input type="number" value="${item.giaGoc}" style="border:none;width:100%" id="giaGoc_${item.id}" onchange="changeGiaBan('${item.id}')"></td><td id="giaBan_${item.id}">${item.giaBan}</td><td style="text-align:center">${item.giaTriKhuyenMai == null ? "0" : item.giaTriKhuyenMai}</td><td><input class="form-check-input" type="radio" name="macDinh" checked id="trangThai_${item.id}" onclick="changeTrangThai('${item.id}')" /></td><td id="hoatDong_${item.id}" style="width:150px"><span style="color:green">Hoạt động</span></td><td id="xoa_${item.id}" style="width:150px"><a href="/Admin/GenerateQRCode?id=${item.id}&ma=${item.ma}" class="btn btn-secondary"><i class="bi bi-qr-code-scan"></i></a><button type="button" class="btn btn-danger" onclick="xoa('${item.id}')"><i class="bi bi-trash"></i></button></td></tr>`);
+                    }
+                    else if (item.trangThai == 2) {
+                        $("#list_productdetails").append(`<tr><td>${item.ma}</td><td>${item.tenMauSac}</td><td><input type="color" value="${item.maMauSac}" style="border:none;width:27px;height:25px" disabled></td><td>${item.tenKichCo}</td><td style="width:100px"><input type="number" value="${item.soLuong}" style="border:none;width:100%" id="soLuong_${item.id}" onchange="changeSoLuong('${item.id}')"></td><td style="width:100px"><input type="number" value="${item.giaGoc}" style="border:none;width:100%" id="giaGoc_${item.id}" onchange="changeGiaBan('${item.id}')"></td><td id="giaBan_${item.id}">${item.giaBan}</td><td style="text-align:center">${item.giaTriKhuyenMai == null ? "0" : item.giaTriKhuyenMai}</td><td><input class="form-check-input" type="radio" name="macDinh" id="trangThai_${item.id}" onclick="changeTrangThai('${item.id}')" /></td><td id="hoatDong_${item.id}" style="width:150px"><span style="color:green">Hoạt động</span></td><td id="xoa_${item.id}" style="width:150px"><a href="/Admin/GenerateQRCode?id=${item.id}&ma=${item.ma}" class="btn btn-secondary"><i class="bi bi-qr-code-scan"></i></a><button type="button" class="btn btn-danger" onclick="xoa('${item.id}')"><i class="bi bi-trash"></i></button></td></tr>`);
+                    }
+                    else {
+                        $("#list_productdetails").append(`<tr><td>${item.ma}</td><td>${item.tenMauSac}</td><td><input type="color" value="${item.maMauSac}" style="border:none;width:27px;height:25px" disabled></td><td>${item.tenKichCo}</td><td style="width:100px"><input type="number" value="${item.soLuong}" style="border:none;width:100%" id="soLuong_${item.id}" onchange="changeSoLuong('${item.id}')"></td><td style="width:100px"><input type="number" value="${item.giaGoc}" style="border:none;width:100%" id="giaGoc_${item.id}" onchange="changeGiaBan('${item.id}')"></td><td id="giaBan_${item.id}">${item.giaBan}</td><td style="text-align:center">${item.giaTriKhuyenMai == null ? "0" : item.giaTriKhuyenMai}</td><td><input class="form-check-input" type="radio" name="macDinh" id="trangThai_${item.id}" onclick="changeTrangThai('${item.id}')" /></td><td id="hoatDong_${item.id}" style="width:150px"><span style="color:red">Không hoạt động</span></td><td id="xoa_${item.id}" style="width:150px"><a href="/Admin/GenerateQRCode?id=${item.id}&ma=${item.ma}" class="btn btn-secondary"><i class="bi bi-qr-code-scan"></i></a><button type="button" class="btn btn-success" onclick="undo('${item.id}')"><i class="bi bi-arrow-counterclockwise"></i></button></td></tr>`);
+                    }
+                });
+                pagingsp(response.total, function () {
+                    loadsp();
+                });
+            },
+            error: function (err) {
+                console.log('Error:', err);
+            }
+        });
+    }
+    function pagingsp(totalrow, callback) {
+        var totalgages = Math.ceil(totalrow / pagesize);
+        $("#pagination-demo").twbsPagination({
+            totalPages: totalgages,
+            visiblePages: 7,
+            onPageClick: function (event, page) {
+                pageIndex = page;
+                setTimeout(callback, 200);
+            }
+        });
+    }
+    function ReloadPagination() {
+        $("#pagination-demo").twbsPagination('destroy');
+        loadsp();
+    }
+
+    function changeSoLuong(idSP) {
+        var ip = document.getElementById("soLuong_" + idSP);
+        if (ip.value < 0) {
+            alert("Số lượng không được âm");
+            ip.value = -999;
+        }
+        else {
+            $.ajax({
+                async: true,
+                type: 'POST',
+                dataType: "json",
+                data: { id: idSP, soLuong: ip.value },
+                url: '/Admin/UpdateSoluongChiTietSanPham',
+                success: function (response) {
+                    ip.innerHTML = response.message;
+                },
+                error: function (response) {
+                    ip.innerHTML = 'Error';
+                }
+            });
+        }
+
+    }
+    function changeGiaBan(idSP) {
+        var ip = document.getElementById("giaGoc_" + idSP);
+        if (ip.value < 0) {
+            alert("Giá gốc không được âm");
+            ip.value = -999;
+        }
+        else {
+            $.ajax({
+                async: true,
+                type: 'POST',
+                dataType: "json",
+                data: { id: idSP, giaBan: ip.value },
+                url: '/Admin/UpdateGiaBanChiTietSanPham',
+                success: function (response) {
+                    document.getElementById("giaBan_" + idSP).innerHTML = response.message;
+                },
+                error: function (response) {
+                    ip.innerHTML = 'Error';
+                }
+            });
+        }
+    }
+    function changeTrangThai(idSP) {
+        $.ajax({
+            async: true,
+            type: 'POST',
+            dataType: "json",
+            data: { id: idSP },
+            url: '/Admin/UpdateTrangThaiChiTietSanPham',
+            success: function (response) {
+                if (response) {
+                    document.getElementById("hoatDong_" + idSP).innerHTML = '<span style="color:green">Hoạt động</span>';
+                    var ip = document.getElementById("xoa_" + idSP);
+                    ip.removeChild(ip.children[1]);
+                    $("#xoa_" + idSP).append("<button type='button' class='btn btn-danger' onclick = \"xoa('" + idSP + "')\"><i class='bi bi-trash'></i></button>");
+                }
+            }
+        });
+    }
+    function xoa(idSP) {
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: "json",
+            data: { id: idSP },
+            url: '/Admin/DeleteProductDetail',
+            success: function (response) {
+                if (response.trangThai) {
+                    document.getElementById("hoatDong_" + idSP).innerHTML = '<span style="color:red">Không hoạt động</span>';
+                    var ip = document.getElementById("xoa_" + idSP);
+                    ip.removeChild(ip.children[1]);
+                    $("#xoa_" + idSP).append("<button type='button' class='btn btn-success' onclick = \"undo('" + idSP + "')\"><i class='bi bi-arrow-counterclockwise'></i></button>");
+                }
+                else {
+                    alert(response.loi);
+                }
+            }
+        });
+    }
+    function undo(idSP) {
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: "json",
+            data: { id: idSP },
+            url: '/Admin/UndoProductDetail',
+            success: function (response) {
+                if (response) {
+                    document.getElementById("hoatDong_" + idSP).innerHTML = '<span style="color:green">Hoạt động</span>';
+                    var ip = document.getElementById("xoa_" + idSP);
+                    ip.removeChild(ip.children[1]);
+                    $("#xoa_" + idSP).append("<button type='button' class='btn btn-danger' onclick = \"xoa('" + idSP + "')\"><i class='bi bi-trash'></i></button>");
+                }
+            }
+        });
+    }
+</script>
+
+

@@ -1,0 +1,76 @@
+﻿@model AppData.ViewModels.KhachHangViewModel
+
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_Layout";
+}
+
+<div class="row" style="margin-top:10px">
+    <div class=col-4></div>
+    <div class="col-4">
+        <h3 style="text-align:center;margin-bottom:10px"><strong>Đăng ký</strong></h3>
+        <div class="tab-content" style="border-radius: 1rem;">
+            <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
+                @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @ViewBag.ErrorMessage
+                    </div>
+                }
+                <form asp-action="Register" id="registerForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Email" class="control-label">Email</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label">Tên</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="SDT" class="control-label">SDT</label>
+                        <input asp-for="SDT" class="form-control" />
+                        <span asp-validation-for="SDT" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Password" class="control-label">Mật khẩu</label>
+                        <input asp-for="Password" type="password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword" class="control-label">Nhập lại mật khẩu</label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                    <input type="hidden" asp-for="DiemTich" value="0" />
+                    <input type="hidden" asp-for="TrangThai" value="1" />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-block mb-4">Đăng ký</button>
+                    </div>
+                    <div class="text-center">
+                        <p>Bạn đã có tài khoản<a asp-action="Login"> Đăng nhập</a></p>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+        <div class=col-4></div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#successMessageButton").on("click", function () {
+            window.location.href = "/Login";
+        });
+    });
+</script>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

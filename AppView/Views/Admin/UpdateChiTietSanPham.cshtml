@@ -1,0 +1,105 @@
+﻿@model AppData.ViewModels.SanPham.ChiTietSanPhamUpdateRequest
+
+@{
+    ViewData["Title"] = "AddAnhToMauSac";
+}
+
+<h1>Thêm ảnh sản phẩm theo màu sắc</h1>
+<br />
+<a asp-action="AddSanPham" class="btn btn-primary"><i class="bi bi-chevron-double-left"></i>Quay Lại</a>
+<form asp-action="UpdateChiTietSanPham" id="myForm">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Tên màu
+                </th>
+                <th>
+                    Màu sắc
+                </th>
+                <th>
+                    Kích cỡ
+                </th>
+                <th>
+                    Số lượng
+                </th>
+                <th>
+                    Giá bán
+                </th>
+                <th>
+                    Mặc định
+                </th>
+                <th>
+                </th>
+                <th>
+                </th>
+                <th>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < Model.ChiTietSanPhams.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <input type="text" asp-for="ChiTietSanPhams[i].TenMauSac" style="border:none;background-color:white" readonly>
+                    </td>
+                    <td>
+                        <input type="color" value="@Model.ChiTietSanPhams[i].MaMau" style="border:none;width:27px;height:25px" readonly disabled>
+                    </td>
+                    <td>
+                        <input type="text" asp-for="ChiTietSanPhams[i].TenKichCo" style="border:none;background-color:white" readonly>
+                    </td>
+                    <td>
+                        <input type="number" asp-for="ChiTietSanPhams[i].SoLuong"
+                               class="form-control" min="0" step="0.01"
+                               style="max-width: 120px; border-radius: 8px; padding: 8px;
+       border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); font-size: 16px;" />
+
+                    </td>
+                    <td>
+                        <input type="number" asp-for="ChiTietSanPhams[i].GiaBan"
+                               class="form-control" min="0" step="1"
+                               style="width: 200px; border-radius: 8px; padding: 8px;
+                  border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); font-size: 16px;" />
+                    <td>
+                        <input type="radio" asp-for="TrangThai" value="@Model.ChiTietSanPhams[i].IDChiTietSanPham">
+                    </td>
+                    <td>
+                        <input type="hidden" asp-for="ChiTietSanPhams[i].IDChiTietSanPham">
+                    </td>
+                    <td>
+                        <input type="hidden" asp-for="ChiTietSanPhams[i].IDMauSac">
+                    </td>
+                    <td>
+                        <input type="hidden" asp-for="ChiTietSanPhams[i].IDKichCo">
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-success" type="submit">Submit</button>
+</form>
+
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script>
+    $(".btn").on("click", function (event) {
+        event.preventDefault();
+        var check = true;
+        for (var i = 0; i < @Model.ChiTietSanPhams.Count; i++) {
+            if ($("#ChiTietSanPhams_" + i + "__GiaBan").val() < 0) {
+                alert("Giá bán và số lượng không được âm");
+                check = false;
+                break;
+            }
+            if ($("#ChiTietSanPhams_" + i + "__SoLuong").val() < 0) {
+                alert("Giá bán và số lượng không được âm");
+                check = false;
+                break;
+            }
+        }
+        if (check) {
+            document.getElementById("myForm").submit();
+        }
+    })
+</script>

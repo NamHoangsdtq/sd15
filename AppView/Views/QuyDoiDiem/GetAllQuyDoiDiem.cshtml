@@ -1,0 +1,117 @@
+﻿@model AppView.PhanTrang.PhanTrangQuyDoiDiem
+
+@{
+    ViewData["Title"] = "GetAllQuyDoiDiem";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    int stt = 1;
+}
+
+<h1 style="text-align:center">
+    <b>Quản lý quy đổi điểm</b>
+
+</h1>
+
+
+<br />
+<div>
+    <h2>Công thức tính quy đổi điểm</h2>
+    <p>
+        <strong style="color: blue;">1. Tích điểm khi mua hàng:</strong><br>
+        Mỗi khi khách hàng mua hàng, số điểm tích lũy được tính dựa trên công thức:
+        <strong style="color: red;">Số điểm tích lũy = Tiền hàng / Tỷ lệ tích điểm</strong>. <br>
+        <em>(Ví dụ: Nếu tỷ lệ tích điểm là 100, khách hàng sẽ tích được 1 điểm cho mỗi 100.000 VNĐ chi tiêu.)</em>
+    </p>
+    <p>
+        <strong style="color: blue;">2. Sử dụng điểm để giảm giá khi mua hàng:</strong><br>
+        Số tiền giảm giá tương ứng được tính dựa trên số điểm khách hàng hiện có, theo công thức:
+        <strong style="color: red;">Số tiền giảm giá = Số điểm hiện có x Tỷ lệ tiêu điểm</strong>. <br>
+        <em>(Ví dụ: Nếu tỷ lệ tiêu điểm là 1.000 VNĐ/điểm, 100 điểm sẽ giảm được 100.000 VNĐ.)</em>
+    </p>
+    <p>
+        <strong style="color: blue;">3. Giới hạn sử dụng điểm:</strong><br>
+        Số tiền giảm giá bằng điểm không được vượt quá
+        <strong style="color: red;">20%</strong> giá trị đơn hàng. <br>
+        <em>(Ví dụ: Nếu đơn hàng trị giá 1.000.000 VNĐ, khách hàng chỉ có thể sử dụng tối đa 200.000 VNĐ từ điểm tích lũy.)</em>
+    </p>
+</div>
+
+<br />
+
+<table class="table">
+    <div style="margin-bottom: 10px">
+        <a class="btn btn-success" asp-action="Create">Thêm mới</a>
+    </div>
+    <thead>
+        <tr>
+            <th style=" background-color: cornflowerblue;
+    color: white;">STT</th>
+
+            <th style=" background-color: cornflowerblue;
+    color: white;">Tỉ lệ tích điểm</th>
+            <th style=" background-color: cornflowerblue;
+    color: white;">Tỉ lệ tiêu điểm</th>
+            <th style=" background-color: cornflowerblue;
+    color: white;">Trạng thái </th>
+            <th style=" background-color: cornflowerblue;
+    color: white;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listqdd)
+        {
+            <tr>
+                <td>
+                    <strong style="color:black">@stt</strong>
+                </td>
+
+                <td>
+                    <div style="color:green">@item.TiLeTichDiem</div>
+                </td>
+                <td>
+                    <div style="color:green">@item.TiLeTieuDiem</div>
+                </td>
+                <td>
+                    @if (item.TrangThai == 0)
+                    {
+                        <div style="color:red">Không sử dụng điểm</div>
+                    }
+                    else if (item.TrangThai == 1)
+                    {
+                        <div style="color:green">Chỉ tích điểm hoặc tiêu điểm</div>
+                    }
+                    else if (item.TrangThai == 2)
+                    {
+                        <div style="color:green">Vừa tiêu điểm, vừa tích điểm</div>
+                    }
+                </td>
+                <td>
+                    <button class="btn btn-info">
+                        @Html.ActionLink("Sửa", "Updates", new { id = item.ID }, new { @style = "color:white;" })
+                    </button>
+
+                    @*  <button class="btn btn-danger">
+                @Html.ActionLink("Xóa", "Delete", new { id = item.ID }, new { @style = "color:white;" })
+                </button>*@
+                </td>
+                @{
+                    stt++;
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="col-12">
+    <nav>
+        <ul class="pagination justify-content-center">
+
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item"><a class="page-link" href="/QuyDoiDiem/GetAllQuyDoiDiem?ProductPage=@i">@i</a></li>
+
+            }
+
+
+        </ul>
+    </nav>
+</div>
+

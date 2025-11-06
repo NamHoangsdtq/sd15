@@ -1,0 +1,147 @@
+﻿@using AppData.ViewModels
+
+
+@{
+    ViewData["Title"] = "GetAllLSTDByIDKH";
+    Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
+    TongDon? Thanhcong = @ViewBag.DonThanhCong;
+    TongDon? Huy = @ViewBag.DonHuy;
+    TongDon? HoanHang = @ViewBag.DonHoaHang;
+
+
+}
+
+<h1 style="text-align:center"><b>Xem lịch sử</b></h1>
+<table class="table" style="margin-left: 20px">
+    <thead>
+        <tr>
+            <th style=" background-color: darkslategray;
+    color: white;">Loại đơn</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Tổng số đơn </th>
+            <th style=" background-color: darkslategray;
+    color: white;">Tổng số tiền</th>
+            <th style=" background-color: darkslategray;
+    color: white;">Chi Tiết</th>
+            
+           @* <th style=" background-color: darkslategray;
+    color: white;">Số điểm tích hoặc tiêu</th>*@
+           
+
+           
+          
+        </tr>
+    </thead>
+    <tbody>
+       
+            <tr>
+                <td>
+                    <strong style="color:black">Đơn thành công</strong>
+                </td>
+            @if (Thanhcong != null){
+                <td>
+
+                    <div style="color:black">@Thanhcong.SoDon</div>
+                </td>
+                <td>
+                    <div style="color:black">@Thanhcong.SoTien.Value.ToString("n0") VND</div>
+                </td>
+            }
+            else{
+                <td>
+
+                    <div style="color:black">0</div>
+                </td>
+                <td>
+                    <div style="color:black">0 VND</div>
+                </td>
+            }
+                <td>
+            
+               
+                <button class="btn btn-primary">
+                    <a asp-action="DonThanhCong" style="color:white;">Chi tiết</a>
+                </button>
+                </td>
+               
+                @*<td>
+                    <div style="color:red">@item.SoDiemTichOrTieu</div>
+                </td>*@   
+            </tr>
+        <tr>
+            <td>
+                <strong style="color:black">Đơn hủy</strong>
+            </td>
+            @if (Huy != null)
+            {
+                <td>
+
+                    <div style="color:black">@Huy.SoDon</div>
+                </td>
+                <td>
+                    <div style="color:black">@Huy.SoTien.Value.ToString("n0") VND</div>
+                </td>
+            }
+            else
+            {
+                <td>
+
+                    <div style="color:black">0</div>
+                </td>
+                <td>
+                    <div style="color:black">0 VND</div>
+                </td>
+            }
+            <td>
+                <button class="btn btn-primary">
+                    <a asp-action="DonHuy" style="color:white;">Chi tiết</a>
+                </button>
+            </td>
+
+            @*<td>
+            <div style="color:red">@item.SoDiemTichOrTieu</div>
+            </td>*@
+        </tr>
+        <tr>
+            <td>
+                <strong style="color:black">Đơn hoàn hàng</strong>
+            </td>
+            @if (HoanHang != null)
+            {
+                <td>
+
+                    <div style="color:black">@HoanHang.SoDon</div>
+                </td>
+                <td>
+                    <div style="color:black">@HoanHang.SoTien.Value.ToString("n0") VND</div>
+                </td>
+            }
+            else
+            {
+                <td>
+
+                    <div style="color:black">0</div>
+                </td>
+                <td>
+                    <div style="color:black">0 VND</div>
+                </td>
+            }
+            <td>
+                <button class="btn btn-primary">
+                    <a asp-action="DonHoanHang" style="color:white;">Chi tiết</a>
+                </button>
+            </td>
+
+            @*<td>
+            <div style="color:red">@item.SoDiemTichOrTieu</div>
+            </td>*@
+        </tr>
+        
+    </tbody>
+</table>
+
+<br />
+<button class="btn btn-primary">
+    <a asp-action="GetAllKhachHang" style="color:white;">Quay lại</a>
+</button>
+

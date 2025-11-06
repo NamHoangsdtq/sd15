@@ -1,0 +1,42 @@
+﻿@model List<AppData.Models.MauSac>
+
+@{
+    ViewData["Title"] = "Thêm ảnh";
+}
+
+<h1>AddAnhToMauSac</h1>
+
+<form enctype="multipart/form-data" asp-action="AddAnhToSanPham">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Chọn ảnh
+                </th>
+                <th>
+                    Tên màu
+                </th>
+                <th>
+                    Mã Màu
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <input type="file" name="images" />
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => Model[i].Ten)
+                    </td>
+                    <td>
+                        <input type="color" value="@Model[i].Ma" style="border:none;width:27px;height:25px" readonly name="maMaus">
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>

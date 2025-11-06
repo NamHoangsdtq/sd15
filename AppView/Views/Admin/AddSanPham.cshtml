@@ -1,0 +1,245 @@
+﻿@model AppData.ViewModels.SanPham.SanPhamRequest
+
+@{
+    ViewData["Title"] = "AddSanPham";
+}
+
+<h1>Thêm sản phẩm</h1>
+
+<hr />
+
+
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="AddSanPham" enctype="multipart/form-data">
+            <div class="d-flex justify-content-between mb-4">
+                <!-- Button Quay Lại bên trái -->
+                <div>
+                    <a asp-action="ProductManager" class="btn btn-primary">
+                        <i class="bi bi-caret-left-fill"></i> Quay
+                        Lại
+                    </a>
+                </div>
+                <!-- Button Thêm bên phải -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success" onclick="return confirmAddSanPham()">
+                        Thêm <i class="bi bi-plus-circle"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <!-- Left Form -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Ten" class="control-label mb-2">Tên sản phẩm</label>
+                        <input asp-for="Ten" class="form-control mb-2" autocomplete="off" />
+                        <span asp-validation-for="Ten" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="MoTa" class="control-label">Mô Tả</label>
+                        <textarea asp-for="MoTa" class="form-control mb-2" rows="5" autocomplete="off"></textarea>
+                        <span asp-validation-for="MoTa" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Chất liệu</label>
+                        <input asp-for="TenChatLieu" class="form-control mb-2" list="chatLieu" autocomplete="off" />
+                        <datalist id="chatLieu"></datalist>
+                        <span asp-validation-for="TenChatLieu" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Loại sản phẩm cha</label>
+                        <input asp-for="TenLoaiSPCha" class="form-control mb-2" list="loaiSPCha" id="ipLoaiSPCha"
+                               autocomplete="off" />
+                        <datalist id="loaiSPCha"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Loại sản phẩm con</label>
+                        <input asp-for="TenLoaiSPCon" class="form-control mb-2" list="loaiSPCon" autocomplete="off" />
+                        <datalist id="loaiSPCon"></datalist>
+                        <span asp-validation-for="TenLoaiSPCon" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <!-- Right Form -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <p class="control-label mt-2 mb-2">Màu sắc</p>
+                        <span asp-validation-for="MauSacs" class="text-danger"></span>
+                        <button type="button" class="btn btn-outline-primary mb-2" onclick="themMauSac(this)">
+                            <i class="bi bi-eyedropper"></i> Thêm Màu
+                        </button>
+                        <table id="tbmausac" style="width:450px">
+                            <tbody class="table" id="tbbody">
+                                <tr id="mau0">
+                                    <td style="width:70%">
+                                        <input name="MauSacs[0].Ten" class="form-control" list="mauSac" id="tenMau0"
+                                               onchange="changeTenMau(0)" autocomplete="off" />
+                                    </td>
+                                    <td style="width:45.6px">
+                                        <input name="MauSacs[0].Ma" type="color" class="form-control" value="#ac05ff"
+                                               id="maMau0" onchange="changeMaMau(0)" style="height:41.6px;width:100%" />
+                                    </td>
+                                    <td style="width:50px">
+                                       <button type="button" class="form-control btn btn-outline-danger" hidden id="xoamau0" onclick="xoaMau(0)">
+                                         <i class="bi bi-trash"></i>
+                                       </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                       
+                        <datalist id="mauSac"></datalist>
+                    </div>
+                    <div class="form-group" id="lstKichCo">
+                        <label class="control-label mt-2 mb-2">Kích cỡ</label>
+                        <span asp-validation-for="KichCos" class="text-danger"></span>
+                        <div class="row" style='width:450px' id="size0">
+                            <div class="col-lg-10" style='padding-right:0px'>
+                                <input name="KichCos[0]" class="form-control" list="kichCo" id="tenkc0"
+                                       autocomplete="off" />
+                            </div>
+                            <div class="col-lg-2" style='padding-left:0px'>
+                                <button type="button" class="form-control btn btn-outline-danger" id="xoasize0" hidden onclick="xoaSize(0)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary mt-2" onclick="themKichCo(1,this)">
+                            <i class="bi bi-bookmark-plus"></i> Thêm Size
+                        </button>
+                    </div>
+                    <datalist id="kichCo"></datalist>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/js/jquery-3.3.1.min.js"></script>
+<script>
+    var countMauSac = 1;
+    var lstMauSac = [];
+    $(document).ready(function () {
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "/Admin/GetLoaiSPCha",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    var rows = "<option value='" + response[i].ten + "'>" + response[i].ten + "</option>";
+                    $('#loaiSPCha').append(rows);
+                }
+            }
+        });
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "/Admin/GetAllMauSac",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    response[i].ma = response[i].ma.toLowerCase();
+                    lstMauSac.push(response[i]);
+                    var rows = "<option value='" + response[i].ten + "'>" + response[i].ten + "</option>";
+                    $('#mauSac').append(rows);
+                }
+            }
+        });
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "/Admin/GetAllChatLieu",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    var rows = "<option value='" + response[i].ten + "'>" + response[i].ten + "</option>";
+                    $('#chatLieu').append(rows);
+                }
+            }
+        });
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "/Admin/GetAllKichCo",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    var rows = "<option value='" + response[i].ten + "'>" + response[i].ten + "</option>";
+                    $('#kichCo').append(rows);
+                }
+            }
+        });
+    });
+    $("#ipLoaiSPCha").change(function () {
+        var value = $("#ipLoaiSPCha").val();
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            data: { tenLoaiSPCha: value },
+            url: "/Admin/GetLoaiSPCon",
+            success: function (response) {
+                if (response.trangThai == true) {
+                    $('#loaiSPCon').empty();
+                    for (var i = 0; i < response.ketQua.length; i++) {
+                        var rows = "<option value='" + response.ketQua[i].ten + "'>" + response.ketQua[i].ten + "</option>";
+                        $('#loaiSPCon').append(rows);
+                    }
+                }
+            }
+        });
+    });
+    function changeTenMau(count) {
+        var tenMau = $("#tenMau" + count).val();
+        var maMau = lstMauSac.find(x => x.ten == tenMau).ma;
+        document.getElementById("maMau" + count).value = maMau;
+    }
+    function changeMaMau(count) {
+        var maMau = $("#maMau" + count).val();
+        var tenMau = "";
+        var mauSac = lstMauSac.find(x => x.ma == maMau);
+        if (mauSac == null) {
+            tenMau = "";
+        }
+        else {
+            tenMau = mauSac.ten;
+        }
+        document.getElementById("tenMau" + count).value = tenMau;
+    }
+    function themKichCo(count, element) {
+        $("#lstKichCo").append(`<div class="row" style='width:450px' id="size${count}">
+                        <div class="col-lg-10" style='padding-right:0px'>
+                        <input name="KichCos[${count}]" class="form-control" list="kichCo" id="tenkc${count}" autocomplete="off" />
+                        </div>
+                        <div class="col-lg-2" style='padding-left:0px'>
+                            <button type="button" class="form-control btn btn-outline-danger" hidden id="xoasize${count}" onclick="xoaSize(${count})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        </div>
+                             <button type="button" class="form-control btn btn-outline-primary mt-2" style="width: auto;" onclick="themKichCo(${count + 1}, this)">
+                                <i class="bi bi-bookmark-plus"></i> Thêm Size
+                             </button>
+                        `);
+        document.getElementById("xoasize" + (count - 1)).hidden = false;
+        element.remove();
+    }
+    function themMauSac() {
+        $("#tbbody").append("<tr id='mau" + countMauSac + "'><td style='width:70%'> <input name='MauSacs[" + countMauSac + "].Ten' class='form-control' list='mauSac' id='tenMau" + countMauSac + "' onchange='changeTenMau(" + countMauSac + ")' autocomplete=\"off\" /></td><td style='width: 45.6px'><input name='MauSacs[" + countMauSac + "].Ma' type='color' onchange='changeMaMau(" + countMauSac + ")' class='form-control' id='maMau" + countMauSac + "' style='height: 41.6px;width:100%' /></td><td style='width: 50px'><button type='button' class='form-control btn btn-outline-danger' hidden id='xoamau" + countMauSac + "' onclick='xoaMau(" + countMauSac + ")'><i class='bi bi-trash'></i></button></td></tr > ");
+        document.getElementById("xoamau" + (countMauSac - 1)).hidden = false;
+        countMauSac++;
+    }
+    function xoaMau(count) {
+        document.getElementById("mau" + count).hidden = true;
+        document.getElementById("tenMau" + count).value = 'Deleted';
+    }
+    function xoaSize(count) {
+        document.getElementById("size" + count).hidden = true;
+        document.getElementById("tenkc" + count).value = 'Deleted';
+    }
+    function confirmAddSanPham() {
+        return window.confirm("Bạn có chắc chắn muốn thêm sản phẩm không?");
+    }
+</script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
