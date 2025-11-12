@@ -50,7 +50,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6 col-md-7">
-                     @*    <div class="header__top__left">
+                        <div class="header__top__left">
                             <div style="display: inline-block;">
                                 <span style="color: white; font-size: 12px;">Hotline mua hàng: <strong style="font-weight: bold;">098889999</strong></span>
                             </div>
@@ -59,7 +59,7 @@
                                 <span><a asp-controller="Home" asp-action="Contacts" style="color: white; font-size: 12px;"><strong>Liên hệ</strong></a></span>
                             </div>
 
-                        </div> *@
+                        </div>
                     </div>
                     <div class="col-lg-6 col-md-5">
                         <div class="header__top__right">
@@ -98,17 +98,28 @@
         <div class="container-fluid">
             <div class="row" style="height:90px">
                 <div class="col-lg-3 col-md-3">
-                    <div class="header__logo" style="padding-top:10px">
-                        <a asp-controller="Home" asp-action="Index"><img src="~/img/" style="height:70px;width:auto"></a>
+                    <div class="header__logo d-flex align-items-center" style="padding-top:10px; gap:10px;">
+                        <a asp-controller="Home" asp-action="Index"
+                           class="d-flex align-items-center fw-bold text-decoration-none"
+                           style="font-size:24px; color:#000000; gap:10px;">
+                            <img src="~/img/favicon.png" style="height:70px; width:auto;" alt="Keni Shop Logo">
+                            <span>Keni Shop</span>
+                        </a>
+
+                        @* <a class="d-none d-lg-block fw-bold" style="font-size:24px; color:#000000;">Keni Shop</a> *@
+
+
                     </div>
+
+                    
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <nav class="header__menu mobile-menu">
                         <ul>
                             <li><a asp-controller="TrangChu" asp-action="Index">Trang chủ</a></li>
                             <li><a asp-controller="Home" asp-action="Shop">Cửa hàng</a></li>
-                           @*  <li><a asp-controller="Home" asp-action="Shop">Áo Nam</a></li>
-                            <li><a asp-controller="Home" asp-action="Shop">Bộ Sưu Tập</a></li> *@
+                            <li><a asp-controller="Home" asp-action="BlogDetails">Về chúng tôi</a></li>
+                            <li><a asp-controller="Home" asp-action="Contacts">Liên hệ</a></li>
                         </ul>
                     </nav>
                 </div>

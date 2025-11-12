@@ -38,25 +38,25 @@
 <section class="hero">
     <div class="hero__slider owl-carousel">
         <div class="hero__items set-bg" data-setbg="img/hero/slide_1_img.png">
-            @* <div class="container">
-                <div class="row">
-                    <div class="col-xl-5 col-lg-7 col-md-8">
-                        <div class="hero__text">
-                            <h6>Thời trang nam 5Ting</h6>
-                            <p>Thương hiệu tạo ra những sản phẩm thiết yếu sang trọng. Cam kết vững chắc về chất lượng vượt trội.</p>
-                            <a href="Home/Shop" class="primary-btn">Mua sắm ngay <span class="arrow_right"></span></a>
-                        </div>
-                    </div>
-                </div>
+            @*  <div class="container">
+            <div class="row">
+            <div class="col-xl-5 col-lg-7 col-md-8">
+            <div class="hero__text">
+            <h6>Thời trang nam 5Ting</h6>
+            <p>Thương hiệu tạo ra những sản phẩm thiết yếu sang trọng. Cam kết vững chắc về chất lượng vượt trội.</p>
+            <a href="Home/Shop" class="primary-btn">Mua sắm ngay <span class="arrow_right"></span></a>
+            </div>
+            </div>
+            </div>
             </div> *@
         </div>
-        <div class="hero__items set-bg" data-setbg="img/hero/slide_2_img.png">
+        <div class="hero__items set-bg" data-setbg="img/hero/s3-m.png">
             <div class="container">
                 <div class="row">
                     <div class="col-xl-5 col-lg-7 col-md-8">
                         <div class="hero__text">
-                            <h6>Thời trang nam 5Ting</h6>
-                            <p style="color: white">Thương hiệu tạo ra những sản phẩm thiết yếu sang trọng. Cam kết vững chắc về chất lượng vượt trội.</p>
+                            <h6>Giày thời trang thể thao nam KENI</h6>
+                            <p style="color:black">Thương hiệu tạo ra những sản phẩm thiết yếu sang trọng. Cam kết vững chắc về chất lượng vượt trội.</p>
                             <a href="Home/Shop" class="primary-btn">Mua sắm ngay <span class="arrow_right"></span></a>
                         </div>
                     </div>
@@ -73,7 +73,7 @@
             <div class="col-lg-7 offset-lg-4">
                 <div class="banner__item">
                     <div class="banner__item__pic">
-                        <img src="img/banner/anh1.png" alt="">
+                        <img src="img/banner/ab0f21cda8ea0eb8b444a8f03365d088 (1).png" alt="">
                     </div>
                     <div class="banner__item__text">
                         <h2>Thanh lịch</h2>
@@ -84,7 +84,7 @@
             <div class="col-lg-5">
                 <div class="banner__item banner__item--middle">
                     <div class="banner__item__pic">
-                        <img src="img/banner/anh2.png" alt="">
+                        <img src="img/banner/fc7b11bc810912666fb9956428940506.png" alt="">
                     </div>
                     <div class="banner__item__text">
                         <h2>Phong cách</h2>
@@ -95,10 +95,12 @@
             <div class="col-lg-7">
                 <div class="banner__item banner__item--last">
                     <div class="banner__item__pic">
-                        <img src="img/banner/banner3.png" alt="">
+                        <img src="img/banner/giay-puma-nam-dep.png" alt="">
                     </div>
                     <div class="banner__item__text">
-                        <h2></h2>
+                        <h2>
+                            Trẻ trung
+                        </h2>
                         <a href="Home/Shop">Mua sắm ngay</a>
                     </div>
                 </div>
@@ -122,7 +124,6 @@
             </div>
         </div>
         <div class="row product__filter">
-          
         </div>
     </div>
 </section>
@@ -193,7 +194,7 @@
                     const id = item.id.substring(0, 8);
                     const khuyenMaiHTML = item.khuyenMai === null ? '' :
                         item.khuyenMai <= 100 ? `<span class="label" style="background-color:red;">-${item.khuyenMai}%</span>` :
-                            `<span class="label" style="background-color:red;">-${item.khuyenMai.toLocaleString()} VND</span>`;
+                            `<span class="label" style="background-color:red;" >-${item.khuyenMai.toLocaleString()} VND</span>`;
                     const productHTML = `
                             <div class="col-lg-3 col-md-6 col-sm-6 col-md-6 col-sm-6 mix new-arrivals">
                               <div class="product__item sale ${id}">
@@ -207,7 +208,7 @@
                                 </a>
                                 <div class="product__item__text">
                                   <h6>${item.ten}</h6>
-                                  <a onclick="addCart('${item.idCTSP}')" class="add-cart">+ Thêm vào giỏ hàng</a>
+
                                   <div class="stars-outer">
                                     <div class="stars-inner"></div>
                                     <span class="number-rating"></span>
