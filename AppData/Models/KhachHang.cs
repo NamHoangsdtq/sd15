@@ -24,5 +24,6 @@ namespace AppData.Models
         public int? TrangThai { get; set; }
         public virtual GioHang? GioHang { get; set; }
         public virtual IEnumerable<LichSuTichDiem>? LichSuTichDiems { get; set; }
+        public virtual ICollection<DiaChi> DiaChis { get; set; }
     }
 }

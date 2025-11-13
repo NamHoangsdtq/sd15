@@ -123,7 +123,7 @@ namespace AppView.Controllers
             }
         }
         // Cập nhật trạng thái
-        public async Task<IActionResult> DoiTrangThai(Guid idhd, int trangthai)// Dùng cho trạng thái truyền  vào: 10, 3
+        public async Task<IActionResult> DoiTrangThai(Guid idhd, int trangthai)
         {
             try
             {
@@ -133,30 +133,54 @@ namespace AppView.Controllers
                 {
                     loginInfor = JsonConvert.DeserializeObject<LoginViewModel>(session);
                     var idnv = loginInfor.Id;
-                    if (trangthai == 6)
+
+                    HttpResponseMessage response;
+
+                    if (trangthai == 6) // Xử lý logic GiaoThanhCong (giữ nguyên)
                     {
                         string url = $"HoaDon/GiaoThanhCong?idhd={idhd}&idnv={idnv}";
-                        var response = await _httpClient.PutAsync(url, null);
-                        if (response.IsSuccessStatusCode)
-                        {
-                            return Json(new { success = true, message = "Cập nhật trạng thái thành công" });
-                        }
+                        response = await _httpClient.PutAsync(url, null);
+                    }
+                    else // Xử lý các trạng thái khác (BAO GỒM trangthai 10 - XÁC NHẬN)
+                    {
+                        string url = $"HoaDon?idhoadon={idhd}&trangthai={trangthai}&idnhanvien={idnv}";
+                        response = await _httpClient.PutAsync(url, null);
+                    }
+
+                    // === BẮT ĐẦU SỬA LỖI XỬ LÝ RESPONSE ===
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Thành công (200 OK)
+                        return Json(new { success = true, message = "Cập nhật trạng thái thành công" });
                     }
                     else
                     {
-                        string url = $"HoaDon?idhoadon={idhd}&trangthai={trangthai}&idnhanvien={idnv}";
-                        var response = await _httpClient.PutAsync(url, null);
-                        if (response.IsSuccessStatusCode)
+                        // Thất bại (409 Conflict, 500 Server Error, v.v.)
+                        // Đọc nội dung lỗi từ API
+                        var responseString = await response.Content.ReadAsStringAsync();
+
+                        // Cố gắng parse JSON lỗi từ API ({"success":false, "message":"..."})
+                        try
                         {
-                            return Json(new { success = true, message = "Cập nhật trạng thái thành công" });
+                            var errorResponse = JsonConvert.DeserializeObject<ApiResponseViewModel>(responseString);
+                            // Trả về thông báo lỗi cụ thể (ví dụ: "...hết hàng")
+                            return Json(new { success = false, message = errorResponse.Message });
+                        }
+                        catch
+                        {
+                            // Nếu không parse được (lỗi 500, v.v.), trả về thông báo lỗi chung
+                            return Json(new { success = false, message = $"Cập nhật thất bại. (API Status: {response.StatusCode})" });
                         }
                     }
+                    // === KẾT THÚC SỬA LỖI ===
                 }
-                return Json(new { success = false, message = "Cập nhật trạng thái thất bại" });
+                return Json(new { success = false, message = "Cập nhật trạng thái thất bại (Lỗi Session)" });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return RedirectToAction("_QuanLyHoaDon", "QuanLyHoaDon");
+                // Báo lỗi exception nếu có
+                return Json(new { success = false, message = $"Cập nhật thất bại (Exception): {ex.Message}" });
             }
         }
         //Hủy hóa đơn
@@ -280,5 +304,10 @@ namespace AppView.Controllers
             var cthd = await _httpClient.GetFromJsonAsync<ChiTietHoaDonQL>($"HoaDon/ChiTietHoaDonQL/{idhd}");
             return View("ExportHD", cthd);
         }
+    }
+    public class ApiResponseViewModel
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; }
     }
 }

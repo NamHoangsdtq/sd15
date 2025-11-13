@@ -1,0 +1,264 @@
+﻿@model AppData.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sổ Địa Chỉ";
+    Layout = "_Layout";
+}
+
+<style>
+    .address-card {
+        border: 1px solid #e1e1e1;
+        border-radius: 0.25rem;
+        margin-bottom: 1.5rem;
+        height: calc(100% - 1.5rem);
+    }
+
+        .address-card .card-body {
+            padding: 1.25rem;
+        }
+
+        .address-card .card-footer {
+            background: #f8f9fa;
+            border-top: 1px solid #e1e1e1;
+            padding: 0.75rem 1.25rem;
+        }
+</style>
+
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Tài khoản của tôi</h4>
+                    <div class="breadcrumb__links">
+                        <a href="/">Trang chủ</a>
+                        <a href="/Home/Profile">Tài khoản</a>
+                        <span>Sổ địa chỉ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="shop spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="list-group">
+                    <a href="/Home/Profile" class="list-group-item list-group-item-action">Thông tin tài khoản</a>
+                    <a href="/Home/SoDiaChi" class="list-group-item list-group-item-action active">Sổ địa chỉ</a>
+                    <a href="/Home/PurchaseOrder" class="list-group-item list-group-item-action">Đơn hàng của tôi</a>
+                    <a href="/Home/Logout" class="list-group-item list-group-item-action">Đăng xuất</a>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="mb-0">Sổ Địa Chỉ Của Tôi</h4>
+                    <button type="button" class="btn btn-dark" data-bs-toggle="modal"
+                            data-bs-target="#modalDiaChi" onclick="moModalThemMoi()">
+                        Thêm địa chỉ mới
+                    </button>
+                </div>
+
+                <div id="danhSachDiaChi" class="row">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="modalDiaChi" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDiaChiTitle">Thêm địa chỉ mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formDiaChi">
+                    <input type="hidden" id="diaChiID_modal">
+
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <input type="text" id="tenNguoiNhan_modal" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="text" id="sdt_modal" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ cụ thể (Số nhà, tên đường...)</label>
+                        <input type="text" id="diaChiCuThe_modal" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tỉnh/Thành</label>
+                        <input type="text" id="tinhThanh_modal" class="form-control" placeholder="Ví dụ: Hà Nội" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quận/Huyện</label>
+                        <input type="text" id="quanHuyen_modal" class="form-control" placeholder="Ví dụ: Quận Ba Đình" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phường/Xã</label>
+                        <input type="text" id="phuongXa_modal" class="form-control" placeholder="Ví dụ: Phường Phúc Xá" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-dark" onclick="luuDiaChi()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Lấy ID Khách hàng từ Model mà Controller đã truyền sang
+        var currentUserID = "@Model.Id";
+
+        $(document).ready(function () {
+            taiDanhSachDiaChi();
+        });
+
+        function taiDanhSachDiaChi() {
+            $.ajax({
+                url: `https://localhost:7095/api/DiaChi/GetByKhachHang/${currentUserID}`,
+                type: 'GET',
+                success: function (diaChis) {
+                    var html = '';
+                    if (diaChis && diaChis.length > 0) {
+                        diaChis.forEach(function (diaChi) {
+                            html += `
+                                    <div class="col-md-6">
+                                        <div class="address-card">
+                                            <div class="card-body">
+                                                <strong>${diaChi.tenNguoiNhan}</strong>
+                                                ${diaChi.isDefault ? '<span class="badge bg-success ms-2">Mặc định</span>' : ''}
+                                                <hr class="my-2">
+                                                <p class="mb-1">${diaChi.soDienThoai}</p>
+                                                <p class="mb-0 small text-muted">${diaChi.diaChiCuThe}, ${diaChi.phuongXa}, ${diaChi.quanHuyen}, ${diaChi.tinhThanh}</p>
+                                            </div>
+                                            <div class="card-footer">
+                                                <button class="btn btn-sm btn-outline-dark" onclick="moModalSua('${encodeURIComponent(JSON.stringify(diaChi))}')">Sửa</button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="xoaDiaChi('${diaChi.id}')">Xóa</button>
+                                                ${!diaChi.isDefault ? `<button class="btn btn-sm btn-link" style="text-decoration: underline;" onclick="datMacDinh('${diaChi.id}')">Đặt làm mặc định</button>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                        });
+                    } else {
+                        html = '<div class="col-12"><p>Bạn chưa có địa chỉ nào đã lưu.</p></div>';
+                    }
+                    $('#danhSachDiaChi').html(html);
+                }
+            });
+        }
+
+        function moModalThemMoi() {
+            $('#modalDiaChiTitle').text('Thêm địa chỉ mới');
+            $('#formDiaChi')[0].reset();
+            $('#diaChiID_modal').val('');
+        }
+
+        function moModalSua(encodedDiaChiJson) {
+            var diaChi = JSON.parse(decodeURIComponent(encodedDiaChiJson));
+            $('#modalDiaChiTitle').text('Cập nhật địa chỉ');
+
+            $('#diaChiID_modal').val(diaChi.id);
+            $('#tenNguoiNhan_modal').val(diaChi.tenNguoiNhan);
+            $('#sdt_modal').val(diaChi.soDienThoai);
+            $('#diaChiCuThe_modal').val(diaChi.diaChiCuThe);
+            $('#tinhThanh_modal').val(diaChi.tinhThanh);
+            $('#quanHuyen_modal').val(diaChi.quanHuyen);
+            $('#phuongXa_modal').val(diaChi.phuongXa);
+
+            $('#modalDiaChi').modal('show');
+        }
+
+        function luuDiaChi() {
+            var diaChiID = $('#diaChiID_modal').val();
+            var isUpdating = diaChiID && diaChiID !== '';
+
+            var diaChiData = {
+                ID: isUpdating ? diaChiID : '00000000-0000-0000-0000-000000000000',
+                IDKhachHang: currentUserID,
+                TenNguoiNhan: $('#tenNguoiNhan_modal').val(),
+                SoDienThoai: $('#sdt_modal').val(),
+                DiaChiCuThe: $('#diaChiCuThe_modal').val(),
+                TinhThanh: $('#tinhThanh_modal').val(),
+                QuanHuyen: $('#quanHuyen_modal').val(),
+                PhuongXa: $('#phuongXa_modal').val(),
+                IsDefault: false
+            };
+
+            if (!diaChiData.TenNguoiNhan || !diaChiData.SoDienThoai || !diaChiData.DiaChiCuThe || !diaChiData.TinhThanh || !diaChiData.QuanHuyen || !diaChiData.PhuongXa) {
+                Swal.fire('Lỗi', 'Vui lòng điền đầy đủ thông tin.', 'error');
+                return;
+            }
+
+            var apiUrl = isUpdating ? 'https://localhost:7095/api/DiaChi/Update' : 'https://localhost:7095/api/DiaChi/Create';
+            var apiType = isUpdating ? 'PUT' : 'POST';
+
+            $.ajax({
+                url: apiUrl,
+                type: apiType,
+                contentType: 'application/json',
+                data: JSON.stringify(diaChiData),
+                success: function (response) {
+                    Swal.fire('Thành công!', response.message, 'success');
+                    $('#modalDiaChi').modal('hide');
+                    taiDanhSachDiaChi();
+                },
+                error: function (xhr) {
+                    Swal.fire('Lỗi!', xhr.responseJSON.message, 'error');
+                }
+            });
+        }
+
+        function xoaDiaChi(id) {
+            Swal.fire({
+                title: 'Bạn có chắc không?',
+                text: "Bạn sẽ không thể hoàn tác hành động này!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Vâng, xóa nó!',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `https://localhost:7095/api/DiaChi/Delete/${id}`,
+                        type: 'DELETE',
+                        success: function (response) {
+                            Swal.fire('Đã xóa!', response.message, 'success');
+                            taiDanhSachDiaChi();
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Lỗi!', xhr.responseJSON.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function datMacDinh(idDiaChi) {
+            $.ajax({
+                url: `https://localhost:7095/api/DiaChi/SetDefault/${idDiaChi}/${currentUserID}`,
+                type: 'PUT',
+                success: function (response) {
+                    Swal.fire('Thành công!', response.message, 'success');
+                    taiDanhSachDiaChi();
+                },
+                error: function (xhr) {
+                    Swal.fire('Lỗi!', xhr.responseJSON.message, 'error');
+                }
+            });
+        }
+    </script>
+}

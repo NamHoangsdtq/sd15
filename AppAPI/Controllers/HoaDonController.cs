@@ -95,22 +95,46 @@ namespace AppAPI.Controllers
             var result = _iHoaDonService.GetCTHDByID(idhd);
             return Ok(result);
         }
+      
         [HttpPut]
-        public bool UpdateTrangThai(Guid idhoadon, int trangthai, Guid? idnhanvien)
+        public IActionResult UpdateTrangThai(Guid idhoadon, int trangthai, Guid? idnhanvien)
         {
-            return _iHoaDonService.UpdateTrangThaiGiaoHang(idhoadon, trangthai, idnhanvien);
+            // Gọi service
+            var (Success, ErrorMessage) = _iHoaDonService.UpdateTrangThaiGiaoHang(idhoadon, trangthai, idnhanvien);
+
+            if (Success)
+            {
+                // Trả về 200 OK
+                // Bạn có thể trả về bool 'true' như cũ nếu frontend đang mong đợi
+                // return Ok(true); 
+                // Hoặc trả về object JSON (khuyến nghị):
+                return Ok(new { success = true, message = ErrorMessage });
+            }
+            else
+            {
+                // Trả về lỗi 409 Conflict (lỗi hết hàng) hoặc 400
+                // Bạn có thể trả về bool 'false' như cũ nếu frontend đang mong đợi
+                // return Ok(false); 
+                // Hoặc trả về object JSON (khuyến nghị):
+                return Conflict(new { success = false, message = ErrorMessage });
+            }
         }
 
         [HttpPut("UpdateHoaDon")]
-        public bool UpDateHoaDon(HoaDonThanhToanRequest hoaDon)
+        public IActionResult UpDateHoaDon(HoaDonThanhToanRequest hoaDon)
         {
-            return _iHoaDonService.UpdateHoaDon(hoaDon);
-        }
-        [HttpPut("HuyHD")]
-        public IActionResult HuyHD(Guid idhd, Guid idnv)
-        {
-            var result = _iHoaDonService.HuyHD(idhd,idnv);
-            return Ok(result);
+            var (Success, ErrorMessage) = _iHoaDonService.UpdateHoaDon(hoaDon);
+
+            if (Success)
+            {
+                // Trả về 200 OK
+                return Ok(new { success = true, message = ErrorMessage });
+            }
+            else
+            {
+                // Trả về 409 Conflict (lỗi hết hàng)
+                return Conflict(new { success = false, message = ErrorMessage });
+            }
         }
         [HttpPut("GiaoThanhCong")]
         public IActionResult GiaoThanhCong(Guid idhd, Guid idnv)

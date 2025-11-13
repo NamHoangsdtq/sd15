@@ -4,6 +4,7 @@ using AppData.ViewModels.Mail;
 using AppData.ViewModels.QLND;
 using AppData.ViewModels.SanPham;
 using AppData.ViewModels.VNPay;
+using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
@@ -514,12 +515,86 @@ namespace AppView.Controllers
         }
         #region Cart
         [HttpGet]
+        //public async Task<IActionResult> ShoppingCart()
+        //{
+        //    try
+        //    {
+        //        var session = HttpContext.Session.GetString("LoginInfor");
+        //        //Không đăng nhập
+        //        if (String.IsNullOrEmpty(session))
+        //        {
+        //            List<GioHangRequest> lstGioHang = new List<GioHangRequest>();
+        //            if (Request.Cookies["Cart"] != null)
+        //            {
+        //                lstGioHang = JsonConvert.DeserializeObject<List<GioHangRequest>>(Request.Cookies["Cart"]);
+        //            }
+        //            // laam them
+        //            int cout = lstGioHang.Sum(c => c.SoLuong);
+        //            TempData["SoLuong"] = cout.ToString();
+
+
+        //            if (Request.Cookies["Cart"] != null)
+        //            {
+        //                var response = await _httpClient.GetAsync(_httpClient.BaseAddress + "GioHang/GetCart?request=" + Request.Cookies["Cart"]);
+        //                if (response.IsSuccessStatusCode)
+        //                {
+        //                    var temp = JsonConvert.DeserializeObject<GioHangViewModel>(response.Content.ReadAsStringAsync().Result);
+        //                    TempData["TongTien"] = temp.TongTien.ToString();
+
+        //                    // lam end
+        //                    TempData["ListBienThe"] = JsonConvert.SerializeObject(temp.GioHangs);
+        //                    TempData["TrangThai"] = "false";
+        //                    TempData["Quantity"] = temp.GioHangs.Sum(x => x.SoLuong).ToString();
+        //                    return View(temp.GioHangs);
+        //                }
+        //                else return BadRequest();
+        //            }
+        //            else
+        //            {
+        //                TempData["TongTien"] = "0";
+        //                return View(new List<GioHangRequest>());
+        //            }
+        //        }//Có đăng nhập
+        //        else
+        //        {
+        //            var loginInfor = JsonConvert.DeserializeObject<LoginViewModel>(session);
+        //            if (loginInfor.vaiTro == 1)
+        //            {
+        //                var response = await _httpClient.GetAsync(_httpClient.BaseAddress + "GioHang/GetCartLogin?idNguoiDung=" + loginInfor.Id);
+        //                if (response.IsSuccessStatusCode)
+        //                {
+        //                    var temp = JsonConvert.DeserializeObject<GioHangViewModel>(response.Content.ReadAsStringAsync().Result);
+        //                    TempData["TongTien"] = temp.TongTien.ToString();
+        //                    TempData["ListBienThe"] = JsonConvert.SerializeObject(temp.GioHangs);
+        //                    // lam them
+        //                    int cout = temp.GioHangs.Sum(c => c.SoLuong);
+
+        //                    TempData["SoLuong"] = cout.ToString();
+        //                    // lam end
+        //                    TempData["TrangThai"] = "true";
+        //                    TempData["Quantity"] = temp.GioHangs.Sum(x => x.SoLuong).ToString();
+        //                    return View(temp.GioHangs);
+        //                }
+        //                else return BadRequest();
+        //            }
+        //            else
+        //            {
+        //                TempData["SoLuong"] = "0";
+        //                return View(new List<GioHangRequest>());
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        return View(new List<GioHangRequest>());
+        //    }
+        //}
+
         public async Task<IActionResult> ShoppingCart()
         {
             try
             {
                 var session = HttpContext.Session.GetString("LoginInfor");
-                //Không đăng nhập
                 if (String.IsNullOrEmpty(session))
                 {
                     List<GioHangRequest> lstGioHang = new List<GioHangRequest>();
@@ -527,7 +602,6 @@ namespace AppView.Controllers
                     {
                         lstGioHang = JsonConvert.DeserializeObject<List<GioHangRequest>>(Request.Cookies["Cart"]);
                     }
-                    // laam them
                     int cout = lstGioHang.Sum(c => c.SoLuong);
                     TempData["SoLuong"] = cout.ToString();
 
@@ -538,12 +612,14 @@ namespace AppView.Controllers
                         if (response.IsSuccessStatusCode)
                         {
                             var temp = JsonConvert.DeserializeObject<GioHangViewModel>(response.Content.ReadAsStringAsync().Result);
-                            TempData["TongTien"] = temp.TongTien.ToString();
 
-                            // lam end
-                            TempData["ListBienThe"] = JsonConvert.SerializeObject(temp.GioHangs);
+                            // === SỬA LỖI: DÙNG HttpContext.Session ===
+                            HttpContext.Session.SetString("TongTien", temp.TongTien.ToString());
+                            HttpContext.Session.SetString("ListBienThe", JsonConvert.SerializeObject(temp.GioHangs));
+                            HttpContext.Session.SetString("Quantity", temp.GioHangs.Sum(x => x.SoLuong).ToString());
+                            // ========================================
+
                             TempData["TrangThai"] = "false";
-                            TempData["Quantity"] = temp.GioHangs.Sum(x => x.SoLuong).ToString();
                             return View(temp.GioHangs);
                         }
                         else return BadRequest();
@@ -553,7 +629,7 @@ namespace AppView.Controllers
                         TempData["TongTien"] = "0";
                         return View(new List<GioHangRequest>());
                     }
-                }//Có đăng nhập
+                }
                 else
                 {
                     var loginInfor = JsonConvert.DeserializeObject<LoginViewModel>(session);
@@ -563,15 +639,16 @@ namespace AppView.Controllers
                         if (response.IsSuccessStatusCode)
                         {
                             var temp = JsonConvert.DeserializeObject<GioHangViewModel>(response.Content.ReadAsStringAsync().Result);
-                            TempData["TongTien"] = temp.TongTien.ToString();
-                            TempData["ListBienThe"] = JsonConvert.SerializeObject(temp.GioHangs);
-                            // lam them
-                            int cout = temp.GioHangs.Sum(c => c.SoLuong);
 
+                            // === SỬA LỖI: DÙNG HttpContext.Session ===
+                            HttpContext.Session.SetString("TongTien", temp.TongTien.ToString());
+                            HttpContext.Session.SetString("ListBienThe", JsonConvert.SerializeObject(temp.GioHangs));
+                            HttpContext.Session.SetString("Quantity", temp.GioHangs.Sum(x => x.SoLuong).ToString());
+                            // ========================================
+
+                            int cout = temp.GioHangs.Sum(c => c.SoLuong);
                             TempData["SoLuong"] = cout.ToString();
-                            // lam end
                             TempData["TrangThai"] = "true";
-                            TempData["Quantity"] = temp.GioHangs.Sum(x => x.SoLuong).ToString();
                             return View(temp.GioHangs);
                         }
                         else return BadRequest();
@@ -1794,10 +1871,21 @@ namespace AppView.Controllers
         //    }
         //}
 
-        public async Task<IActionResult> ChangeForgotPassword(string password, string confirmPassword) // Đổi hàm này thành async Task
+        public async Task<IActionResult> ChangeForgotPassword(string password, string confirmPassword)
         {
+            // 1. Kiểm tra xem session còn tồn tại không
+            // Nếu người dùng tải lại trang sau khi đã đổi pass, session sẽ mất
+            var forgotPasswordSession = HttpContext.Session.GetString("ForgotPassword");
+            if (string.IsNullOrEmpty(forgotPasswordSession))
+            {
+                TempData["ErrorMessage"] = "Phiên đổi mật khẩu đã hết hạn hoặc không hợp lệ. Vui lòng thử lại.";
+                // Chuyển về trang Login (hoặc trang Quên mật khẩu ban đầu)
+                return RedirectToAction("Login", "Home");
+            }
+
             try
             {
+                // 2. Validation
                 if (string.IsNullOrEmpty(password))
                 {
                     ViewData["PasswordError"] = "Mật khẩu không được bỏ trống";
@@ -1820,46 +1908,49 @@ namespace AppView.Controllers
                     return View();
                 }
 
-                if (password == confirmPassword)
+                // 3. Xử lý API
+
+                string[] submit = forgotPasswordSession.Split("|");
+                string email = submit[0];
+                string maXacNhan = submit[1];
+
+                // 3.1. Tạo request
+                ResetPasswordRequest request = new ResetPasswordRequest
                 {
-                    // SỬA Ở ĐÂY: Đọc Email từ Session và gọi đúng API
-                    string[] submit = HttpContext.Session.GetString("ForgotPassword").Split("|");
-                    string email = submit[0];
-                    string maXacNhan = submit[1];
+                    Email = email,
+                    Password = password,
+                    ConfirmPassword = confirmPassword,
+                    ResetToken = maXacNhan
+                };
 
-                    // 1. Tạo request đúng
-                    ResetPasswordRequest request = new ResetPasswordRequest
-                    {
-                        Email = email,
-                        Password = password,
-                        ConfirmPassword = confirmPassword,
-                        ResetToken = maXacNhan
-                    };
+                // 3.2. Gọi API
+                string apiUrl = "https://localhost:7095/api/QuanLyNguoiDung/ResetPassword";
+                var response = await _httpClient.PostAsync(apiUrl, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
 
-                    // 2. Gọi API đúng (POST /api/QuanLyNguoiDung/ResetPassword)
-                    string apiUrl = "https://localhost:7095/api/QuanLyNguoiDung/ResetPassword";
-                    var response = await _httpClient.PostAsync(apiUrl, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+                if (response.IsSuccessStatusCode)
+                {
+                    HttpContext.Session.Remove("ForgotPassword"); // Xóa session
 
-                    if (response.IsSuccessStatusCode)
-                    {   
-                        HttpContext.Session.Remove("ForgotPassword"); // Xóa session
-                        return RedirectToAction("Login", new { actionName = "Index" });
-                    }
-                    else
-                    {
-                        ViewData["ErrorMessage"] = "Không thể đặt lại mật khẩu. Vui lòng thử lại.";
-                        return View();
-                    }
+                    // === PHẦN QUAN TRỌNG ===
+                    // Đặt TempData để View hiện tại bắt được và hiển thị popup
+                    TempData["PasswordUpdateSuccess"] = true;
+
+                    // *KHÔNG* chuyển hướng, mà trả về View()
+                    // để script trên trang này có thể chạy và hiển thị popup.
+                    return View();
                 }
                 else
                 {
-                    ViewData["ErrorMessage"] = "Không thể đặt lại mật khẩu. Vui lòng kiểm tra lại thông tin.";
+                    // Nếu API trả về lỗi, hiển thị lỗi đó
+                    string apiError = await response.Content.ReadAsStringAsync();
+                    ViewData["ErrorMessage"] = $"Không thể đặt lại mật khẩu. Lỗi từ API: {apiError}";
                     return View();
                 }
             }
-            catch
+            catch (Exception ex) // Bắt lỗi chung
             {
-                ViewData["ConfirmPasswordError"] = "Lỗi hệ thống, vui lòng thử lại.";
+                // (Nên log lỗi ex ở đây)
+                ViewData["ErrorMessage"] = "Lỗi hệ thống, vui lòng thử lại.";
                 return View();
             }
         }
@@ -2048,13 +2139,145 @@ namespace AppView.Controllers
         //        return "https://localhost:5001/Home/CheckOutSuccess";
         //    }
         //}
+
+
+        //public string Order(HoaDonViewModel hoaDon)
+        //{
+        //    try
+        //    {
+        //        List<ChiTietHoaDonViewModel> lstChiTietHoaDon = new List<ChiTietHoaDonViewModel>();
+        //        string temp = TempData.Peek("ListBienThe") as string; // temp = JSON của giỏ hàng
+        //        string trangThai = TempData.Peek("TrangThai") as string;
+        //        foreach (var item in JsonConvert.DeserializeObject<List<GioHangRequest>>(temp))
+        //        {
+        //            ChiTietHoaDonViewModel chiTietHoaDon = new ChiTietHoaDonViewModel();
+        //            chiTietHoaDon.IDChiTietSanPham = item.IDChiTietSanPham;
+        //            chiTietHoaDon.SoLuong = item.SoLuong;
+        //            chiTietHoaDon.DonGia = item.DonGia.Value;
+        //            lstChiTietHoaDon.Add(chiTietHoaDon);
+        //        }
+        //        hoaDon.ChiTietHoaDons = lstChiTietHoaDon;
+        //        hoaDon.TrangThai = Convert.ToBoolean(trangThai);
+        //        var session = HttpContext.Session.GetString("LoginInfor");
+        //        if (session != null)
+        //        {
+        //            hoaDon.IDNguoiDung = JsonConvert.DeserializeObject<LoginViewModel>(session).Id;
+        //        }
+        //        TempData.Remove("TongTien");
+        //        TempData.Remove("Quantity");
+        //        if (hoaDon.PhuongThucThanhToan == "COD")
+        //        {
+        //            HttpResponseMessage response = _httpClient.PostAsJsonAsync("HoaDon", hoaDon).Result;
+        //            if (response.IsSuccessStatusCode)
+        //            {
+        //                // --- PHẦN SỬA LỖI BẮT ĐẦU ---
+
+        //                // 1. Lấy JSON thông tin đơn hàng từ API (Tên, Địa chỉ, Tổng tiền...)
+        //                var apiResponseJson = response.Content.ReadAsStringAsync().Result;
+
+        //                // 2. Chuyển nó thành model DonMuaSuccessViewModel
+        //                var donMua = JsonConvert.DeserializeObject<DonMuaSuccessViewModel>(apiResponseJson);
+
+        //                // 3. GÁN GIỎ HÀNG (từ biến 'temp') vào model
+        //                donMua.GioHangs = JsonConvert.DeserializeObject<List<GioHangRequest>>(temp);
+
+        //                // 4. Lưu model ĐẦY ĐỦ (đã có GioHangs) vào TempData
+        //                TempData["CheckOutSuccess"] = JsonConvert.SerializeObject(donMua);
+
+        //                // --- PHẦN SỬA LỖI KẾT THÚC ---
+
+        //                if (!hoaDon.TrangThai)
+        //                {
+        //                    // 1. User là GUEST (TrangThai = false) -> Xóa Cookie
+        //                    Response.Cookies.Delete("Cart");
+        //                    _logger.LogInformation("Đã xóa giỏ hàng Cookie cho khách.");
+        //                }
+        //                else
+        //                {
+        //                    // 2. User đã LOGIN (TrangThai = true) -> Xóa giỏ hàng trong DB
+
+        //                    // Đặt breakpoint (dấu chấm đỏ) ở dòng này để kiểm tra xem hoaDon.IDNguoiDung có G-U-I-D đúng không.
+        //                    var clearCartResponse = _httpClient.DeleteAsync(_httpClient.BaseAddress + $"GioHang/ClearCartLogin?idNguoiDung={hoaDon.IDNguoiDung}").Result;
+
+        //                    // *** KIỂM TRA KẾT QUẢ API ***
+        //                    if (clearCartResponse.IsSuccessStatusCode)
+        //                    {
+        //                        _logger.LogInformation($"Đã xóa giỏ hàng DB cho user: {hoaDon.IDNguoiDung}");
+        //                    }
+        //                    else
+        //                    {
+        //                        // GHI LẠI LỖI NẾU API THẤT BẠI
+        //                        string apiError = clearCartResponse.Content.ReadAsStringAsync().Result;
+        //                        _logger.LogError($"LỖI: Không thể xóa giỏ hàng DB cho user: {hoaDon.IDNguoiDung}. API trả về: {apiError}");
+        //                    }
+        //                }
+        //                    // lam them
+        //                    TempData["SoLuong"] = "0";
+        //                // lam end
+        //                return "https://localhost:5001/Home/CheckOutSuccess";
+        //            }
+        //            else return "";
+        //        }
+        //        else if (hoaDon.PhuongThucThanhToan == "VNPay")
+        //        {
+        //            TempData["HoaDon"] = JsonConvert.SerializeObject(hoaDon);
+        //            string vnp_Returnurl = "https://localhost:5001/Home/PaymentCallBack"; //URL nhan ket qua tra ve 
+        //            string vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; //URL thanh toan cua VNPAY 
+        //            string vnp_TmnCode = "FLYBWUDB"; //Ma định danh merchant kết nối (Terminal Id)
+        //            string vnp_HashSecret = "6ZCJ0ZOJ6MOSREICS95ETK29ZNGDYQ2Y"; //Secret Key
+        //            string ipAddr = HttpContext.Connection.RemoteIpAddress?.ToString();
+        //            //Get payment input
+        //            OrderInfo order = new OrderInfo();
+        //            order.OrderId = DateTime.Now.Ticks; // Giả lập mã giao dịch hệ thống merchant gửi sang VNPAY
+        //            order.Amount = hoaDon.TongTien;
+        //            order.Status = "0"; //0: Trạng thái thanh toán "chờ thanh toán" hoặc "Pending" khởi tạo giao dịch chưa có IPN
+        //            order.CreatedDate = DateTime.Now;
+        //            //Save order to db
+
+        //            //Build URL for VNPAY
+        //            VnPayLibrary vnpay = new VnPayLibrary();
+
+        //            vnpay.AddRequestData("vnp_Version", VnPayLibrary.VERSION);
+        //            vnpay.AddRequestData("vnp_Command", "pay");
+        //            vnpay.AddRequestData("vnp_TmnCode", vnp_TmnCode);
+        //            vnpay.AddRequestData("vnp_Amount", (order.Amount * 100).ToString());
+        //            vnpay.AddRequestData("vnp_CreateDate", order.CreatedDate.ToString("yyyyMMddHHmmss"));
+        //            vnpay.AddRequestData("vnp_CurrCode", "VND");
+        //            vnpay.AddRequestData("vnp_IpAddr", ipAddr);
+        //            vnpay.AddRequestData("vnp_Locale", "vn");
+        //            vnpay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang:" + order.OrderId);
+        //            vnpay.AddRequestData("vnp_OrderType", "other"); //default value: other
+
+        //            vnpay.AddRequestData("vnp_ReturnUrl", vnp_Returnurl);
+        //            vnpay.AddRequestData("vnp_TxnRef", order.OrderId.ToString()); // Mã tham chiếu của giao dịch tại hệ thống của merchant. Mã này là duy nhất dùng để phân biệt các đơn hàng gửi sang VNPAY. Không được trùng lặp trong ngày
+
+        //            //Add Params of 2.1.0 Version
+        //            //Billing
+
+        //            string paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
+        //            //log.InfoFormat("VNPAY URL: {0}", paymentUrl);
+
+        //            return paymentUrl;
+        //        }
+        //        else return "";
+        //    }
+        //    catch
+        //    {
+        //        return "https://localhost:5001/Home/CheckOutSuccess";
+        //    }
+        //}
+
         public string Order(HoaDonViewModel hoaDon)
         {
             try
             {
                 List<ChiTietHoaDonViewModel> lstChiTietHoaDon = new List<ChiTietHoaDonViewModel>();
-                string temp = TempData.Peek("ListBienThe") as string; // temp = JSON của giỏ hàng
+
+                // === SỬA LỖI: DÙNG HttpContext.Session ===
+                string temp = HttpContext.Session.GetString("ListBienThe");
                 string trangThai = TempData.Peek("TrangThai") as string;
+                // ========================================
+
                 foreach (var item in JsonConvert.DeserializeObject<List<GioHangRequest>>(temp))
                 {
                     ChiTietHoaDonViewModel chiTietHoaDon = new ChiTietHoaDonViewModel();
@@ -2070,57 +2293,25 @@ namespace AppView.Controllers
                 {
                     hoaDon.IDNguoiDung = JsonConvert.DeserializeObject<LoginViewModel>(session).Id;
                 }
-                TempData.Remove("TongTien");
-                TempData.Remove("Quantity");
+
                 if (hoaDon.PhuongThucThanhToan == "COD")
                 {
                     HttpResponseMessage response = _httpClient.PostAsJsonAsync("HoaDon", hoaDon).Result;
                     if (response.IsSuccessStatusCode)
                     {
-                        // --- PHẦN SỬA LỖI BẮT ĐẦU ---
-
-                        // 1. Lấy JSON thông tin đơn hàng từ API (Tên, Địa chỉ, Tổng tiền...)
                         var apiResponseJson = response.Content.ReadAsStringAsync().Result;
-
-                        // 2. Chuyển nó thành model DonMuaSuccessViewModel
                         var donMua = JsonConvert.DeserializeObject<DonMuaSuccessViewModel>(apiResponseJson);
-
-                        // 3. GÁN GIỎ HÀNG (từ biến 'temp') vào model
                         donMua.GioHangs = JsonConvert.DeserializeObject<List<GioHangRequest>>(temp);
-
-                        // 4. Lưu model ĐẦY ĐỦ (đã có GioHangs) vào TempData
                         TempData["CheckOutSuccess"] = JsonConvert.SerializeObject(donMua);
 
-                        // --- PHẦN SỬA LỖI KẾT THÚC ---
+                        // === SỬA LỖI: DÙNG HttpContext.Session ===
+                        HttpContext.Session.Remove("TongTien");
+                        HttpContext.Session.Remove("Quantity");
+                        HttpContext.Session.Remove("ListBienThe");
+                        // ========================================
 
-                        if (!hoaDon.TrangThai)
-                        {
-                            // 1. User là GUEST (TrangThai = false) -> Xóa Cookie
-                            Response.Cookies.Delete("Cart");
-                            _logger.LogInformation("Đã xóa giỏ hàng Cookie cho khách.");
-                        }
-                        else
-                        {
-                            // 2. User đã LOGIN (TrangThai = true) -> Xóa giỏ hàng trong DB
-
-                            // Đặt breakpoint (dấu chấm đỏ) ở dòng này để kiểm tra xem hoaDon.IDNguoiDung có G-U-I-D đúng không.
-                            var clearCartResponse = _httpClient.DeleteAsync(_httpClient.BaseAddress + $"GioHang/ClearCartLogin?idNguoiDung={hoaDon.IDNguoiDung}").Result;
-
-                            // *** KIỂM TRA KẾT QUẢ API ***
-                            if (clearCartResponse.IsSuccessStatusCode)
-                            {
-                                _logger.LogInformation($"Đã xóa giỏ hàng DB cho user: {hoaDon.IDNguoiDung}");
-                            }
-                            else
-                            {
-                                // GHI LẠI LỖI NẾU API THẤT BẠI
-                                string apiError = clearCartResponse.Content.ReadAsStringAsync().Result;
-                                _logger.LogError($"LỖI: Không thể xóa giỏ hàng DB cho user: {hoaDon.IDNguoiDung}. API trả về: {apiError}");
-                            }
-                        }
-                            // lam them
-                            TempData["SoLuong"] = "0";
-                        // lam end
+                        if (!hoaDon.TrangThai) Response.Cookies.Delete("Cart");
+                        TempData["SoLuong"] = "0";
                         return "https://localhost:5001/Home/CheckOutSuccess";
                     }
                     else return "";
@@ -2128,22 +2319,19 @@ namespace AppView.Controllers
                 else if (hoaDon.PhuongThucThanhToan == "VNPay")
                 {
                     TempData["HoaDon"] = JsonConvert.SerializeObject(hoaDon);
-                    string vnp_Returnurl = "https://localhost:5001/Home/PaymentCallBack"; //URL nhan ket qua tra ve 
-                    string vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; //URL thanh toan cua VNPAY 
-                    string vnp_TmnCode = "FLYBWUDB"; //Ma định danh merchant kết nối (Terminal Id)
-                    string vnp_HashSecret = "6ZCJ0ZOJ6MOSREICS95ETK29ZNGDYQ2Y"; //Secret Key
+                    string vnp_Returnurl = "https://localhost:5001/Home/PaymentCallBack";
+                    string vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+                    string vnp_TmnCode = "FLYBWUDB";
+                    string vnp_HashSecret = "6ZCJ0ZOJ6MOSREICS95ETK29ZNGDYQ2Y";
                     string ipAddr = HttpContext.Connection.RemoteIpAddress?.ToString();
-                    //Get payment input
+
                     OrderInfo order = new OrderInfo();
-                    order.OrderId = DateTime.Now.Ticks; // Giả lập mã giao dịch hệ thống merchant gửi sang VNPAY
+                    order.OrderId = DateTime.Now.Ticks;
                     order.Amount = hoaDon.TongTien;
-                    order.Status = "0"; //0: Trạng thái thanh toán "chờ thanh toán" hoặc "Pending" khởi tạo giao dịch chưa có IPN
+                    order.Status = "0";
                     order.CreatedDate = DateTime.Now;
-                    //Save order to db
 
-                    //Build URL for VNPAY
                     VnPayLibrary vnpay = new VnPayLibrary();
-
                     vnpay.AddRequestData("vnp_Version", VnPayLibrary.VERSION);
                     vnpay.AddRequestData("vnp_Command", "pay");
                     vnpay.AddRequestData("vnp_TmnCode", vnp_TmnCode);
@@ -2153,17 +2341,11 @@ namespace AppView.Controllers
                     vnpay.AddRequestData("vnp_IpAddr", ipAddr);
                     vnpay.AddRequestData("vnp_Locale", "vn");
                     vnpay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang:" + order.OrderId);
-                    vnpay.AddRequestData("vnp_OrderType", "other"); //default value: other
-
+                    vnpay.AddRequestData("vnp_OrderType", "other");
                     vnpay.AddRequestData("vnp_ReturnUrl", vnp_Returnurl);
-                    vnpay.AddRequestData("vnp_TxnRef", order.OrderId.ToString()); // Mã tham chiếu của giao dịch tại hệ thống của merchant. Mã này là duy nhất dùng để phân biệt các đơn hàng gửi sang VNPAY. Không được trùng lặp trong ngày
-
-                    //Add Params of 2.1.0 Version
-                    //Billing
+                    vnpay.AddRequestData("vnp_TxnRef", order.OrderId.ToString());
 
                     string paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
-                    //log.InfoFormat("VNPAY URL: {0}", paymentUrl);
-
                     return paymentUrl;
                 }
                 else return "";
@@ -2173,6 +2355,8 @@ namespace AppView.Controllers
                 return "https://localhost:5001/Home/CheckOutSuccess";
             }
         }
+
+
         //[HttpGet]
         //public IActionResult PaymentCallBack()
         //{
@@ -2246,29 +2430,141 @@ namespace AppView.Controllers
         //        return BadRequest();
         //    }
         //}
+
+
+
         [HttpGet]
+        //public IActionResult PaymentCallBack()
+        //{
+        //    try
+        //    {
+        //        if (Request.Query.Count > 0)
+        //        {
+        //            string vnp_HashSecret = "6ZCJ0ZOJ6MOSREICS95ETK29ZNGDYQ2Y"; //Chuoi bi mat
+        //            var vnpayData = Request.Query;
+        //            VnPayLibrary vnpay = new VnPayLibrary();
+
+        //            foreach (var s in vnpayData)
+        //            {
+        //                //get all querystring data
+        //                if (!string.IsNullOrEmpty(s.Key) && s.Key.StartsWith("vnp_"))
+        //                {
+        //                    vnpay.AddResponseData(s.Key, vnpayData[s.Key]);
+        //                }
+        //            }
+        //            //vnp_TxnRef: Ma don hang merchant gui VNPAY tai command=pay   
+        //            //vnp_TransactionNo: Ma GD tai he thong VNPAY
+        //            //vnp_ResponseCode:Response code from VNPAY: 00: Thanh cong, Khac 00: Xem tai lieu
+        //            //vnp_SecureHash: HmacSHA512 cua du lieu tra ve
+
+        //            long orderId = Convert.ToInt64(vnpay.GetResponseData("vnp_TxnRef"));
+        //            long vnpayTranId = Convert.ToInt64(vnpay.GetResponseData("vnp_TransactionNo"));
+        //            string vnp_ResponseCode = vnpay.GetResponseData("vnp_ResponseCode");
+        //            string vnp_TransactionStatus = vnpay.GetResponseData("vnp_TransactionStatus");
+        //            String vnp_SecureHash = Request.Query["vnp_SecureHash"];
+        //            String TerminalID = Request.Query["vnp_TmnCode"];
+        //            long vnp_Amount = Convert.ToInt64(vnpay.GetResponseData("vnp_Amount")) / 100;
+        //            String bankCode = Request.Query["vnp_BankCode"];
+
+        //            bool checkSignature = vnpay.ValidateSignature(vnp_SecureHash, vnp_HashSecret);
+        //            if (checkSignature)
+        //            {
+        //                if (vnp_ResponseCode == "00" && vnp_TransactionStatus == "00")
+        //                {
+        //                    //Thanh toan thanh cong
+        //                    TempData.Remove("TongTien");
+        //                    TempData.Remove("Quantity");
+        //                    var hoaDon = JsonConvert.DeserializeObject<HoaDonViewModel>(TempData["HoaDon"].ToString());
+        //                    hoaDon.NgayThanhToan = DateTime.Now;
+        //                    HttpResponseMessage response = _httpClient.PostAsJsonAsync("HoaDon", hoaDon).Result;
+        //                    if (response.IsSuccessStatusCode)
+        //                    {
+        //                        // --- PHẦN SỬA LỖI BẮT ĐẦU ---
+
+        //                        // 1. Lấy JSON thông tin đơn hàng từ API
+        //                        var apiResponseJson = response.Content.ReadAsStringAsync().Result;
+
+        //                        // 2. Chuyển nó thành model
+        //                        var donMua = JsonConvert.DeserializeObject<DonMuaSuccessViewModel>(apiResponseJson);
+
+        //                        // 3. Lấy JSON giỏ hàng từ TempData và gán vào model
+        //                        string temp = TempData.Peek("ListBienThe") as string;
+        //                        donMua.GioHangs = JsonConvert.DeserializeObject<List<GioHangRequest>>(temp);
+
+        //                        // 4. Lưu model ĐẦY ĐỦ (đã có GioHangs) vào TempData
+        //                        TempData["CheckOutSuccess"] = JsonConvert.SerializeObject(donMua);
+
+        //                        // --- PHẦN SỬA LỖI KẾT THÚC ---
+
+        //                        if (!hoaDon.TrangThai)
+        //                        {
+        //                            // 1. User là GUEST (TrangThai = false) -> Xóa Cookie
+        //                            Response.Cookies.Delete("Cart");
+        //                            _logger.LogInformation("Đã xóa giỏ hàng Cookie cho khách (VNPay).");
+        //                        }
+        //                        else
+        //                        {
+        //                            // 2. User đã LOGIN (TrangThai = true) -> Xóa giỏ hàng trong DB
+
+        //                            // Đặt breakpoint (dấu chấm đỏ) ở dòng này
+        //                            var clearCartResponse = _httpClient.DeleteAsync(_httpClient.BaseAddress + $"GioHang/ClearCartLogin?idNguoiDung={hoaDon.IDNguoiDung}").Result;
+
+        //                            // *** KIỂM TRA KẾT QUẢ API ***
+        //                            if (clearCartResponse.IsSuccessStatusCode)
+        //                            {
+        //                                _logger.LogInformation($"Đã xóa giỏ hàng DB cho user: {hoaDon.IDNguoiDung} (VNPay).");
+        //                            }
+        //                            else
+        //                            {
+        //                                // GHI LẠI LỖI NẾU API THẤT BẠI
+        //                                string apiError = clearCartResponse.Content.ReadAsStringAsync().Result;
+        //                                _logger.LogError($"LỖI: Không thể xóa giỏ hàng DB cho user: {hoaDon.IDNguoiDung} (VNPay). API trả về: {apiError}");
+        //                            }
+        //                        }
+        //                            // lam them
+        //                            TempData["SoLuong"] = "0";
+        //                        // lam end
+        //                        return RedirectToAction("CheckOutSuccess");
+        //                    }
+        //                    else return BadRequest();
+        //                }
+        //                else
+        //                {
+        //                    //Thanh toan khong thanh cong. Ma loi: vnp_ResponseCode
+        //                    return BadRequest();
+        //                }
+        //            }
+        //            else
+        //            {
+        //                return BadRequest();
+        //            }
+        //        }
+        //        else return BadRequest();
+        //    }
+        //    catch
+        //    {
+        //        return BadRequest();
+        //    }
+        //}
+
+
         public IActionResult PaymentCallBack()
         {
             try
             {
                 if (Request.Query.Count > 0)
                 {
-                    string vnp_HashSecret = "6ZCJ0ZOJ6MOSREICS95ETK29ZNGDYQ2Y"; //Chuoi bi mat
+                    string vnp_HashSecret = "6ZCJ0ZOJ6MOSREICS95ETK29ZNGDYQ2Y";
                     var vnpayData = Request.Query;
                     VnPayLibrary vnpay = new VnPayLibrary();
 
                     foreach (var s in vnpayData)
                     {
-                        //get all querystring data
                         if (!string.IsNullOrEmpty(s.Key) && s.Key.StartsWith("vnp_"))
                         {
                             vnpay.AddResponseData(s.Key, vnpayData[s.Key]);
                         }
                     }
-                    //vnp_TxnRef: Ma don hang merchant gui VNPAY tai command=pay   
-                    //vnp_TransactionNo: Ma GD tai he thong VNPAY
-                    //vnp_ResponseCode:Response code from VNPAY: 00: Thanh cong, Khac 00: Xem tai lieu
-                    //vnp_SecureHash: HmacSHA512 cua du lieu tra ve
 
                     long orderId = Convert.ToInt64(vnpay.GetResponseData("vnp_TxnRef"));
                     long vnpayTranId = Convert.ToInt64(vnpay.GetResponseData("vnp_TransactionNo"));
@@ -2284,66 +2580,32 @@ namespace AppView.Controllers
                     {
                         if (vnp_ResponseCode == "00" && vnp_TransactionStatus == "00")
                         {
-                            //Thanh toan thanh cong
-                            TempData.Remove("TongTien");
-                            TempData.Remove("Quantity");
                             var hoaDon = JsonConvert.DeserializeObject<HoaDonViewModel>(TempData["HoaDon"].ToString());
                             hoaDon.NgayThanhToan = DateTime.Now;
                             HttpResponseMessage response = _httpClient.PostAsJsonAsync("HoaDon", hoaDon).Result;
                             if (response.IsSuccessStatusCode)
                             {
-                                // --- PHẦN SỬA LỖI BẮT ĐẦU ---
-
-                                // 1. Lấy JSON thông tin đơn hàng từ API
                                 var apiResponseJson = response.Content.ReadAsStringAsync().Result;
-
-                                // 2. Chuyển nó thành model
                                 var donMua = JsonConvert.DeserializeObject<DonMuaSuccessViewModel>(apiResponseJson);
 
-                                // 3. Lấy JSON giỏ hàng từ TempData và gán vào model
-                                string temp = TempData.Peek("ListBienThe") as string;
+                                // === SỬA LỖI: DÙNG HttpContext.Session ===
+                                string temp = HttpContext.Session.GetString("ListBienThe");
                                 donMua.GioHangs = JsonConvert.DeserializeObject<List<GioHangRequest>>(temp);
-
-                                // 4. Lưu model ĐẦY ĐỦ (đã có GioHangs) vào TempData
                                 TempData["CheckOutSuccess"] = JsonConvert.SerializeObject(donMua);
 
-                                // --- PHẦN SỬA LỖI KẾT THÚC ---
+                                HttpContext.Session.Remove("TongTien");
+                                HttpContext.Session.Remove("Quantity");
+                                HttpContext.Session.Remove("ListBienThe");
+                                // ========================================
 
-                                if (!hoaDon.TrangThai)
-                                {
-                                    // 1. User là GUEST (TrangThai = false) -> Xóa Cookie
-                                    Response.Cookies.Delete("Cart");
-                                    _logger.LogInformation("Đã xóa giỏ hàng Cookie cho khách (VNPay).");
-                                }
-                                else
-                                {
-                                    // 2. User đã LOGIN (TrangThai = true) -> Xóa giỏ hàng trong DB
-
-                                    // Đặt breakpoint (dấu chấm đỏ) ở dòng này
-                                    var clearCartResponse = _httpClient.DeleteAsync(_httpClient.BaseAddress + $"GioHang/ClearCartLogin?idNguoiDung={hoaDon.IDNguoiDung}").Result;
-
-                                    // *** KIỂM TRA KẾT QUẢ API ***
-                                    if (clearCartResponse.IsSuccessStatusCode)
-                                    {
-                                        _logger.LogInformation($"Đã xóa giỏ hàng DB cho user: {hoaDon.IDNguoiDung} (VNPay).");
-                                    }
-                                    else
-                                    {
-                                        // GHI LẠI LỖI NẾU API THẤT BẠI
-                                        string apiError = clearCartResponse.Content.ReadAsStringAsync().Result;
-                                        _logger.LogError($"LỖI: Không thể xóa giỏ hàng DB cho user: {hoaDon.IDNguoiDung} (VNPay). API trả về: {apiError}");
-                                    }
-                                }
-                                    // lam them
-                                    TempData["SoLuong"] = "0";
-                                // lam end
+                                if (!hoaDon.TrangThai) Response.Cookies.Delete("Cart");
+                                TempData["SoLuong"] = "0";
                                 return RedirectToAction("CheckOutSuccess");
                             }
                             else return BadRequest();
                         }
                         else
                         {
-                            //Thanh toan khong thanh cong. Ma loi: vnp_ResponseCode
                             return BadRequest();
                         }
                     }
@@ -2359,6 +2621,7 @@ namespace AppView.Controllers
                 return BadRequest();
             }
         }
+
         //[HttpGet]
         //public IActionResult CheckOutSuccess()
         //{
@@ -2494,5 +2757,31 @@ namespace AppView.Controllers
             return View();
         }
         #endregion
+        // (Dán vào bên trong class HomeController)
+
+        public IActionResult SoDiaChi()
+        {
+            try
+            {
+                var session = HttpContext.Session.GetString("LoginInfor");
+                if (session != null)
+                {
+                    // Lấy thông tin đăng nhập
+                    LoginViewModel loginViewModel = JsonConvert.DeserializeObject<LoginViewModel>(session);
+
+                    // Trả về View và truyền model loginViewModel (để JavaScript có thể lấy ID)
+                    return View(loginViewModel);
+                }
+                else
+                {
+                    // Nếu chưa đăng nhập, đá về trang đăng nhập
+                    return RedirectToAction("Login", "Home", new { actionName = "Index" });
+                }
+            }
+            catch
+            {
+                return RedirectToAction("Login", "Home", new { actionName = "Index" });
+            }
+        }
     }
 }
