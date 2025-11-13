@@ -150,6 +150,7 @@
             <table class="table table-hover table-bordered tbbills" align=center cellpadding=10>
                 <thead>
                     <tr>
+                        <th scope="col">STT</th>
                         <th scope="col">Mã hóa đơn</th>
                         <th scope="col">Thời gian</th>
                         <th scope="col">Khách hàng</th>
@@ -236,14 +237,41 @@
 
     itemtt.forEach(item => {
         item.addEventListener("click", () => {
-            item.classList.toggle("checked");
-            LoadPage();
+            // === BẮT ĐẦU SỬA LẠI ĐỂ CHỌN 1 (Trạng thái) ===
+
+            const isAlreadyChecked = item.classList.contains('checked');
+
+            itemtt.forEach(otherItem => {
+                otherItem.classList.remove('checked');
+            });
+
+            if (!isAlreadyChecked) {
+                item.classList.add('checked');
+            }
+
+            // === SỬA LỖI: BỎ COMMENT DÒNG DƯỚI ĐÂY ===
+            LoadPage(); // Tải lại hóa đơn ngay lập tức
+
         })
     })
+
     itemkb.forEach(item => {
         item.addEventListener("click", () => {
-            item.classList.toggle("checked");
-            LoadPage();
+            // === BẮT ĐẦU SỬA LẠI ĐỂ CHỌN 1 (Kênh bán) ===
+
+            const isAlreadyChecked = item.classList.contains('checked');
+
+            itemkb.forEach(otherItem => {
+                otherItem.classList.remove('checked');
+            });
+
+            if (!isAlreadyChecked) {
+                item.classList.add('checked');
+            }
+
+            // === SỬA LỖI: BỎ COMMENT DÒNG DƯỚI ĐÂY ===
+            LoadPage(); // Tải lại hóa đơn ngay lập tức
+
         })
     })
     function getCheckedValues(checkboxes) {
@@ -283,44 +311,57 @@
                     $("#billRecord").empty();
                     var html = '';
                     if (pageIndexhd === 1) {
+                        // Sửa colspan="7" (vì đã thêm cột STT)
                         html = `
-                                    <tr>
-                                        <td colspan="6" class="text-end fw-bold">
-                                            ${Intl.NumberFormat().format(response.tienhang)}
-                                        </td>
+                    <tr>
+                        <td colspan="7" class="text-end fw-bold">
+                            ${Intl.NumberFormat().format(response.tienhang)}
+                        </td>
 
-                                        <td class="text-end fw-bold">
-                                             ${Intl.NumberFormat().format(response.khachtra)}
-                                        </td>
-                                    </tr>
-                                    `;
+                        <td class="text-end fw-bold">
+                                ${Intl.NumberFormat().format(response.khachtra)}
+                        </td>
+                    </tr>
+                `;
                     }
                     for (let i = 0; i < response.data.length; i++) {
+
+                        // === SỬA LỖI TẠI ĐÂY ===
+
+                        // 1. Tạo STT (bắt đầu từ 1 cho mỗi trang)
+                        var stt = (pageIndexhd - 1) * pageSizehd + i + 1;
+
+                        // 2. Lấy thời gian (code gốc của bạn)
                         const thoiGian = response.data[i].thoiGian;
                         const formattedDate = new Date(thoiGian).toLocaleDateString("en-GB");
+
+                        // 3. Thêm STT vào cột đầu tiên, và giữ maHD ở cột thứ 2
                         html += `
-                                   <tr onclick="billDetail('${response.data[i].id}');">
-                                   <th scope="row">${response.data[i].maHD}</th>
-                                   <td>${new Date(response.data[i].thoiGian).toLocaleString("en-GB")}</td>
-                                   <td>${response.data[i].khachHang}</td>
-                                   <td>
-                                       ${response.data[i].trangThai === 2 ? '<label class="badge bg-info">Chờ xác nhận</label>' :
+                    <tr onclick="billDetail('${response.data[i].id}');">
+                        <td>${stt}</td>
+
+                        <th scope="row">${response.data[i].maHD}</th>
+
+                        <td>${new Date(response.data[i].thoiGian).toLocaleString("en-GB")}</td>
+                        <td>${response.data[i].khachHang}</td>
+                        <td>
+                            ${response.data[i].trangThai === 2 ? '<label class="badge bg-info">Chờ xác nhận</label>' :
                                 response.data[i].trangThai === 10 ? '<label class="badge bg-info">Đang đóng hàng</label>' :
                                     response.data[i].trangThai === 3 ? '<label class="badge bg-primary">Đang giao hàng</label>' :
                                         response.data[i].trangThai === 11 ? '<label class="badge bg-primary">Giao hàng không thành công</label>' :
-                                        response.data[i].trangThai === 4 ? '<label class="badge bg-danger">Đang hoàn hàng</label>' :
-                                            response.data[i].trangThai === 5 ? '<label class="badge bg-danger">Hoàn hàng thành công</label>' :
-                                                response.data[i].trangThai === 6 ? '<label class="badge bg-success">Thành công</label>' :
-                                                    response.data[i].trangThai === 7 ? '<label class="badge bg-dark">Đơn hủy</label>' :
-                                                        response.data[i].trangThai === 8 ? '<label class="badge bg-secondary">Chờ xác nhận hủy</label>' :
-                                                            '<label class="badge bg-danger">Chờ xác nhận hoàn hàng</label>'}
-                                   </td>
-                                   ${response.data[i].loaiHD === 1 ? `<td class="text-center">Tại quầy</td>` : `<td class="text-center">Website</td>`}
+                                            response.data[i].trangThai === 4 ? '<label class="badge bg-danger">Đang hoàn hàng</label>' :
+                                                response.data[i].trangThai === 5 ? '<label class="badge bg-danger">Hoàn hàng thành công</label>' :
+                                                    response.data[i].trangThai === 6 ? '<label class="badge bg-success">Thành công</label>' :
+                                                        response.data[i].trangThai === 7 ? '<label class="badge bg-dark">Đơn hủy</label>' :
+                                                            response.data[i].trangThai === 8 ? '<label class="badge bg-secondary">Chờ xác nhận hủy</label>' :
+                                                                '<label class="badge bg-danger">Chờ xác nhận hoàn hàng</label>'}
+                        </td>
+                        ${response.data[i].loaiHD === 1 ? `<td class="text-center">Tại quầy</td>` : `<td class="text-center">Website</td>`}
 
-                                   <td class="text-end">${Intl.NumberFormat().format(response.data[i].tongTienHang)}</td>
-                                   <td class="text-end">${Intl.NumberFormat().format(response.data[i].khachDaTra)}</td>
-                               </tr>
-                             `;
+                        <td class="text-end">${Intl.NumberFormat().format(response.data[i].tongTienHang)}</td>
+                        <td class="text-end">${Intl.NumberFormat().format(response.data[i].khachDaTra)}</td>
+                    </tr>
+                `;
                     }
                     $("#billRecord").append(html);
                     paginghd(response.total, function () {
@@ -328,13 +369,14 @@
                     });
                 } else {
                     $("#billRecord").empty();
+                    // Sửa colspan="8" (vì đã thêm cột STT)
                     html = `
-                                    <tr>
-                                        <td colspan="7" class="text-center">
-                                            Không có hóa đơn nào
-                                        </td>
-                                    </tr>
-                                `;
+                <tr>
+                    <td colspan="8" class="text-center">
+                        Không có hóa đơn nào
+                    </td>
+                </tr>
+            `;
                     $("#billRecord").append(html);
                 }
             },

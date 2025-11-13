@@ -1,4 +1,4 @@
-using AppAPI.IServices;
+﻿using AppAPI.IServices;
 using AppAPI.Services;
 using AppData.Models;
 using AppData.ViewModels.Mail;
@@ -7,20 +7,20 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var AllowSpecificOrigins = "_allowSpecificOrigins";
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: AllowSpecificOrigins,
-        policy =>
-        {
-            policy.WithOrigins("https://localhost:5001").AllowAnyHeader()
-            .AllowAnyMethod();
-        });
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:5001", "https://localhost:5001")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
 });
+
 builder.Services.AddControllers();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -37,8 +37,11 @@ builder.Services.AddSwaggerGen(c =>
         },
     });
 });
+
 builder.Services.AddDbContext<AssignmentDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DBContext")));
-//builder.Services.AddScoped<IChiTietKhuyenMaiServices,ChiTietKhuyenMaiServices>();
+
+// (Xóa các dòng AddScoped cho IAllRepository và IDiaChiService ở đây)
+
 builder.Services.AddScoped<IChiTietGioHangServices, ChiTietGioHangServices>();
 builder.Services.AddScoped<IGioHangServices, GioHangServices>();
 builder.Services.AddScoped<IQuyDoiDiemServices, QuyDoiDiemServices>();
@@ -61,7 +64,6 @@ builder.Services.AddControllersWithViews().AddNewtonsoftJson(options => options.
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -71,16 +73,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseSwagger();
-app.UseSwaggerUI(option =>
-{
-    option.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-});
-
 app.UseHttpsRedirection();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 
 app.MapControllers();
-app.UseCors(AllowSpecificOrigins);
+
 app.Run();

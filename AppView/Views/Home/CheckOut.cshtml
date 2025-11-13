@@ -22,9 +22,10 @@
             }
         }
     }
-    string? tongtien = TempData.Peek("TongTien") as string;
-    string? soLuong = TempData.Peek("Quantity") as string;
+  
+    string? tongtien = Context.Session.GetString("TongTien");
 
+    string? soLuong = Context.Session.GetString("Quantity");
     long tienship = 0;
     Layout = "_Layout";
 }
@@ -57,6 +58,7 @@
             <div class="row">
                 <div class="col-lg-8 col-md-6">
                     <h6 class="checkout__title">Chi tiết thanh toán</h6>
+
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="checkout__input">
@@ -82,21 +84,58 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="checkout__input">
-                                <label for="diachi">Địa chỉ</label>
-                                <input type="text" class="form-control" id="address" placeholder="" required="" style="height:38px">
-                                <div class="invalid-feedback"> Valid first name is required. </div>
-                            </div>
+
+                    <hr style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
+
+                    <div id="diaChiDaLuuContainer" style="display: none;">
+                        <h5>Địa chỉ nhận hàng</h5>
+
+                        <div class="d-flex flex-column align-items-start w-100">
+
+                            <button type="button" class="btn btn-light border w-100" id="btnChonDiaChi" data-bs-toggle="modal" data-bs-target="#diaChiModal" style="text-align: left; padding: 0.75rem; line-height: 1.5;">
+
+                                <span id="diaChiDaChonText" style="white-space: normal;">Chọn địa chỉ nhận hàng</span>
+                            </button>
+
+                            <button type="button" id="btnSuDungDiaChiMoi_DaLuu" class="btn btn-light border" style="white-space: nowrap; padding: 0.75rem 1rem;">
+
+                                Sử dụng địa chỉ mới
+
+                            </button>
                         </div>
                     </div>
-                    <div class="row">
+
+                    <div id="diaChiMoiContainer" style="display: none;">
+
+                        <h5>Địa chỉ nhận hàng</h5>
+                        <button type="button" id="btnQuayLaiDanhSach" class="btn btn-link" style="display: none; padding-left: 0; text-decoration: underline;">
+                            &larr; Quay lại danh sách địa chỉ
+                        </button>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="checkout__input">
+                                    <label for="diachi">Địa chỉ</label>
+                                    <input type="text" class="form-control" id="address" placeholder="" required="" style="height:38px">
+                                    <div class="invalid-feedback"> Valid first name is required. </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-check mt-2 mb-3" id="saveAddressCheckboxContainer" style="display: none;">
+                            <input class="form-check-input" type="checkbox" id="saveAddressCheckbox" checked>
+                            <label class="form-check-label" for="saveAddressCheckbox" style="padding-left: 5px;">
+                                Lưu địa chỉ này vào Sổ địa chỉ
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row" id="tinhHuyenXaContainer">
                         <div class="col-lg-4">
                             <div class="checkout__input">
                                 <label for="tinh">Tỉnh / thành</label>
                                 <select class="custom-select d-block w-100" id="province" required="">
-                                    <option selected id="dfprovince">Chọn tỉnh / thành</option>
+                                    <option selected id="dfprovince" value="">Chọn tỉnh / thành</option>
                                 </select>
                                 <div class="invalid-feedback"> Tên hợp lệ là bắt buộc. </div>
                             </div>
@@ -105,6 +144,7 @@
                             <div class="checkout__input">
                                 <label for="huyen">Quận / huyện</label>
                                 <select class="custom-select d-block w-100" id="district" required="">
+                                    <option selected id="dfdistrict" value="">Chọn quận / huyện</option>
                                 </select>
                                 <div class="invalid-feedback"> Tên hợp lệ là bắt buộc. </div>
                             </div>
@@ -113,6 +153,7 @@
                             <div class="checkout__input">
                                 <label for="xa">Phường / xã</label>
                                 <select class="custom-select d-block w-100" id="ward" required="">
+                                    <option selected id="dfward" value="">Chọn phường / xã</option>
                                 </select>
                                 <div class="invalid-feedback"> Tên hợp lệ là bắt buộc. </div>
                             </div>
@@ -151,6 +192,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-lg-4 col-md-6">
                     <div class="cart__discount" style="margin-bottom:20px!important">
                         <h6>Hình thức giảm giá</h6>
@@ -186,12 +228,33 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="diaChiModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chọn địa chỉ của bạn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="diaChiListModal" style="max-height: 450px; overflow-y: auto;">
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script src="~/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript">
+    var ghnToken = '6092d580-fde7-11ed-a967-deea53ba3605';
+    var ghnShopID = 4185066;
+    var fromDistrictID = 3440; 
+    var packageLength = 38; 
+    var packageWidth = 15;
+    var packageHeight = 15;
+
+    var isLoggedIn = @(session != null ? "true" : "false");
+    var currentUserID = isLoggedIn ? "@loginInfor.Id" : null;
+
     var tienShip = 0;
     var tienDiem = 0;
     var tienVoucher = 0;
@@ -201,10 +264,55 @@
     var voucher = "";
     var diemTich = 0;
 
+    var tienHang = @(string.IsNullOrEmpty(tongtien) ? "0" : tongtien);
+    var soLuongString = "@(string.IsNullOrEmpty(soLuong) ? "1" : soLuong)";
+    var soLuongInt = parseInt(soLuongString) || 1;
+    var weight = Math.max(500 * soLuongInt, 1000);
+
+    function resetShipFeeAndTotal() {
+        tienShip = 0;
+        document.getElementById("fee").innerHTML = "0 VND";
+        var total = tienHang - tienVoucher - tienDiem;
+        if (total < 0) total = 0;
+        document.getElementById("total").innerHTML = total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
+    }
+
     $(document).ready(function () {
-        var tienHang = @tongtien;
+        loadDiaChiDaLuu(currentUserID);
+
+        $('#btnSuDungDiaChiMoi_DaLuu').on('click', function () {
+            $('#diaChiDaLuuContainer').hide();
+            $('#diaChiMoiContainer').show();
+            $('#btnQuayLaiDanhSach').show();
+            if (isLoggedIn) {
+                $('#saveAddressCheckboxContainer').show();
+            }
+            clearDiaChiForm();
+        });
+
+        $('#btnQuayLaiDanhSach').on('click', function () {
+            $('#diaChiDaLuuContainer').show();
+            $('#diaChiMoiContainer').hide();
+            $('#btnQuayLaiDanhSach').hide();
+            $('#saveAddressCheckboxContainer').hide();
+            loadDiaChiDaLuu(currentUserID);
+        });
+
+        $(document).on('change', 'input[name="diaChiRadio"]', function () {
+            var radio = $(this);
+            var diaChi = JSON.parse(radio.attr('data-json'));
+
+            fillDiaChiForm(diaChi);
+
+            var btnText = `<span>${diaChi.diaChiCuThe}, ${diaChi.phuongXa}...</span>`;
+            $('#diaChiDaChonText').html(btnText);
+
+            $('#diaChiModal').modal('hide');
+        });
+
         document.getElementById("tienHang").innerHTML = tienHang.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
         document.getElementById("total").innerHTML = tienHang.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
+
         $.ajax({
             type: "GET",
             url: "/Home/GetAllVoucherByTien",
@@ -221,13 +329,14 @@
                 });
             },
             error: function (reponse) {
-                console(reponse);
+                console.log(reponse);
             }
         });
+
         $.ajax({
             type: "GET",
             url: "https://online-gateway.ghn.vn/shiip/public-api/master-data/province",
-            headers: { token: '9f4e42e4-fde8-11ed-a281-3aa62a37e0a5' },
+            headers: { token: ghnToken },
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
@@ -240,19 +349,28 @@
                 alert(reponse.responseText);
             }
         });
+
         $("#province").change(function () {
-            var value = document.getElementById("province").value;
-            tinh = document.getElementById(value).innerHTML;
+            var value = $(this).val();
+            if (value == "") {
+                tinh = "";
+                $('#district').empty().append('<option selected id="dfdistrict" value="">Chọn quận / huyện</option>');
+                $('#ward').empty().append('<option selected id="dfward" value="">Chọn phường / xã</option>');
+                resetShipFeeAndTotal();
+                return;
+            }
+            tinh = $(this).find("option:selected").text().trim();
+
             $.ajax({
                 type: "GET",
                 url: "https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=" + value,
-                headers: { token: '9f4e42e4-fde8-11ed-a281-3aa62a37e0a5' },
+                headers: { token: ghnToken },
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
                     $('#dfprovince').remove();
                     document.getElementById('district').innerHTML = '';
-                    $('#district').append('<option selected id="dfdistrict">Chọn quận / huyện</option>');
+                    $('#district').append('<option selected id="dfdistrict" value="">Chọn quận / huyện</option>');
                     for (var i = 0; i < data.data.length; i++) {
                         var rows = "<option id='" + data.data[i].DistrictID + "' value='" + data.data[i].DistrictID + "'>" + data.data[i].DistrictName + "</option>";
                         $('#district').append(rows);
@@ -263,19 +381,27 @@
                 }
             });
         });
+
         $("#district").change(function () {
-            var value = document.getElementById("district").value;
-            huyen = document.getElementById(value).innerHTML;
+            var value = $(this).val();
+            if (value == "") {
+                huyen = "";
+                $('#ward').empty().append('<option selected id="dfward" value="">Chọn phường / xã</option>');
+                resetShipFeeAndTotal();
+                return;
+            }
+            huyen = $(this).find("option:selected").text().trim();
+
             $.ajax({
                 type: "GET",
                 url: "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=" + value,
-                headers: { token: '9f4e42e4-fde8-11ed-a281-3aa62a37e0a5' },
+                headers: { token: ghnToken },
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
                     $('#dfdistrict').remove();
                     document.getElementById('ward').innerHTML = '';
-                    $('#ward').append('<option selected id="dfward">Chọn phường / xã</option>');
+                    $('#ward').append('<option selected id="dfward" value="">Chọn phường / xã</option>');
                     for (var i = 0; i < data.data.length; i++) {
                         var rows = "<option id='" + data.data[i].WardCode + "' value='" + data.data[i].WardCode + "'>" + data.data[i].WardName + "</option>";
                         $('#ward').append(rows);
@@ -286,31 +412,63 @@
                 }
             });
         });
+
         $("#ward").change(function () {
-            var value1 = document.getElementById("ward").value;
-            var value2 = document.getElementById("district").value;
-            xa = document.getElementById(value1).innerHTML;
+            var value1 = $(this).val();
+            var value2 = $("#district").val();
+
+            if (value1 == "" || value2 == "") {
+                xa = "";
+                resetShipFeeAndTotal();
+                return;
+            }
+
+            xa = $(this).find("option:selected").text().trim();
+
+            var feeUrl = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee?" +
+                         "to_ward_code=" + value1 +
+                         "&to_district_id=" + value2 +
+                         "&from_district_id=" + fromDistrictID +
+                         "&weight=" + weight +
+                         "&service_type_id=2" +
+                         "&insurance_value=" + tienHang +
+                         "&length=" + packageLength +
+                         "&width=" + packageWidth +
+                         "&height=" + packageHeight;
+
             $.ajax({
                 type: "GET",
-                url: "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee?shop_id=4643378&to_ward_code=" + value1 + "&to_district_id=" + value2 + "&weight=" + 500 * @soLuong+"&service_type_id=2",
-                headers: { token: '9f4e42e4-fde8-11ed-a281-3aa62a37e0a5' },
+                url: feeUrl,
+                headers: {
+                    token: ghnToken,
+                    shop_id: ghnShopID
+                },
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
                     $('#dfward').remove();
                     tienShip = data.data.total;
                     document.getElementById("fee").innerHTML = data.data.total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
-                    var total = tienShip + @tongtien-tienVoucher - tienDiem;
+                    var total = tienShip + tienHang - tienVoucher - tienDiem;
                     if (total < 0) {
                         total = 0
                     }
                     document.getElementById("total").innerHTML = total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
                 },
                 error: function (reponse) {
-                    alert(reponse.responseText);
+                    console.error("Lỗi khi tính phí GHN (New Address):", reponse);
+                    var errorMsg = "Lỗi khi tính phí GHN.";
+                    if (reponse.responseJSON && reponse.responseJSON.code_message_value) {
+                        errorMsg = reponse.responseJSON.code_message_value;
+                    } else if (reponse.responseText) {
+                         try { var jsonResponse = JSON.parse(reponse.responseText); errorMsg = jsonResponse.message || jsonResponse.code_message_value || errorMsg; } catch (e) { }
+                    }
+                    alert(errorMsg);
+                    resetShipFeeAndTotal();
                 }
             });
         });
+
         $('.checkout__input input').on('input', function () {
             $(this).removeClass('is-invalid');
             $(this).next('.invalid-feedback').text('');
@@ -323,19 +481,193 @@
             $('#pttt-error').hide();
         });
     });
+
+    function loadDiaChiDaLuu(idKhachHang) {
+        if (!idKhachHang) {
+            $('#diaChiMoiContainer').show();
+            $('#diaChiDaLuuContainer').hide();
+            $('#saveAddressCheckboxContainer').hide();
+            return;
+        }
+
+        $.ajax({
+            url: `https://localhost:7095/api/DiaChi/GetByKhachHang/${idKhachHang}`,
+            type: 'GET',
+            success: function (diaChis) {
+                if (diaChis && diaChis.length > 0) {
+                    var html = '';
+                    var defaultAddress = null;
+
+                    diaChis.forEach(function (diaChi) {
+                        var checked = diaChi.isDefault ? 'checked' : '';
+                        if (diaChi.isDefault) {
+                            defaultAddress = diaChi;
+                        }
+
+                        var diaChiJson = JSON.stringify(diaChi);
+
+                        html += `
+                                    <div class="form-check border p-3 mb-2" style="border-radius: 0.25rem;">
+                                        <input class="form-check-input" type="radio"
+                                               name="diaChiRadio"
+                                               id="diaChi-${diaChi.id}"
+                                               value="${diaChi.id}"
+                                               data-json='${diaChiJson}' ${checked}>
+                                        <label class="form-check-label" for="diaChi-${diaChi.id}" style="width: 100%;">
+                                            <span>${diaChi.diaChiCuThe}, ${diaChi.phuongXa}, ${diaChi.quanHuyen}, ${diaChi.tinhThanh}</span>
+                                            ${diaChi.isDefault ? '<span class="badge bg-success ms-2">Mặc định</span>' : ''}
+                                        </label>
+                                    </div>
+                                `;
+                    });
+
+                    $('#diaChiListModal').html(html);
+
+                    $('#diaChiDaLuuContainer').show();
+                    $('#diaChiMoiContainer').hide();
+                    $('#btnQuayLaiDanhSach').hide();
+                    $('#saveAddressCheckboxContainer').hide();
+
+                    if (defaultAddress) {
+                        fillDiaChiForm(defaultAddress);
+
+                        // SỬA Ở ĐÂY: Hiển thị đầy đủ địa chỉ mặc định
+                        var btnText = `<span>${defaultAddress.diaChiCuThe}, ${defaultAddress.phuongXa}, ${defaultAddress.quanHuyen}, ${defaultAddress.tinhThanh}</span>`;
+                        $('#diaChiDaChonText').html(btnText);
+                    }
+                } else {
+                    $('#diaChiMoiContainer').show();
+                    $('#diaChiDaLuuContainer').hide();
+                    if (isLoggedIn) {
+                        $('#saveAddressCheckboxContainer').show();
+                    }
+                }
+            },
+            error: function () {
+                $('#diaChiMoiContainer').show();
+                $('#diaChiDaLuuContainer').hide();
+            }
+        });
+    }
+
+    function fillDiaChiForm(diaChi) {
+        $('#address').val(diaChi.diaChiCuThe);
+        $('#saveAddressCheckboxContainer').hide();
+
+        tinh = diaChi.tinhThanh;
+        huyen = diaChi.quanHuyen;
+        xa = diaChi.phuongXa;
+
+        if (diaChi.districtID && diaChi.wardCode) {
+            $('#tinhHuyenXaContainer').hide();
+
+            var feeUrlSaved = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee?" +
+                              "to_ward_code=" + diaChi.wardCode +
+                              "&to_district_id=" + diaChi.districtID +
+                              "&from_district_id=" + fromDistrictID +
+                              "&weight=" + weight +
+                              "&service_type_id=2" +
+                              "&insurance_value=" + tienHang +
+                              "&length=" + packageLength +
+                              "&width=" + packageWidth +
+                              "&height=" + packageHeight;
+
+            $.ajax({
+                type: "GET",
+                url: feeUrlSaved,
+                headers: {
+                    token: ghnToken,
+                    shop_id: ghnShopID
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    tienShip = data.data.total;
+                    $('#fee').text(tienShip.toLocaleString('it-IT', { style: 'currency', currency: 'VND' }));
+                    var total = tienShip + tienHang - tienVoucher - tienDiem;
+                    if (total < 0) total = 0;
+                    document.getElementById("total").innerHTML = total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
+                },
+                error: function (reponse) {
+                    console.error("Lỗi khi tính phí GHN (Saved Address):", reponse);
+                    var errorMsg = "Lỗi khi tự động tính phí ship.";
+                     if (reponse.responseJSON && reponse.responseJSON.code_message_value) {
+                        errorMsg = reponse.responseJSON.code_message_value;
+                    } else if (reponse.responseText) {
+                         try { var jsonResponse = JSON.parse(reponse.responseText); errorMsg = jsonResponse.message || jsonResponse.code_message_value || errorMsg; } catch (e) { }
+                    }
+                    alert(errorMsg);
+                    resetShipFeeAndTotal();
+                }
+            });
+        } else {
+            console.warn("Địa chỉ cũ thiếu ID GHN. Yêu cầu người dùng chọn T/H/X để tính phí.");
+
+            $('#tinhHuyenXaContainer').show();
+            $('#province').prop('selectedIndex', 0);
+            $('#district').empty().append('<option selected id="dfdistrict" value="">Chọn quận / huyện</option>');
+            $('#ward').empty().append('<option selected id="dfward" value="">Chọn phường / xã</option>');
+            $('#fee').text('0 VND');
+            tienShip = 0;
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Yêu cầu cập nhật địa chỉ',
+                text: 'Địa chỉ đã lưu này cũ. Vui lòng chọn lại Tỉnh/Huyện/Xã để chúng tôi tính phí vận chuyển.',
+                confirmButtonColor: '#111111'
+            });
+        }
+    }
+
+    function clearDiaChiForm() {
+        $('#address').val('');
+
+        if (isLoggedIn) {
+            $('#saveAddressCheckboxContainer').show();
+        }
+
+        $('#tinhHuyenXaContainer').show();
+        $('#province').prop('selectedIndex', 0);
+        $('#district').empty().append('<option selected id="dfdistrict" value="">Chọn quận / huyện</option>');
+        $('#ward').empty().append('<option selected id="dfward" value="">Chọn phường / xã</option>');
+
+        resetShipFeeAndTotal();
+    }
+
+    function submitOrderAjax(objHoaDon) {
+        $.ajax({
+            async: false,
+            type: 'POST',
+            dataType: 'text',
+            url: '/Home/Order',
+            data: objHoaDon,
+            success: function (response) {
+                console.log(response);
+                location.href = response;
+            },
+            error: function (response) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Đã có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.',
+                    confirmButtonColor: '#111111'
+                });
+            }
+        });
+    }
+
     function createhoadon() {
         var ten = $("#name").val();
         var email = $("#email").val();
         var sdt = $("#phone").val();
-        var tinh = $("#province option:selected").text().trim();
-        var huyen = $("#district option:selected").text().trim();
-        var xa = $("#ward option:selected").text().trim();
         var diachi = $("#address").val();
         var pttt = $('input[name="pttt"]:checked').val();
         var ghiChu = $("#note").val();
+
         $('.invalid-feedback').text('');
         $('.is-invalid').removeClass('is-invalid');
         var hasError = false;
+
         if (ten.trim().length == 0) {
             $('#name').addClass('is-invalid');
             $('#name').next('.invalid-feedback').text('Vui lòng nhập họ tên');
@@ -352,6 +684,8 @@
             $('#phone').next('.invalid-feedback').text('Số điện thoại không hợp lệ (độ dài từ 9 - 10 ký tự, không chứa ký tự đặc biệt và khoảng trắng)');
             hasError = true;
         }
+        
+      
         var emailRegex = /^[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (email.trim().length == 0) {
             $('#email').addClass('is-invalid');
@@ -363,21 +697,38 @@
             $('#email').next('.invalid-feedback').text('Địa chỉ email không hợp lệ');
             hasError = true;
         }
-        if (tinh == "Chọn tỉnh / thành") {
-            $('#province').addClass('is-invalid');
-            $('#province').next('.invalid-feedback').text('Vui lòng chọn tỉnh thành');
-            hasError = true;
+
+        var isDropdownsVisible = $('#tinhHuyenXaContainer').is(':visible');
+        var provinceID_ghn = 0;
+        var districtID_ghn = 0;
+        var wardCode_ghn = "";
+
+        if (isDropdownsVisible) {
+            tinh = $("#province option:selected").text().trim();
+            huyen = $("#district option:selected").text().trim();
+            xa = $("#ward option:selected").text().trim();
+
+            provinceID_ghn = $("#province").val();
+            districtID_ghn = $("#district").val();
+            wardCode_ghn = $("#ward").val();
+
+            if (tinh == "Chọn tỉnh / thành" || provinceID_ghn == "") {
+                $('#province').addClass('is-invalid');
+                $('#province').next('.invalid-feedback').text('Vui lòng chọn tỉnh thành');
+                hasError = true;
+            }
+            if (huyen.trim().length == 0 || huyen == "Chọn quận / huyện" || districtID_ghn == "") {
+                $('#district').addClass('is-invalid');
+                $('#district').next('.invalid-feedback').text('Vui lòng chọn quận huyện');
+                hasError = true;
+            }
+            if (xa.trim().length == 0 || xa == "Chọn phường / xã" || wardCode_ghn == "") {
+                $('#ward').addClass('is-invalid');
+                $('#ward').next('.invalid-feedback').text('Vui lòng chọn phường xã');
+                hasError = true;
+            }
         }
-        if (huyen.trim().length == 0 || huyen == "Chọn quận / huyện") {
-            $('#district').addClass('is-invalid');
-            $('#district').next('.invalid-feedback').text('Vui lòng chọn quận huyện');
-            hasError = true;
-        }
-        if (xa.trim().length == 0 || xa == "Chọn phường / xã") {
-            $('#ward').addClass('is-invalid');
-            $('#ward').next('.invalid-feedback').text('Vui lòng chọn phường xã');
-            hasError = true;
-        }
+
         if (diachi.trim().length == 0) {
             $('#address').addClass('is-invalid');
             $('#address').next('.invalid-feedback').text('Không để trống địa chỉ');
@@ -391,32 +742,94 @@
         }
 
         if (hasError) {
-            // SỬ DỤNG SWEETALERT2 TẠI ĐÂY
+            var errorMsg = "Vui lòng điền đầy đủ thông tin!";
+            if (!$("#name").val() || !$("#phone").val() || !$("#email").val() || !$("#address").val()) {
+                errorMsg = "Vui lòng điền đầy đủ Họ tên, SĐT, Email và Địa chỉ.";
+            } else if (isDropdownsVisible && (tinh == "Chọn tỉnh / thành" || huyen == "Chọn quận / huyện" || xa == "Chọn phường / xã")) {
+                errorMsg = "Vui lòng chọn Tỉnh/Huyện/Xã để tính phí vận chuyển.";
+            } else if (pttt == undefined) {
+                errorMsg = "Vui lòng chọn phương thức thanh toán.";
+            }
+
             Swal.fire({
                 icon: 'error',
                 title: 'Thông báo',
-                text: 'Vui lòng điền đầy đủ thông tin!',
+                text: errorMsg,
                 confirmButtonText: 'Đã hiểu',
-                confirmButtonColor: '#111111' // Tùy chỉnh màu nút OK cho hợp
+                confirmButtonColor: '#111111'
             });
+            return;
         }
-        else {
-            var objHoaDon = { Ten: ten, Email: email, SDT: sdt, DiaChi: diachi + ", " + xa + ", " + huyen + ", " + tinh, TienShip: tienShip, PhuongThucThanhToan: pttt, TongTien: tienShip + @tongtien-tienVoucher - tienDiem, TenVoucher: voucher, Diem: diemTich, GhiChu: ghiChu };
-            $.ajax({
-                async: false,
-                type: 'POST',
-                dataType: 'text',
-                url: '/Home/Order',
-                data: objHoaDon,
-                success: function (response) {
-                    console.log(response);
-                    location.href = response;
-                },
-                error: function (response) {
-                    alert("Error");
+
+        Swal.fire({
+            title: 'Xác nhận đặt hàng',
+            text: "Bạn có chắc chắn muốn đặt hàng không?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#111111',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                var objHoaDon = { Ten: ten, Email: email, SDT: sdt, DiaChi: diachi + ", " + xa + ", " + huyen + ", " + tinh, TienShip: tienShip, PhuongThucThanhToan: pttt, TongTien: tienShip + tienHang - tienVoucher - tienDiem, TenVoucher: voucher, Diem: diemTich, GhiChu: ghiChu };
+
+                var isNewAddressFormVisible = $('#diaChiMoiContainer').is(':visible');
+                var isSaveAddressChecked = $('#saveAddressCheckbox').is(':checked');
+                var shouldSaveAddress = isLoggedIn && isSaveAddressChecked && isNewAddressFormVisible;
+
+                if (shouldSaveAddress) {
+                    var diaChiData = {
+                        ID: '00000000-0000-0000-0000-000000000000',
+                        IDKhachHang: currentUserID,
+                        TenNguoiNhan: ten,
+                        SoDienThoai: sdt,
+                        DiaChiCuThe: diachi,
+                        TinhThanh: tinh,
+                        QuanHuyen: huyen,
+                        PhuongXa: xa,
+                        IsDefault: false,
+                        ProvinceID: provinceID_ghn,
+                        DistrictID: districtID_ghn,
+                        WardCode: wardCode_ghn
+                    };
+
+                    $.ajax({
+                        url: 'https://localhost:7095/api/DiaChi/Create',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(diaChiData),
+                        success: function (response) {
+                            console.log('Lưu địa chỉ thành công!');
+                            submitOrderAjax(objHoaDon);
+                        },
+                        error: function (xhr) {
+                            var apiError = "Lỗi không xác định";
+                            if (xhr.responseJSON) {
+                                if (xhr.responseJSON.title) {
+                                    apiError = xhr.responseJSON.title;
+                                }
+                                else if (xhr.responseJSON.message) {
+                                    apiError = xhr.responseJSON.message;
+                                }
+                            }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi Lưu Địa Chỉ!',
+                                text: `Không thể lưu địa chỉ của bạn (Lỗi: ${apiError}). Đơn hàng của bạn VẪN sẽ được xử lý.`,
+                                confirmButtonColor: '#111111',
+                            }).then(() => {
+                                submitOrderAjax(objHoaDon);
+                            });
+                        }
+                    });
+                } else {
+                    submitOrderAjax(objHoaDon);
                 }
-            });
-        }
+            }
+        });
     }
 
     function usevoucher() {
@@ -426,12 +839,12 @@
             type: 'GET',
             dataType: 'json',
             url: '/Home/UseVoucher',
-            data: { ma: value, tongTien: @tongtien},
+            data: { ma: value, tongTien: tienHang },
             success: function (response) {
                 if (response.trangThai == true) {
                     voucher = value;
                     if (response.hinhThuc == 1) {
-                        tienVoucher = (@tongtien * response.giaTri) / 100;
+                        tienVoucher = (tienHang * response.giaTri) / 100;
                     }
                     else if (response.hinhThuc == 0) {
                         tienVoucher = response.giaTri;
@@ -439,14 +852,13 @@
                     var ipVoucher = document.getElementById("moneyvoucher");
                     ipVoucher.hidden = false;
                     ipVoucher.innerHTML = "Số tiền giảm (Voucher)<span>" + tienVoucher.toLocaleString('it-IT', { style: 'currency', currency: 'VND' }) + " </span>";
-                    var total = tienShip + @tongtien-tienVoucher - tienDiem;
+                    var total = tienShip + tienHang - tienVoucher - tienDiem;
                     if (total < 0) {
                         total = 0
                     }
                     document.getElementById("total").innerHTML = total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' });
                 }
                 else {
-                    // Thông báo voucher lỗi bằng SweetAlert
                     Swal.fire({
                         icon: 'warning',
                         title: 'Voucher không hợp lệ',
@@ -461,10 +873,12 @@
             }
         });
     }
+
     function usediem() {
         var value = $("#diemTich").val();
+        
+       
         if (value > @(loginInfor.DiemTich == null ? 0 : loginInfor.DiemTich)) {
-            // Thông báo lỗi điểm
             Swal.fire({
                 icon: 'warning',
                 title: 'Không đủ điểm',
@@ -496,7 +910,7 @@
                 type: 'GET',
                 dataType: 'json',
                 url: '/Home/UseDDiemTich',
-                data: { diem: value, id: '@loginInfor.Id', tongTien: @tongtien },
+                data: { diem: value, id: '@loginInfor.Id', tongTien: tienHang },
                 success: function (response) {
                     if (response.trangThai == true) {
                         diemTich = value;
@@ -504,7 +918,7 @@
                         ipDiem.hidden = false;
                         tienDiem = response.soTienGiam;
                         ipDiem.innerHTML = "Số tiền giảm (Điểm)<span>" + tienDiem.toLocaleString('it-IT', { style: 'currency', currency: 'VND' }) + "</span>";
-                        var total = tienShip + @tongtien-tienVoucher - tienDiem;
+                        var total = tienShip + tienHang - tienVoucher - tienDiem;
                         if (total < 0) {
                             total = 0
                         }

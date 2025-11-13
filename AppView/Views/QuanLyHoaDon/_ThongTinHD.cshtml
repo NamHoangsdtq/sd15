@@ -415,8 +415,8 @@
             <div class="modal-body" id="confirmationModalBody">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-primary" id="confirmActionBtn">Xác nhận</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -557,13 +557,30 @@
                     trangthai: trangthai,
                     idhd: id,
                 },
+            
                 success: function (response) {
-                    toastr.success(response.message, "Thông báo", { timeOut: 3000 });
-                    billDetail(id);
-                    loadBill();
+                   
+                    if (response.success) {
+                   
+                        toastr.success(response.message, "Thông báo", { timeOut: 3000 });
+
+                     
+                        billDetail(id);
+                        loadBill();
+                    } else {
+                       
+                        toastr.error(response.message, "Thông báo", { timeOut: 3000 });
+                    }
                 },
+              
                 error: function (err) {
-                    toastr.error('Thay đổi trạng thái thất bại', "Thông báo", { timeOut: 3000 });
+                 
+                    var errorJson = err.responseJSON;
+                    if (errorJson && errorJson.message) {
+                        toastr.error(errorJson.message, "Thông báo", { timeOut: 3000 });
+                    } else {
+                        toastr.error('Thay đổi trạng thái thất bại (Lỗi máy chủ)', "Thông báo", { timeOut: 3000 });
+                    }
                 }
             });
         });
