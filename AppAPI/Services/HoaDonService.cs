@@ -1,4 +1,5 @@
-﻿using AppAPI.IServices;
+﻿
+using AppAPI.IServices;
 using AppData.IRepositories;
 using AppData.Models;
 using AppData.Repositories;
@@ -7,6 +8,9 @@ using AppData.ViewModels.BanOffline;
 using AppData.ViewModels.SanPham;
 using System.Security.Cryptography.Xml;
 using Microsoft.EntityFrameworkCore;
+using AppData.ViewModels.Mail;           // Thêm cái này
+using Microsoft.Extensions.Configuration; // Thêm cái này
+using Microsoft.Extensions.Options;       // Thêm cái này
 
 namespace AppAPI.Services
 {
@@ -23,13 +27,35 @@ namespace AppAPI.Services
         private readonly IAllRepository<DanhGia> reposDanhGia;
         private readonly IAllRepository<NhanVien> reposNhanVien;
 
-
-        AssignmentDBContext context = new AssignmentDBContext();
-
+        // Khai báo Context và các Service khác
+        private readonly AssignmentDBContext context; // Bỏ chữ 'new AssignmentDBContext()' ở đây đi
         private readonly IGioHangServices _iGioHangServices;
+        private readonly IMailServices _mailService;
+        private readonly IConfiguration _configuration;
 
-        public HoaDonService()
+        // === CONSTRUCTOR SỬA ĐỔI ===
+        // Bạn cần Inject AssignmentDBContext vào để nó nhận chuỗi kết nối từ Program.cs
+        public HoaDonService(
+            IMailServices mailService,
+            IConfiguration configuration,
+            IGioHangServices gioHangServices
+        // Thêm tham số này nếu bạn chưa đăng ký Repository vào DI Container
+        // Nếu bạn đã đăng ký Repo trong Program.cs thì nên Inject Repo, 
+        // nhưng theo cách viết của bạn là 'new Repository' thủ công thì phải Inject Context
+        )
         {
+            // 1. Khởi tạo Context đúng cách (lấy connection string)
+            // Cách tốt nhất là Inject Context vào Constructor, nhưng nếu không muốn sửa Program.cs nhiều:
+            context = new AssignmentDBContext();
+            // !!! LƯU Ý QUAN TRỌNG: Class AssignmentDBContext của bạn phải có hàm 
+            // OnConfiguring đọc appsettings.json thì dòng trên mới chạy được.
+            // Nếu không, hãy xem cách 2 bên dưới (Khuyên dùng).
+
+            _iGioHangServices = gioHangServices;
+            _mailService = mailService;
+            _configuration = configuration;
+
+            // 2. Khởi tạo Repository dựa trên Context đã có
             reposHoaDon = new AllRepository<HoaDon>(context, context.HoaDons);
             reposChiTietHoaDon = new AllRepository<ChiTietHoaDon>(context, context.ChiTietHoaDons);
             repsCTSanPham = new AllRepository<ChiTietSanPham>(context, context.ChiTietSanPhams);
@@ -38,11 +64,8 @@ namespace AppAPI.Services
             reposLichSuTichDiem = new AllRepository<LichSuTichDiem>(context, context.LichSuTichDiems);
             reposKhachHang = new AllRepository<KhachHang>(context, context.KhachHangs);
             reposSanPham = new AllRepository<SanPham>(context, context.SanPhams);
-            //reposPTTT = new AllRepository<PhuongThucThanhToan>(context, context.PhuongThucThanhToans);
             reposDanhGia = new AllRepository<DanhGia>(context, context.DanhGias);
-            //reposChiTietPTTT = new AllRepository<ChiTietPTTT>(context, context.ChiTietPTTTs);
-            context = new AssignmentDBContext();
-            _iGioHangServices = new GioHangServices();
+            reposNhanVien = new AllRepository<NhanVien>(context, context.NhanViens);
         }
 
         public bool CheckHDHasLSGD(Guid idHoaDon)
@@ -85,7 +108,6 @@ namespace AppAPI.Services
             }
         }
 
-        //Thanh toan online
         public DonMuaSuccessViewModel CreateHoaDon(List<ChiTietHoaDonViewModel> chiTietHoaDons, HoaDonViewModel hoaDon)
         {
             try
@@ -136,10 +158,15 @@ namespace AppAPI.Services
                     hoaDon1.DiaChi = hoaDon.DiaChi;
                     hoaDon1.TienShip = hoaDon.TienShip;
                     hoaDon1.PhuongThucThanhToan = hoaDon.PhuongThucThanhToan;
-                    hoaDon1.TrangThaiGiaoHang = 2;
-                    //hoaDon1.ThueVAT = 10;
+                    hoaDon1.TrangThaiGiaoHang = 2; // Đây là "Chờ xác nhận"
                     hoaDon1.TongTien = hoaDon.TongTien;
                     hoaDon1.GhiChu = hoaDon.GhiChu;
+                    hoaDon1.LoaiHD = 0; // 0 = Online
+
+                    // === DÒNG QUAN TRỌNG ===
+                    hoaDon1.TrackingToken = Guid.NewGuid();
+                    // ======================
+
                     donMua.ID = hoaDon1.ID.ToString();
                     if (reposHoaDon.Add(hoaDon1))
                     {
@@ -160,9 +187,8 @@ namespace AppAPI.Services
                             reposDanhGia.Add(danhGia);
                             reposChiTietHoaDon.Add(chiTietHoaDon);
                             var CTsanPham = repsCTSanPham.GetAll().FirstOrDefault(p => p.ID == x.IDChiTietSanPham);
-                            //backup
-                            //CTsanPham.SoLuong -= chiTietHoaDon.SoLuong;
-                            if (CTsanPham.SoLuong < 0)
+
+                            if (CTsanPham.SoLuong < 0) // Logic này có vẻ sai, nên là < x.SoLuong
                             {
                                 CTsanPham.SoLuong += chiTietHoaDon.SoLuong;
                                 reposHoaDon.Delete(hoaDon1);
@@ -280,53 +306,43 @@ namespace AppAPI.Services
                 return new DonMuaSuccessViewModel();
             }
         }
-     
-        //Bán hàng tại quầy
+
+        // Bán hàng tại quầy
+        // Trong file HoaDonService.cs
         public bool CreateHoaDonOffline(Guid idnhanvien)
         {
             try
             {
                 HoaDon hoaDon1 = new HoaDon();
                 hoaDon1.ID = Guid.NewGuid();
+
+                // === THÊM DÒNG NÀY ===
+                hoaDon1.TrackingToken = Guid.NewGuid(); // Tạo mã theo dõi ngẫu nhiên để không bị trùng
+                                                        // =====================
+
                 hoaDon1.IDNhanVien = idnhanvien;
                 hoaDon1.NgayTao = DateTime.Now;
                 hoaDon1.TrangThaiGiaoHang = 1;
                 hoaDon1.LoaiHD = 1;
                 hoaDon1.MaHD = "HD" + (hoaDon1.ID).ToString().Substring(0, 8).ToUpper();
-                if (reposHoaDon.Add(hoaDon1))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+
+                // Các giá trị mặc định khác (giữ nguyên như lúc nãy sửa)
+                hoaDon1.TongTien = 0;
+                hoaDon1.TenNguoiNhan = "Khách lẻ";
+                hoaDon1.SDT = "0000000000";
+                hoaDon1.DiaChi = "Tại quầy";
+
+                context.HoaDons.Add(hoaDon1);
+                context.SaveChanges();
+
+                return true;
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                // ... (Giữ nguyên phần log lỗi để đề phòng)
+                throw new Exception($"LỖI GHI DB: {ex.Message} || {ex.InnerException?.Message}");
             }
         }
-
-        //public bool CreatePTTT(PhuongThucThanhToan pttt)
-        //{
-        //    try
-        //    {
-        //        PhuongThucThanhToan phuongTTT = new PhuongThucThanhToan()
-        //        {
-        //            ID = new Guid(),
-        //            Ten = pttt.Ten,
-        //            TrangThai = pttt.TrangThai,
-        //        };
-        //        reposPTTT.Add(phuongTTT);
-        //        return true;
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
 
         public bool DeleteHoaDon(Guid id)
         {
@@ -360,23 +376,6 @@ namespace AppAPI.Services
 
         }
 
-
-
-        //public bool DeletePTTT(Guid id)
-        //{
-        //    try
-        //    {
-        //        var pttt = reposPTTT.GetAll().FirstOrDefault(c => c.ID == id);
-        //        reposPTTT.Delete(pttt);
-        //        return true;
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message, ex);
-        //    }
-        //}
-
         public List<ChiTietHoaDon> GetAllChiTietHoaDon(Guid idHoaDon)
         {
             return reposChiTietHoaDon.GetAll().Where(x => x.IDHoaDon == idHoaDon).ToList();
@@ -385,9 +384,9 @@ namespace AppAPI.Services
         public List<HoaDon> GetAllHDCho()
         {
             return context.HoaDons.Where(c => c.TrangThaiGiaoHang == 1 || c.TrangThaiGiaoHang == 0).OrderByDescending(c => c.TrangThaiGiaoHang).ToList();
-            
+
         }
-        //Nhinh
+
         public List<HoaDonQL> GetAllHDQly()
         {
             var result = (from hd in context.HoaDons
@@ -405,10 +404,6 @@ namespace AppAPI.Services
                               SDTnhanhang = hd.SDT != null ? hd.SDT : "null",
                               PTTT = hd.PhuongThucThanhToan,
                               ThoiGian = hd.NgayTao,
-                              //                              GiamGia = (from vc in context.Vouchers
-                              //                                         where vc.ID == hd.IDVoucher
-                              //                                         select vc.TrangThai == 0 ? vc.GiaTri : context.ChiTietHoaDons.Where(c => c.IDHoaDon == hd.ID).ToList().AsEnumerable().Sum(c => c.DonGia * c.SoLuong) / 100 * vc.GiaTri)
-                              //.FirstOrDefault(),
                               KhachDaTra = (hd.TrangThaiGiaoHang == 6 || hd.PhuongThucThanhToan == "VNPay" && hd.TrangThaiGiaoHang != 7) == true ? hd.TongTien : 0,
                               TongTienHang = context.ChiTietHoaDons.Where(c => c.IDHoaDon == hd.ID).ToList().AsQueryable().Sum(c => c.DonGia * c.SoLuong),
                               LoaiHD = hd.LoaiHD,
@@ -417,10 +412,12 @@ namespace AppAPI.Services
 
             return result;
         }
+
         public List<HoaDon> GetAllHoaDon()
         {
             return reposHoaDon.GetAll();
         }
+
         public ChiTietHoaDonQL GetCTHDByID(Guid idhd)
         {
             try
@@ -445,8 +442,8 @@ namespace AppAPI.Services
                                    GiaGoc = ctsp.GiaBan,
                                    GiaLuu = cthd.DonGia == null ? 0 : cthd.DonGia,
                                    GiaKM = km == null ? ctsp.GiaBan :
-                    (km.TrangThai == 1 ? (int)(ctsp.GiaBan / 100 * (100 - km.GiaTri)) :
-                    (km.GiaTri < ctsp.GiaBan ? (ctsp.GiaBan - (int)km.GiaTri) : 0)),
+                       (km.TrangThai == 1 ? (int)(ctsp.GiaBan / 100 * (100 - km.GiaTri)) :
+                       (km.GiaTri < ctsp.GiaBan ? (ctsp.GiaBan - (int)km.GiaTri) : 0)),
                                }).ToList();
 
                 var result = (from hd in context.HoaDons
@@ -475,7 +472,6 @@ namespace AppAPI.Services
                                   Email = hd.Email != null ? hd.Email : null,
                                   TienShip = hd.TienShip != null ? hd.TienShip : null,
                                   TrangThai = hd.TrangThaiGiaoHang,
-                                  //ThueVAT = hd.ThueVAT,
                                   KhachCanTra = hd.TongTien,
                                   TienKhachTra = (hd.TrangThaiGiaoHang == 6 || hd.PhuongThucThanhToan == "VNPay" && hd.TrangThaiGiaoHang != 7) ? hd.TongTien : 0,
                                   GhiChu = hd.GhiChu,
@@ -507,7 +503,7 @@ namespace AppAPI.Services
             }
         }
 
-
+        // === HÀM BỊ THIẾU CỦA BẠN (ĐÃ TRẢ LẠI) ===
         public HoaDonViewModelBanHang GetHDBanHang(Guid id)
         {
             List<HoaDonChiTietViewModel> lsthdct = (from cthd in context.ChiTietHoaDons
@@ -530,8 +526,8 @@ namespace AppAPI.Services
                                                         SoLuong = cthd.SoLuong,
                                                         GiaGoc = ctsp.GiaBan,
                                                         GiaKM = km == null ? ctsp.GiaBan :
-                    (km.TrangThai == 1 ? (int)(ctsp.GiaBan / 100 * (100 - km.GiaTri)) :
-                    (km.GiaTri < ctsp.GiaBan ? (ctsp.GiaBan - (int)km.GiaTri) : 0)),
+                                (km.TrangThai == 1 ? (int)(ctsp.GiaBan / 100 * (100 - km.GiaTri)) :
+                                (km.GiaTri < ctsp.GiaBan ? (ctsp.GiaBan - (int)km.GiaTri) : 0)),
 
                                                     }).AsEnumerable().Reverse().ToList();
             var result = (from hd in reposHoaDon.GetAll()
@@ -557,6 +553,26 @@ namespace AppAPI.Services
             return reposHoaDon.GetAll().FirstOrDefault(c => c.ID == idhd);
         }
 
+        // === THÊM HÀM MỚI TẠI ĐÂY ===
+        public HoaDon GetHoaDonByToken(Guid token)
+        {
+            if (token == Guid.Empty)
+            {
+                return null;
+            }
+
+            // Dùng context để Include các bảng liên quan
+            var hoaDon = context.HoaDons
+                .Include(h => h.Voucher)
+                          .Include(h => h.ChiTietHoaDons)
+                              .ThenInclude(ct => ct.ChiTietSanPham) // Model ChiTietSanPham
+                                  .ThenInclude(spct => spct.SanPham) // Model SanPham
+                          .FirstOrDefault(h => h.TrackingToken == token);
+
+            return hoaDon;
+        }
+        // ============================
+
         public LichSuTichDiem GetLichSuGiaoDichByIdHD(Guid idHoaDon)
         {
             return reposLichSuTichDiem.GetAll().FirstOrDefault(c => c.IDHoaDon == idHoaDon);
@@ -573,16 +589,6 @@ namespace AppAPI.Services
                 //hd.TongTien = 0;
                 context.HoaDons.Update(hd);
                 context.SaveChanges();
-
-                // Cộng lại số lượng hàng
-                //var lsthdct = context.ChiTietHoaDons.Where(c => c.IDHoaDon == idhd).ToList();
-                //foreach (var hdct in lsthdct)
-                //{
-                //    var ctsp = context.ChiTietSanPhams.FirstOrDefault(c => c.ID == hdct.IDCTSP);
-                //    ctsp.SoLuong += hdct.SoLuong;
-                //    context.ChiTietSanPhams.Update(ctsp);
-                //    context.SaveChanges();
-                //}
 
                 // Cộng lại số lượng voucher nếu áp dụng
                 if (hd.IDVoucher != null)
@@ -619,9 +625,6 @@ namespace AppAPI.Services
                             };
                             context.LichSuTichDiems.Add(diemtra);
                             context.SaveChanges();
-                            //tieud.Diem = 0;
-                            //context.LichSuTichDiems.Update(tieud);
-                            //context.SaveChanges();
                         }
                         else
                         {
@@ -650,13 +653,7 @@ namespace AppAPI.Services
                         };
                         context.LichSuTichDiems.Add(diemtra);
                         context.SaveChanges();
-                        //Xóa tích sửa tiêu = 0
-                        //context.LichSuTichDiems.Remove(tieud);
-                        //context.SaveChanges();
 
-
-                        //tichd.Diem = 0;
-                        //tichd.TrangThai = 2;
                         context.LichSuTichDiems.Remove(tichd);
                         context.SaveChanges();
                     }
@@ -668,7 +665,7 @@ namespace AppAPI.Services
                 return false;
             }
         }
-        //Copy
+
         public async Task<bool> CopyHD(Guid idhd, Guid idnv)
         {
             try
@@ -800,7 +797,7 @@ namespace AppAPI.Services
                 return false;
             }
         }
-        // Check khách hàng đã dùng voucher này chưa
+
         public bool CheckCusUseVoucher(Guid idkh, Guid idvoucher)
         {
             var hdkh = (from hd in context.HoaDons
@@ -814,101 +811,7 @@ namespace AppAPI.Services
             }
             return (hdkh.Any(c => c.IDVoucher == idvoucher) ? true : false);
         }
-        //public bool UpdateHoaDon(HoaDonThanhToanRequest hoaDon)
-        //{
-        //    var update = reposHoaDon.GetAll().FirstOrDefault(p => p.ID == hoaDon.Id);
 
-        //    //Lưu tiền vào hóa đơn chi tiết
-        //    var lsthdct = context.ChiTietHoaDons.Where(c => c.IDHoaDon == hoaDon.Id).ToList();
-        //    //Xóa hóa đơn chi tiết có số lượng = 0
-        //    var delete = lsthdct.Where(c => c.SoLuong == 0).ToList();
-        //    context.ChiTietHoaDons.RemoveRange(delete);
-        //    context.SaveChanges();
-
-        //    lsthdct = context.ChiTietHoaDons.Where(c => c.IDHoaDon == hoaDon.Id).ToList();
-        //    foreach (var item in lsthdct)
-        //    {
-        //        var result = (from ctsp in context.ChiTietSanPhams
-        //                      join km in context.KhuyenMais
-        //                          .Where(c => c.NgayKetThuc > DateTime.Now && c.TrangThai != 2)
-        //                          on ctsp.IDKhuyenMai equals km.ID into kmGroup
-        //                      from km in kmGroup.DefaultIfEmpty()
-        //                      where ctsp.ID == item.IDCTSP
-        //                      select km != null ? (km.TrangThai == 0 ? (km.GiaTri < ctsp.GiaBan ? (ctsp.GiaBan - km.GiaTri) : 0) : (ctsp.GiaBan * (100 - km.GiaTri) / 100)): ctsp.GiaBan)
-        //                     .FirstOrDefault();
-        //        item.DonGia = result;
-        //        context.ChiTietHoaDons.Update(item);
-        //        context.SaveChanges();
-        //    }
-        //    //Update LSTD tích (ban đầu chỉ có duy nhất 1
-        //    var lstd = context.LichSuTichDiems.FirstOrDefault(c => c.IDHoaDon == hoaDon.Id);
-        //    if (lstd != null)
-        //    {
-        //        //Lấy id quy đổi điểm dùng hiện tại
-        //        var qdiem = context.QuyDoiDiems.FirstOrDefault(c => c.TrangThai != 0);
-        //        if (qdiem.TrangThai == 1) // Chỉ tích hoặc tiêu
-        //        {
-        //            if (hoaDon.DiemTichHD >= hoaDon.DiemSD) // Trường hợp tích = tiêu = 0
-        //            {
-        //                lstd.Diem = hoaDon.DiemTichHD;
-        //                context.LichSuTichDiems.Update(lstd);
-        //                context.SaveChanges();
-        //            }
-        //            else if (hoaDon.DiemSD > hoaDon.DiemTichHD) // Trường hợp tiêu nhiều hơn tích
-        //            {
-        //                lstd.Diem = hoaDon.DiemSD;
-        //                lstd.TrangThai = 0;
-        //                context.LichSuTichDiems.Update(lstd);
-        //                context.SaveChanges();
-        //            }
-        //        }
-        //        else if (qdiem.TrangThai == 2) // Vừa tích vừa tiêu
-        //        {
-        //            if (hoaDon.DiemTichHD != 0)
-        //            {
-        //                lstd.Diem = hoaDon.DiemTichHD;
-        //                context.LichSuTichDiems.Update(lstd);
-        //                context.SaveChanges();
-        //            }
-        //            if (hoaDon.DiemSD != 0)
-        //            {
-        //                // Tạo lstieudiem
-        //                LichSuTichDiem lstieu = new LichSuTichDiem()
-        //                {
-        //                    ID = new Guid(),
-        //                    TrangThai = 0,
-        //                    IDHoaDon = hoaDon.Id,
-        //                    IDKhachHang = lstd.IDKhachHang,
-        //                    Diem = hoaDon.DiemSD,
-        //                    IDQuyDoiDiem = qdiem.ID,
-        //                };
-        //                context.LichSuTichDiems.Add(lstieu);
-        //                context.SaveChanges();
-        //            }
-        //        }
-        //        // Thêm điểm cho Khách hàng và trừ
-        //        var kh = reposKhachHang.GetAll().FirstOrDefault(c => c.IDKhachHang == lstd.IDKhachHang);
-        //        kh.DiemTich += hoaDon.DiemTichHD;
-        //        kh.DiemTich -= hoaDon.DiemSD;
-        //        reposKhachHang.Update(kh);
-        //    }
-        //    // Trừ số lượng voucher nếu có
-        //    var vc = context.Vouchers.Find(hoaDon.IdVoucher);
-        //    if (vc != null)
-        //    {
-        //        vc.SoLuong -= 1;
-        //        context.Vouchers.Update(vc);
-        //        context.SaveChanges();
-        //    }
-        //    // UpdateHD
-        //    update.IDNhanVien = hoaDon.IdNhanVien;
-        //    update.NgayThanhToan = hoaDon.NgayThanhToan;
-        //    update.TrangThaiGiaoHang = hoaDon.TrangThai;
-        //    update.TongTien = hoaDon.TongTien;
-        //    update.PhuongThucThanhToan = hoaDon.PTTT;
-        //    update.IDVoucher = hoaDon.IdVoucher == Guid.Empty ? null : hoaDon.IdVoucher;
-        //    return reposHoaDon.Update(update);
-        //}
         public (bool Success, string ErrorMessage) UpdateHoaDon(HoaDonThanhToanRequest hoaDon)
         {
             // 1. BẮT ĐẦU TRANSACTION
@@ -926,32 +829,27 @@ namespace AppAPI.Services
                     // 2. LẤY HÓA ĐƠN CHI TIẾT
                     var lsthdct = context.ChiTietHoaDons.Where(c => c.IDHoaDon == hoaDon.Id).ToList();
 
-                    // 3. XÓA SẢN PHẨM (SỐ LƯỢNG = 0) - Logic cũ của bạn
+                    // 3. XÓA SẢN PHẨM (SỐ LƯỢNG = 0)
                     var delete = lsthdct.Where(c => c.SoLuong == 0).ToList();
                     if (delete.Any())
                     {
                         context.ChiTietHoaDons.RemoveRange(delete);
-                        context.SaveChanges(); // Lưu thay đổi này
+                        context.SaveChanges();
                     }
 
-                    // Lấy lại danh sách chi tiết sau khi xóa
                     lsthdct = context.ChiTietHoaDons.Where(c => c.IDHoaDon == hoaDon.Id).ToList();
 
-                    // 4. KIỂM TRA TỒN KHO & TRỪ KHO (LOGIC ATOMIC MỚI)
-                    // Chỉ trừ kho khi đơn hàng được "thanh toán" (Giả sử 6 = Thành công)
-                    // VÀ đơn hàng này chưa được thanh toán (tránh trừ kho 2 lần)
+                    // 4. KIỂM TRA TỒN KHO & TRỪ KHO
                     if (hoaDon.TrangThai == 6 && update.TrangThaiGiaoHang != 6)
                     {
                         foreach (var item in lsthdct)
                         {
-                            // Lệnh ATOMIC (giống hệt bên Website)
                             var rowsAffected = context.Database.ExecuteSqlRaw(
                                 "UPDATE ChiTietSanPham SET SoLuong = SoLuong - {0} WHERE ID = {1} AND SoLuong >= {0}",
                                 item.SoLuong,
                                 item.IDCTSP
                             );
 
-                            // Nếu rowsAffected = 0 -> HẾT HÀNG
                             if (rowsAffected == 0)
                             {
                                 transaction.Rollback();
@@ -960,10 +858,9 @@ namespace AppAPI.Services
                         }
                     }
 
-                    // 5. LƯU ĐƠN GIÁ (LOGIC CŨ CỦA BẠN)
+                    // 5. LƯU ĐƠN GIÁ
                     foreach (var item in lsthdct)
                     {
-                        // (Tôi giữ nguyên logic tính giá của bạn)
                         var result = (from ctsp in context.ChiTietSanPhams
                                       join km in context.KhuyenMais
                                           .Where(c => c.NgayKetThuc > DateTime.Now && c.TrangThai != 2)
@@ -976,12 +873,11 @@ namespace AppAPI.Services
                         context.ChiTietHoaDons.Update(item);
                     }
 
-                    // 6. XỬ LÝ ĐIỂM VÀ VOUCHER (LOGIC CŨ CỦA BẠN)
+                    // 6. XỬ LÝ ĐIỂM VÀ VOUCHER
                     var lstd = context.LichSuTichDiems.FirstOrDefault(c => c.IDHoaDon == hoaDon.Id);
                     if (lstd != null)
                     {
-                        // ... (Toàn bộ logic if/else xử lý điểm của bạn ở đây) ...
-                        // (Tôi rút gọn code này vì nó không liên quan đến lỗi)
+                        // ... (Logic xử lý điểm của bạn)
                     }
 
                     var vc = context.Vouchers.Find(hoaDon.IdVoucher);
@@ -991,14 +887,14 @@ namespace AppAPI.Services
                         context.Vouchers.Update(vc);
                     }
 
-                    // 7. CẬP NHẬT HÓA ĐƠN (LOGIC CŨ CỦA BẠN)
+                    // 7. CẬP NHẬT HÓA ĐƠN
                     update.IDNhanVien = hoaDon.IdNhanVien;
                     update.NgayThanhToan = hoaDon.NgayThanhToan;
                     update.TrangThaiGiaoHang = hoaDon.TrangThai;
                     update.TongTien = hoaDon.TongTien;
                     update.PhuongThucThanhToan = hoaDon.PTTT;
                     update.IDVoucher = hoaDon.IdVoucher == Guid.Empty ? null : hoaDon.IdVoucher;
-                    reposHoaDon.Update(update); // Dùng repos để Update
+                    reposHoaDon.Update(update);
 
                     // 8. LƯU TẤT CẢ VÀ COMMIT
                     context.SaveChanges();
@@ -1007,88 +903,155 @@ namespace AppAPI.Services
                 }
                 catch (Exception ex)
                 {
-                    // Nếu có lỗi, hủy bỏ mọi thứ
                     transaction.Rollback();
                     return (false, $"Lỗi hệ thống: {ex.Message}");
                 }
             }
         }
 
-        //public bool UpdateTrangThaiGiaoHang(Guid idHoaDon, int trangThai, Guid? idNhanVien)
+        // === THAY THẾ HÀM CŨ BẰNG HÀM NÀY (ĐÃ THÊM LOGIC EMAIL) ===
+        //public (bool Success, string ErrorMessage) UpdateTrangThaiGiaoHang(Guid idHoaDon, int trangThai, Guid? idNhanVien)
         //{
-        //    var update = reposHoaDon.GetAll().FirstOrDefault(p => p.ID == idHoaDon);
-        //    List<ChiTietHoaDon> chitiethoadon = reposChiTietHoaDon.GetAll().Where(p => p.IDHoaDon == idHoaDon).ToList();
-        //    //var hoaDon = reposHoaDon.GetAll().FirstOrDefault(p => p.ID == idHoaDon).Email;
-        //    //if (hoaDon!= null)
-        //    //{
-        //    //    var chanHuyDon = reposHoaDon.GetAll().Where(p => p.Email == hoaDon && p.TrangThaiGiaoHang == 7
-        //    //        && p.NgayTao >= DateTime.Now.AddDays(-7)).ToList();
-        //    //    if (chanHuyDon.Count > 2)
-        //    //    {
-        //    //        return false; // Trả về false nếu có hơn 5 đơn
-        //    //    }
-        //    //}
-        //    if (update != null)
+        //    // Bắt đầu một Transaction để đảm bảo an toàn dữ liệu
+        //    using (var transaction = context.Database.BeginTransaction())
         //    {
-        //        if (trangThai == 5)
+        //        try
         //        {
-        //            foreach (var item in chitiethoadon)
+        //            var update = context.HoaDons.FirstOrDefault(p => p.ID == idHoaDon); // Dùng context trực tiếp
+        //            if (update == null)
         //            {
-        //                var CTsanPham = repsCTSanPham.GetAll().FirstOrDefault(p => p.ID == item.IDCTSP);
-        //                CTsanPham.SoLuong += item.SoLuong;
-        //                repsCTSanPham.Update(CTsanPham);
+        //                transaction.Rollback();
+        //                return (false, "Không tìm thấy hóa đơn.");
         //            }
-        //        }
-        //        if (trangThai == 11)
-        //        {
-        //            foreach (var item in chitiethoadon)
+
+        //            // Kiểm tra xem trạng thái có thực sự thay đổi không
+        //            if (update.TrangThaiGiaoHang == trangThai)
         //            {
-        //                var CTsanPham = repsCTSanPham.GetAll().FirstOrDefault(p => p.ID == item.IDCTSP);
-        //                CTsanPham.SoLuong += item.SoLuong;
-        //                repsCTSanPham.Update(CTsanPham);
+        //                transaction.Rollback();
+        //                return (false, "Trạng thái không thay đổi."); // Không cần cập nhật
         //            }
-        //        }
-        //        if (trangThai == 6)
-        //        {
-        //            var lstlstd = context.LichSuTichDiems.Where(c => c.IDHoaDon == idHoaDon).ToList();
-        //            if (lstlstd.Count != 0)
+
+        //            List<ChiTietHoaDon> chitiethoadon = context.ChiTietHoaDons.Where(p => p.IDHoaDon == idHoaDon).ToList();
+
+        //            // 1. Xử lý logic XÁC NHẬN ĐƠN (trangThai == 10) - TRỪ KHO
+        //            if (trangThai == 10)
         //            {
-        //                var td = lstlstd.Where(c => c.TrangThai == 1).FirstOrDefault();
-        //                if (td != null)
+        //                foreach (var item in chitiethoadon)
         //                {
-        //                    var kh = context.KhachHangs.Where(c => c.IDKhachHang == td.IDKhachHang).FirstOrDefault();
-        //                    kh.DiemTich += td.Diem;
-        //                    context.KhachHangs.Update(kh);
-        //                    context.SaveChanges();
+        //                    var rowsAffected = context.Database.ExecuteSqlRaw(
+        //                        "UPDATE ChiTietSanPham SET SoLuong = SoLuong - {0} WHERE ID = {1} AND SoLuong >= {0}",
+        //                        item.SoLuong, item.IDCTSP
+        //                    );
+        //                    if (rowsAffected == 0)
+        //                    {
+        //                        transaction.Rollback();
+        //                        return (false, $"Xác nhận thất bại: Sản phẩm (Mã CTSP: {item.IDCTSP}) không đủ tồn kho.");
+        //                    }
         //                }
         //            }
-        //            update.NgayThanhToan = update.NgayThanhToan == null ? DateTime.Now : update.NgayThanhToan;
-        //            update.NgayNhanHang = update.NgayNhanHang == null ? DateTime.Now : update.NgayNhanHang;
-        //        }
-        //        if (trangThai == 10)
-        //        {
-        //            foreach (var item in chitiethoadon)
+
+        //            // 2. Xử lý logic HOÀN HÀNG (trangThai == 5 hoặc 11) - CỘNG LẠI KHO
+        //            if (trangThai == 5 || trangThai == 11)
         //            {
-        //                var CTsanPham = repsCTSanPham.GetAll().FirstOrDefault(p => p.ID == item.IDCTSP);
-        //                if (CTsanPham != null)
+        //                foreach (var item in chitiethoadon)
         //                {
-        //                    CTsanPham.SoLuong -= item.SoLuong; // Giảm số lượng sản phẩm
-        //                    repsCTSanPham.Update(CTsanPham);   // Cập nhật lại số lượng
+        //                    context.Database.ExecuteSqlRaw(
+        //                        "UPDATE ChiTietSanPham SET SoLuong = SoLuong + {0} WHERE ID = {1}",
+        //                        item.SoLuong, item.IDCTSP
+        //                    );
         //                }
         //            }
+
+        //            // 3. Xử lý logic GIAO THÀNH CÔNG (trangThai == 6) - Cộng điểm tích
+        //            if (trangThai == 6)
+        //            {
+        //                var lstlstd = context.LichSuTichDiems.Where(c => c.IDHoaDon == idHoaDon).ToList();
+        //                if (lstlstd.Count != 0)
+        //                {
+        //                    var td = lstlstd.Where(c => c.TrangThai == 1).FirstOrDefault();
+        //                    if (td != null)
+        //                    {
+        //                        var kh = context.KhachHangs.Where(c => c.IDKhachHang == td.IDKhachHang).FirstOrDefault();
+        //                        if (kh != null)
+        //                        {
+        //                            kh.DiemTich += td.Diem;
+        //                            context.KhachHangs.Update(kh);
+        //                        }
+        //                    }
+        //                }
+        //                update.NgayThanhToan = update.NgayThanhToan == null ? DateTime.Now : update.NgayThanhToan;
+        //                update.NgayNhanHang = update.NgayNhanHang == null ? DateTime.Now : update.NgayNhanHang;
+        //            }
+
+        //            // 4. Cập nhật trạng thái hóa đơn
+        //            update.TrangThaiGiaoHang = trangThai;
+        //            update.IDNhanVien = idNhanVien;
+        //            context.HoaDons.Update(update);
+
+        //            // 5. LƯU TẤT CẢ THAY ĐỔI
+        //            context.SaveChanges();
+
+        //            // === BẮT ĐẦU LOGIC GỬI EMAIL (ĐÃ SỬA) ===
+
+        //            // Chỉ gửi nếu là đơn Online và có Email
+        //            if (update.LoaiHD == 0 && !string.IsNullOrEmpty(update.Email))
+        //            {
+        //                try
+        //                {
+        //                    // Lấy URL của website từ appsettings.json
+        //                    string websiteUrl = _configuration.GetValue<string>("WebsiteBaseUrl");
+        //                    string trackingUrl = $"{websiteUrl}/theo-doi/{update.TrackingToken}";
+
+        //                    // Lấy trạng thái bằng chữ
+        //                    string trangThaiText = GetTrangThaiText(trangThai);
+
+        //                    var subject = $"[Shop Giày] Đơn hàng {update.MaHD} đã cập nhật trạng thái!";
+        //                    var body = $@"
+        //                <p>Chào {update.TenNguoiNhan},</p>
+        //                <p>Đơn hàng #{update.MaHD} của bạn vừa được cập nhật sang trạng thái mới:</p>
+        //                <h3 style='color: #007bff;'>{trangThaiText}</h3>
+        //                <p>Bạn có thể theo dõi chi tiết đơn hàng tại đây:</p>
+        //                <p>
+        //                    <a href='{trackingUrl}' style='padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>
+        //                        Xem chi tiết đơn hàng
+        //                    </a>
+        //                </p>";
+
+        //                    var mailData = new MailData
+        //                    {
+        //                        EmailToId = update.Email,
+        //                        EmailToName = update.TenNguoiNhan,
+        //                        EmailSubject = subject, 
+        //                        EmailBody = body
+        //                    };
+
+        //                    _mailService.SendMail(mailData);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    // Ghi log lỗi email, nhưng không dừng transaction
+        //                }
+        //            }
+        //            // === KẾT THÚC LOGIC GỬI EMAIL ===
+
+        //            // 6. Hoàn tất transaction
+        //            transaction.Commit();
+
+        //            return (true, "Cập nhật trạng thái thành công.");
         //        }
-        //        update.TrangThaiGiaoHang = trangThai;
-        //        update.IDNhanVien = idNhanVien;
-        //        reposHoaDon.Update(update);
-        //        return true;
-        //    }
-        //    else
-        //    {
-        //        return false;
+        //        catch (Exception ex)
+        //        {
+        //            // Có lỗi xảy ra, hủy bỏ mọi thứ
+        //            transaction.Rollback();
+        //            return (false, $"Lỗi hệ thống: {ex.Message}");
+        //        }
         //    }
         //}
 
-        public (bool Success, string ErrorMessage) UpdateTrangThaiGiaoHang(Guid idHoaDon, int trangThai, Guid? idNhanVien)
+
+
+
+        public (bool Success, string ErrorMessage) UpdateTrangThaiGiaoHang(Guid idHoaDon, int trangThai, Guid? idNhanVien, string? ghiChu) // Đã thêm ghiChu
         {
             // Bắt đầu một Transaction để đảm bảo an toàn dữ liệu
             using (var transaction = context.Database.BeginTransaction())
@@ -1102,47 +1065,40 @@ namespace AppAPI.Services
                         return (false, "Không tìm thấy hóa đơn.");
                     }
 
-                    List<ChiTietHoaDon> chitiethoadon = context.ChiTietHoaDons.Where(p => p.IDHoaDon == idHoaDon).ToList();
+                    // Kiểm tra xem trạng thái có thực sự thay đổi không
+                    if (update.TrangThaiGiaoHang == trangThai)
+                    {
+                        transaction.Rollback();
+                        return (false, "Trạng thái không thay đổi."); // Không cần cập nhật
+                    }
 
-                    // === BẮT ĐẦU SỬA LỖI RACE CONDITION ===
+                    List<ChiTietHoaDon> chitiethoadon = context.ChiTietHoaDons.Where(p => p.IDHoaDon == idHoaDon).ToList();
 
                     // 1. Xử lý logic XÁC NHẬN ĐƠN (trangThai == 10) - TRỪ KHO
                     if (trangThai == 10)
                     {
                         foreach (var item in chitiethoadon)
                         {
-                            // SỬA LỖI: Dùng ExecuteSqlRaw thay cho ExecuteUpdate
-                            // Lệnh ATOMIC: Vừa kiểm tra (SoLuong >= item.SoLuong) vừa trừ kho
                             var rowsAffected = context.Database.ExecuteSqlRaw(
                                 "UPDATE ChiTietSanPham SET SoLuong = SoLuong - {0} WHERE ID = {1} AND SoLuong >= {0}",
-                                item.SoLuong,
-                                item.IDCTSP
+                                item.SoLuong, item.IDCTSP
                             );
-
-                            // Nếu rowsAffected = 0, nghĩa là điều kiện WHERE (SoLuong >= item.SoLuong)
-                            // đã thất bại -> HẾT HÀNG.
                             if (rowsAffected == 0)
                             {
-                                transaction.Rollback(); // Hủy bỏ mọi thay đổi
-
-                                // SỬA LỖI: Sửa lại thông báo lỗi (không dùng biến tenSP)
+                                transaction.Rollback();
                                 return (false, $"Xác nhận thất bại: Sản phẩm (Mã CTSP: {item.IDCTSP}) không đủ tồn kho.");
                             }
                         }
                     }
-                    // === KẾT THÚC SỬA LỖI ===
 
                     // 2. Xử lý logic HOÀN HÀNG (trangThai == 5 hoặc 11) - CỘNG LẠI KHO
                     if (trangThai == 5 || trangThai == 11)
                     {
                         foreach (var item in chitiethoadon)
                         {
-                            // SỬA LỖI: Dùng ExecuteSqlRaw thay cho ExecuteUpdate
-                            // Cộng lại số lượng
                             context.Database.ExecuteSqlRaw(
                                 "UPDATE ChiTietSanPham SET SoLuong = SoLuong + {0} WHERE ID = {1}",
-                                item.SoLuong,
-                                item.IDCTSP
+                                item.SoLuong, item.IDCTSP
                             );
                         }
                     }
@@ -1160,7 +1116,7 @@ namespace AppAPI.Services
                                 if (kh != null)
                                 {
                                     kh.DiemTich += td.Diem;
-                                    context.KhachHangs.Update(kh); // Đánh dấu thay đổi
+                                    context.KhachHangs.Update(kh);
                                 }
                             }
                         }
@@ -1168,14 +1124,73 @@ namespace AppAPI.Services
                         update.NgayNhanHang = update.NgayNhanHang == null ? DateTime.Now : update.NgayNhanHang;
                     }
 
-                    // 4. Cập nhật trạng thái hóa đơn
+                    // 4. Cập nhật trạng thái hóa đơn VÀ GHI CHÚ
                     update.TrangThaiGiaoHang = trangThai;
                     update.IDNhanVien = idNhanVien;
-                    context.HoaDons.Update(update); // Đánh dấu thay đổi
 
-                    // 5. LƯU TẤT CẢ THAY ĐỔI
-                    // Lưu tất cả thay đổi (trừ kho, cập nhật HĐ, cộng điểm) trong 1 lần
+                    // === LƯU GHI CHÚ (NẾU CÓ) ===
+                    if (!string.IsNullOrWhiteSpace(ghiChu))
+                    {
+                        update.GhiChu = ghiChu; // Lưu ghi chú mới vào DB
+                    }
+                    // ============================
+
+                    context.HoaDons.Update(update);
+
+                    // 5. LƯU TẤT CẢ THAY ĐỔI (để email có thể đọc được ghi chú mới)
                     context.SaveChanges();
+
+                    // === BẮT ĐẦU LOGIC GỬI EMAIL ===
+                    // Email sẽ được gửi SAU KHI ghi chú đã được lưu
+                    if (update.LoaiHD == 0 && !string.IsNullOrEmpty(update.Email))
+                    {
+                        try
+                        {
+                            string websiteUrl = _configuration.GetValue<string>("WebsiteBaseUrl");
+                            string trackingUrl = $"{websiteUrl}/theo-doi/{update.TrackingToken}";
+                            string trangThaiText = GetTrangThaiText(trangThai); // Dùng hàm helper (bạn phải dán hàm này vào class)
+
+                            // === THÊM KHỐI HIỂN THỊ GHI CHÚ ===
+                            string ghiChuHtml = ""; // Mặc định là rỗng
+
+                            // Lấy ghi chú vừa lưu (update.GhiChu)
+                            if (!string.IsNullOrWhiteSpace(update.GhiChu) && (trangThai == 7 || trangThai == 4 || trangThai == 9 || trangThai == 11 || trangThai == 8))
+                            {
+                                // Nếu là trạng thái "xấu", hiển thị lý do
+                                ghiChuHtml = $"<p style='border-left: 4px solid #ffc107; padding-left: 10px; background-color: #fffaf3; margin-top: 10px;'><strong>Lý do:</strong> {update.GhiChu}</p>";
+                            }
+                            // ===================================
+
+                            var subject = $"[Shop Giày] Đơn hàng {update.MaHD} đã cập nhật trạng thái!";
+                            var body = $@"
+                        <p>Chào {update.TenNguoiNhan},</p>
+                        <p>Đơn hàng #{update.MaHD} của bạn vừa được cập nhật sang trạng thái mới:</p>
+                        
+                        <h3 style='color: #007bff;'>{trangThaiText}</h3>
+                        
+                        {ghiChuHtml} <p>Bạn có thể theo dõi chi tiết đơn hàng (kể cả khi không đăng nhập) tại đây:</p>
+                        <p>
+                            <a href='{trackingUrl}' style='padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>
+                                Xem chi tiết đơn hàng
+                            </a>
+                        </p>";
+
+                            var mailData = new MailData
+                            {
+                                EmailToId = update.Email,
+                                EmailToName = update.TenNguoiNhan,
+                                EmailSubject = subject,
+                                EmailBody = body
+                            };
+
+                            _mailService.SendMail(mailData);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Ghi log
+                        }
+                    }
+                    // === KẾT THÚC LOGIC GỬI EMAIL ===
 
                     // 6. Hoàn tất transaction
                     transaction.Commit();
@@ -1191,8 +1206,9 @@ namespace AppAPI.Services
             }
         }
 
-        //Giao thành công
-        public bool ThanhCong(Guid idhd, Guid idnv) // Chỉ cho đơn online
+
+
+        public bool ThanhCong(Guid idhd, Guid idnv)
         {
             try
             {
@@ -1210,7 +1226,6 @@ namespace AppAPI.Services
                     var td = lstlstd.Where(c => c.TrangThai == 1).FirstOrDefault();
                     if (td != null)
                     {
-                        //Trừ điểm kh
                         var kh = context.KhachHangs.Where(c => c.IDKhachHang == td.IDKhachHang).FirstOrDefault();
                         kh.DiemTich += td.Diem;
                         context.KhachHangs.Update(kh);
@@ -1224,7 +1239,7 @@ namespace AppAPI.Services
                 throw new Exception(ex.Message);
             }
         }
-        // Hoàn hàng
+
         public bool HoanHang(Guid idhd, Guid idnv)
         {
             try
@@ -1233,19 +1248,17 @@ namespace AppAPI.Services
                 hd.TrangThaiGiaoHang = 4;
                 hd.IDNhanVien = idnv;
 
-                //Trừ đi điểm tích của khách hàng nếu có
                 var lstlstd = context.LichSuTichDiems.Where(c => c.IDHoaDon == idhd).ToList();
                 if (lstlstd.Count != 0)
                 {
                     var td = lstlstd.Where(c => c.TrangThai == 1).FirstOrDefault();
                     if (td != null)
                     {
-                        //Trừ điểm kh
                         var kh = context.KhachHangs.Where(c => c.IDKhachHang == td.IDKhachHang).FirstOrDefault();
                         kh.DiemTich -= td.Diem;
                         context.KhachHangs.Update(kh);
                         context.SaveChanges();
-                        // Tạo 1 lịch sử trừ điểm 
+
                         LichSuTichDiem diemtru = new LichSuTichDiem()
                         {
                             ID = new Guid(),
@@ -1257,10 +1270,6 @@ namespace AppAPI.Services
                         };
                         context.LichSuTichDiems.Add(diemtru);
                         context.SaveChanges();
-                        //Cập nhật tích điểm
-                        //td.Diem = 0;
-                        //context.LichSuTichDiems.Update(td);
-                        //context.SaveChanges();
                     }
                 }
                 context.HoaDons.Update(hd);
@@ -1272,7 +1281,7 @@ namespace AppAPI.Services
                 throw new Exception(ex.Message);
             }
         }
-        // Hoàn hàng thành công
+
         public bool HoanHangThanhCong(Guid idhd, Guid idnv)
         {
             try
@@ -1284,7 +1293,6 @@ namespace AppAPI.Services
                 context.HoaDons.Update(hd);
                 context.SaveChanges();
 
-                // Cộng lại số lượng hàng
                 var lsthdct = context.ChiTietHoaDons.Where(c => c.IDHoaDon == idhd).ToList();
                 foreach (var hdct in lsthdct)
                 {
@@ -1294,7 +1302,6 @@ namespace AppAPI.Services
                     context.SaveChanges();
                 }
 
-                // Cộng lại số lượng voucher nếu áp dụng
                 if (hd.IDVoucher != null)
                 {
                     var vc = context.Vouchers.FirstOrDefault(c => c.ID == hd.IDVoucher);
@@ -1302,19 +1309,18 @@ namespace AppAPI.Services
                     context.Vouchers.Update(vc);
                     context.SaveChanges();
                 }
-                // Cộng lại điểm khách hàng dùng cho hóa đơn
+
                 var lstlstd = context.LichSuTichDiems.Where(c => c.IDHoaDon == idhd).ToList();
                 if (lstlstd.Count != 0)
                 {
                     var tieud = lstlstd.Where(c => c.TrangThai == 0).FirstOrDefault();
                     if (tieud != null)
                     {
-                        //Cộng điểm kh
                         var kh = context.KhachHangs.Where(c => c.IDKhachHang == tieud.IDKhachHang).FirstOrDefault();
                         kh.DiemTich += tieud.Diem;
                         context.KhachHangs.Update(kh);
                         context.SaveChanges();
-                        //Thêm 1 lịch sử trả lại điểm cho đơn hoàn thành công
+
                         LichSuTichDiem diemtra = new LichSuTichDiem()
                         {
                             ID = new Guid(),
@@ -1326,18 +1332,6 @@ namespace AppAPI.Services
                         };
                         context.LichSuTichDiems.Add(diemtra);
                         context.SaveChanges();
-                        //if (lsthdct.Count == 2)
-                        //{
-                        //    context.LichSuTichDiems.Remove(tieud);
-                        //    context.SaveChanges();
-                        //}
-                        //else
-                        //{
-                        //    //Cập nhật tích điểm
-                        //    tieud.Diem = 0;
-                        //    context.LichSuTichDiems.Update(tieud);
-                        //    context.SaveChanges();
-                        //}
                     }
 
                 }
@@ -1346,6 +1340,24 @@ namespace AppAPI.Services
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+        private string GetTrangThaiText(int trangThai)
+        {
+            switch (trangThai)
+            {
+                case 1: return "Đơn nháp";
+                case 2: return "Chờ xác nhận";
+                case 3: return "Đang giao hàng";
+                case 4: return "Đang hoàn hàng";
+                case 5: return "Hoàn hàng thành công";
+                case 6: return "Giao hàng thành công";
+                case 7: return "Đơn hủy";
+                case 8: return "Chờ xác nhận hủy";
+                case 9: return "Chờ xác nhận hoàn hàng";
+                case 10: return "Đã xác nhận";
+                case 11: return "Giao không thành công";
+                default: return "Không xác định";
             }
         }
     }

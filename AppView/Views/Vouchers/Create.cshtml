@@ -5,90 +5,85 @@
     Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
 }
 
-<h1>Thêm Voucher</h1>
-
+<h1>Thêm mới Voucher</h1>
 
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form  asp-action="Create">
+    <div class="col-md-6">
+        <form asp-action="Create" id="createForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
-                <label class="control-label">Mã Voucher</label>
-                <input asp-for="Ten" class="form-control" />
-                <span asp-validation-for="Ten" class="text-danger"></span>
-                <span  class="text-danger">@ViewData["Ma"]</span>
-
+                <label class="control-label">Mã Voucher <span class="text-danger">*</span></label>
+                <input asp-for="Ten" class="form-control" id="TenInput" autocomplete="off" />
+                <span class="text-danger" id="TenError">@ViewData["Ma"]</span>
             </div>
+
             <div class="form-group">
                 <label class="control-label">Loại giảm giá</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="hinhthucgiamgia" value="1" asp-for="HinhThucGiamGia">
-                    <label class="form-check-label" for="flexRadioDefault1">
-                        Phần trăm
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="hinhthucgiamgia" value="0" asp-for="HinhThucGiamGia">
-                    <label class="form-check-label" for="flexRadioDefault2">
-                        Tiền mặt
-                    </label>
-                </div>
-            </div>
-            <span class="text-danger">@ViewData["LGG"]</span>
-            <div class="form-group">
-                <label class="control-label"> Số tiền cần</label>
-                <input asp-for="SoTienCan" class="form-control" />
-                <span  class="text-danger">@ViewData["SoTienCan"]</span>
-            </div>
-            
-                     <div class="form-group">
-                        <label class="control-label"> Giá trị</label>
-                        <input asp-for="GiaTri" class="form-control" />
-                <span class="text-danger">@ViewData["GiaTri"]</span>
+                <div class="d-flex">
+                    <div class="form-check mr-4">
+                        <input class="form-check-input" type="radio" name="HinhThucGiamGia" value="1" asp-for="HinhThucGiamGia" id="RadioPhanTram" checked>
+                        <label class="form-check-label" for="RadioPhanTram">Phần trăm (%)</label>
                     </div>
-           
-            
-            <div class="form-group">
-                <label class="control-label">Ngày áp dụng</label>
-                <input asp-for="NgayApDung" class="form-control" />
-                <span class="text-danger">@ViewData["NgayApDung"]</span>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="HinhThucGiamGia" value="0" asp-for="HinhThucGiamGia" id="RadioTienMat">
+                        <label class="form-check-label" for="RadioTienMat">Tiền mặt (VND)</label>
+                    </div>
+                </div>
             </div>
+
             <div class="form-group">
-                <label class="control-label"> Ngày kết thúc</label>
-                <input asp-for="NgayKetThuc" class="form-control" />
-               <span class="text-danger">@ViewData["NgayKetThuc"]</span>
-                <span class="text-danger">@ViewData["Ngay"]</span>
+                <label class="control-label">Đơn tối thiểu (Số tiền cần) <span class="text-danger">*</span></label>
+                <input asp-for="SoTienCan" class="form-control" type="number" id="SoTienCanInput" />
+                <span class="text-danger" id="SoTienCanError">@ViewData["SoTienCan"]</span>
             </div>
+
             <div class="form-group">
-                <label class="control-label"> Số lượng</label>
-                <input asp-for="SoLuong" class="form-control" />
-                <span class="text-danger">@ViewData["SoLuong"]</span>
+                <label class="control-label">Giá trị giảm <span class="text-danger">*</span></label>
+                <input asp-for="GiaTri" class="form-control" type="number" id="GiaTriInput" />
+                <span class="text-danger" id="GiaTriError">@ViewData["GiaTri"]</span>
             </div>
+
+            <div class="form-group">
+                <label class="control-label">Ngày áp dụng <span class="text-danger">*</span></label>
+                <input asp-for="NgayApDung" class="form-control" type="datetime-local" id="NgayApDungInput" />
+                <span class="text-danger" id="NgayApDungError">@ViewData["NgayApDung"]</span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                <input asp-for="NgayKetThuc" class="form-control" type="datetime-local" id="NgayKetThucInput" />
+                <span class="text-danger" id="NgayKetThucError">@ViewData["Ngay"]</span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Số lượng <span class="text-danger">*</span></label>
+                <input asp-for="SoLuong" class="form-control" type="number" id="SoLuongInput" />
+                <span class="text-danger" id="SoLuongError">@ViewData["SoLuong"]</span>
+            </div>
+
             <div class="form-group">
                 <label class="control-label">Mô tả</label>
-                <input asp-for="MoTa" class="form-control" />
-                <span asp-validation-for="MoTa" class="text-danger"></span>
+                <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
             </div>
+
             <div class="form-group">
                 <label class="control-label">Trạng thái</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="TrangThai" value="1" asp-for="TrangThai">
-                    <label class="form-check-label" for="flexRadioDefault1">
-                        Sử dụng
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="TrangThai" value="0" asp-for="TrangThai">
-                    <label class="form-check-label" for="flexRadioDefault2">
-                        Không sử dụng
-                    </label>
+                <div class="d-flex">
+                    <div class="form-check mr-4">
+                        <input class="form-check-input" type="radio" name="TrangThai" value="1" asp-for="TrangThai" checked>
+                        <label class="form-check-label">Hoạt động</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="TrangThai" value="0" asp-for="TrangThai">
+                        <label class="form-check-label">Không hoạt động</label>
+                    </div>
                 </div>
             </div>
-            <span class="text-danger">@ViewData["TrangThai"]</span>
-            <div class="form-group">
-                <input type="submit" value="Thêm Voucher" class="btn btn-success" />
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Lưu Voucher" class="btn btn-success" />
             </div>
         </form>
     </div>
@@ -96,10 +91,111 @@
 
 <br />
 <button class="btn btn-primary">
-    <a asp-action="GetAllVoucher" style="color:white;">Quay lại</a>
+    <a asp-action="GetAllVoucher" style="color:white; text-decoration:none;">Quay lại danh sách</a>
 </button>
 
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Hàm xóa lỗi khi người dùng nhập lại
+        function clearError(inputId, errorId) {
+            $(inputId).removeClass("is-invalid");
+            $(errorId).text("");
+        }
+
+        $("#TenInput").on("input", function () { clearError("#TenInput", "#TenError"); });
+        $("#SoTienCanInput").on("input", function () { clearError("#SoTienCanInput", "#SoTienCanError"); });
+        $("#GiaTriInput").on("input", function () { clearError("#GiaTriInput", "#GiaTriError"); });
+        $("#SoLuongInput").on("input", function () { clearError("#SoLuongInput", "#SoLuongError"); });
+        $("#NgayApDungInput").on("change", function () { clearError("#NgayApDungInput", "#NgayApDungError"); });
+        $("#NgayKetThucInput").on("change", function () { clearError("#NgayKetThucInput", "#NgayKetThucError"); });
+
+        // Validate khi Submit form
+        $("#createForm").submit(function (e) {
+            var isValid = true;
+
+            // 1. Validate Mã
+            var ten = $("#TenInput").val().trim();
+            if (ten === "") {
+                $("#TenInput").addClass("is-invalid");
+                $("#TenError").text("Mã voucher không được để trống.");
+                isValid = false;
+            }
+
+            // 2. Validate Số Tiền Cần
+            var soTienCan = $("#SoTienCanInput").val();
+            if (soTienCan === "" || parseInt(soTienCan) < 0) {
+                $("#SoTienCanInput").addClass("is-invalid");
+                $("#SoTienCanError").text("Số tiền cần không hợp lệ (phải >= 0).");
+                isValid = false;
+            }
+
+            // 3. Validate Giá Trị
+            var giaTri = $("#GiaTriInput").val();
+            var hinhThuc = $("input[name='HinhThucGiamGia']:checked").val(); // 1: %, 0: Tiền
+
+            if (giaTri === "" || parseInt(giaTri) <= 0) {
+                $("#GiaTriInput").addClass("is-invalid");
+                $("#GiaTriError").text("Giá trị giảm phải lớn hơn 0.");
+                isValid = false;
+            } else {
+                // Nếu là % thì không được quá 100
+                if (hinhThuc == "1" && parseInt(giaTri) > 100) {
+                    $("#GiaTriInput").addClass("is-invalid");
+                    $("#GiaTriError").text("Giảm giá theo phần trăm không được quá 100%.");
+                    isValid = false;
+                }
+                // Nếu là tiền mặt thì giá trị giảm không được lớn hơn số tiền cần (logic nghiệp vụ)
+                if (hinhThuc == "0" && parseInt(soTienCan) > 0 && parseInt(giaTri) > parseInt(soTienCan)) {
+                    $("#GiaTriInput").addClass("is-invalid");
+                    $("#GiaTriError").text("Số tiền giảm không thể lớn hơn đơn hàng tối thiểu.");
+                    isValid = false;
+                }
+            }
+
+            // 4. Validate Ngày
+            var ngayApDung = $("#NgayApDungInput").val();
+            var ngayKetThuc = $("#NgayKetThucInput").val();
+
+            if (ngayApDung === "") {
+                $("#NgayApDungInput").addClass("is-invalid");
+                $("#NgayApDungError").text("Vui lòng chọn ngày áp dụng.");
+                isValid = false;
+            }
+            if (ngayKetThuc === "") {
+                $("#NgayKetThucInput").addClass("is-invalid");
+                $("#NgayKetThucError").text("Vui lòng chọn ngày kết thúc.");
+                isValid = false;
+            }
+
+            if (ngayApDung !== "" && ngayKetThuc !== "") {
+                if (new Date(ngayKetThuc) <= new Date(ngayApDung)) {
+                    $("#NgayKetThucInput").addClass("is-invalid");
+                    $("#NgayKetThucError").text("Ngày kết thúc phải lớn hơn ngày áp dụng.");
+                    isValid = false;
+                }
+            }
+
+            // 5. Validate Số Lượng
+            var soLuong = $("#SoLuongInput").val();
+            if (soLuong === "" || parseInt(soLuong) <= 0) {
+                $("#SoLuongInput").addClass("is-invalid");
+                $("#SoLuongError").text("Số lượng phải lớn hơn 0.");
+                isValid = false;
+            }
+
+            // Nếu có lỗi thì chặn submit
+            if (!isValid) {
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        });
+    });
+</script>
+
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
-   

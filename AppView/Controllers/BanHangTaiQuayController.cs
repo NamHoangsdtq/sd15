@@ -257,13 +257,41 @@ namespace AppView.Controllers
         [HttpGet("/BanHangTaiQuay/getCTHD/{id}")]
         public async Task<IActionResult> getCTHD(string id)
         {
-            var hdon = await _httpClient.GetFromJsonAsync<HoaDonViewModelBanHang>($"HoaDon/GetHDBanHang/{id}");
+            // 1. Nếu id bị null, rỗng hoặc không phải Guid
+            if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid guidId))
+            {
+                // THAY ĐỔI Ở ĐÂY:
+                // Thay vì return BadRequest("..."), ta trả về View rỗng để giao diện vẫn hiển thị đẹp
+                // Tạo một model rỗng để không bị lỗi NullReference bên View
+                var emptyModel = new HoaDonViewModelBanHang();
 
-            var kh = await _httpClient.GetFromJsonAsync<List<KhachHang>>($"KhachHang");
-            ViewBag.lstKH = kh;
-            return PartialView("GioHang", hdon);
+                // Lấy danh sách khách hàng (để combobox không bị trống)
+                try
+                {
+                    var kh = await _httpClient.GetFromJsonAsync<List<KhachHang>>($"KhachHang");
+                    ViewBag.lstKH = kh;
+                }
+                catch
+                {
+                    ViewBag.lstKH = new List<KhachHang>();
+                }
+
+                return PartialView("GioHang", emptyModel);
+            }
+
+            // ... (Phần code gọi API bên dưới giữ nguyên như cũ) ...
+            try
+            {
+                var hdon = await _httpClient.GetFromJsonAsync<HoaDonViewModelBanHang>($"HoaDon/GetHDBanHang/{id}");
+                var kh = await _httpClient.GetFromJsonAsync<List<KhachHang>>($"KhachHang");
+                ViewBag.lstKH = kh;
+                return PartialView("GioHang", hdon);
+            }
+            catch (Exception ex)
+            {
+                return PartialView("GioHang", new HoaDonViewModelBanHang());
+            }
         }
-
         // Thêm hóa đơn chi tiết
         public async Task<ActionResult> addHdct(HoaDonChiTietRequest request)
         {
@@ -662,49 +690,75 @@ namespace AppView.Controllers
         {
             try
             {
-                // 1. Lấy thông tin user (ví dụ: currentUserId = loginInfor.Id)
+                // 1. Lấy thông tin user đang đăng nhập
                 var loginInfor = new LoginViewModel();
                 string? session = HttpContext.Session.GetString("LoginInfor");
                 if (session == null)
                 {
-                    return Json(new { success = false, message = "Vui lòng đăng nhập." });
+                    return Json(new { success = false, message = "Vui lòng đăng nhập để thực hiện chức năng này." });
                 }
                 loginInfor = JsonConvert.DeserializeObject<LoginViewModel>(session);
                 var currentUserId = loginInfor.Id;
 
-                // 2. Lấy TẤT CẢ hóa đơn chờ
+                // 2. Lấy danh sách hóa đơn hiện tại để kiểm tra số lượng
                 var listhdcho = await _httpClient.GetFromJsonAsync<List<HoaDon>>("HoaDon/GetAllHDCho");
 
-                // 3. Lọc danh sách của user hiện tại để KIỂM TRA
-                // (Nhớ thay hd.IDNhanVien cho đúng)
+                // Lọc hóa đơn của nhân viên này
                 var hdChoCuaUser = listhdcho.Where(hd => hd.IDNhanVien == currentUserId).ToList();
 
-                // 4. Kiểm tra giới hạn
-                int maxHdChoPerUser = 8;
-                if (hdChoCuaUser.Count < maxHdChoPerUser)
+                // 3. Kiểm tra giới hạn (Ví dụ: tối đa 5-10 hóa đơn chờ)
+                int maxHdCho = 10;
+                if (hdChoCuaUser.Count >= maxHdCho)
                 {
-                    // Tạo hóa đơn mới
-                    var request = await _httpClient.PostAsJsonAsync<HoaDon>($"HoaDon/Offline/{currentUserId}", null);
+                    return Json(new { success = false, message = $"Bạn chỉ được tạo tối đa {maxHdCho} hóa đơn chờ." });
+                }
 
-                    // Lấy lại danh sách mới nhất (vẫn là của TẤT CẢ user)
-                    listhdcho = await _httpClient.GetFromJsonAsync<List<HoaDon>>("HoaDon/GetAllHDCho");
+                // 4. Gọi API tạo hóa đơn mới
+                // Sử dụng PostAsync thay vì PostAsJsonAsync vì body là null
+                var response = await _httpClient.PostAsync($"HoaDon/Offline/{currentUserId}", null);
 
-                    // *** [SỬA LỖI Ở ĐÂY] ***
-                    // Lọc lại danh sách CHỈ CỦA user hiện tại một lần nữa
-                    var hdChoCuaUserMoi = listhdcho.Where(hd => hd.IDNhanVien == currentUserId).ToList();
+                if (response.IsSuccessStatusCode)
+                {
+                    // Đọc kết quả trả về từ API (API trả về true/false)
+                    var resultString = await response.Content.ReadAsStringAsync();
+                    bool isCreated = false;
+                    bool parseSuccess = bool.TryParse(resultString, out isCreated);
 
-                    // Trả về danh sách ĐÃ LỌC
-                    return Json(new { success = true, data = hdChoCuaUserMoi });
+                    // Nếu API trả về true (hoặc "true")
+                    if (parseSuccess && isCreated)
+                    {
+                        // 5. Lấy lại danh sách mới nhất sau khi tạo thành công
+                        listhdcho = await _httpClient.GetFromJsonAsync<List<HoaDon>>("HoaDon/GetAllHDCho");
+
+                        // Lọc lại danh sách của user
+                        var newList = listhdcho.Where(hd => hd.IDNhanVien == currentUserId)
+                                               .OrderByDescending(c => c.NgayTao) // Sắp xếp mới nhất lên đầu
+                                               .ToList();
+
+                        // Lấy ID của hóa đơn vừa tạo (thằng đầu tiên trong danh sách giảm dần)
+                        var newBillId = newList.FirstOrDefault()?.ID;
+
+                        return Json(new
+                        {
+                            success = true,
+                            message = "Tạo hóa đơn thành công",
+                            data = newList,
+                            newId = newBillId // Trả về ID mới để JS select luôn
+                        });
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "Lỗi từ Server: Không thể tạo hóa đơn." });
+                    }
                 }
                 else
                 {
-                    // Đã đạt giới hạn
-                    return Json(new { success = false, message = $"Bạn đã đạt giới hạn {maxHdChoPerUser} hóa đơn chờ." });
+                    return Json(new { success = false, message = $"Lỗi kết nối API: {response.StatusCode}" });
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return RedirectToAction("BanHang", "BanHangTaiQuay");
+                return Json(new { success = false, message = "Đã xảy ra lỗi hệ thống: " + ex.Message });
             }
         }
 

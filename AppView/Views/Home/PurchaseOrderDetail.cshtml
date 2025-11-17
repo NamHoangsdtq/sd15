@@ -1,8 +1,9 @@
-﻿@using AppData.Models;
-@using AppData.ViewModels;
+﻿@using AppData.Models
+@using AppData.ViewModels
 @model List<DonMuaChiTietViewModel>
 @{
     Layout = "_Layout";
+    // Các biến tính toán giữ nguyên
     int tongtien = 0;
     int giaSP = 0;
     int tienShip = 0;
@@ -23,6 +24,8 @@
     string phuongthucthanhtoan = "";
     int loaiHD = 0;
     List<LichSuTichDiem> lichSuTichDiems = new List<LichSuTichDiem>();
+
+    var idHoaDon = Model.FirstOrDefault()?.ID ?? Guid.Empty;
 }
 <style>
     #navbar {
@@ -33,7 +36,7 @@
         background-color: white;
         margin-bottom: 24px;
     }
-
+    /* ... CSS giữ nguyên ... */
     #AllHoaDon {
         display: flex;
         justify-content: space-evenly;
@@ -58,10 +61,11 @@
         border-bottom: 1px solid black;
     }
 
-    .table td{
-        vertical-align:middle;
+    .table td {
+        vertical-align: middle;
     }
 </style>
+
 <section style="background-color: #eee;">
     <div class="container py-5">
         <div class="row">
@@ -119,33 +123,11 @@
                         {
                             <li class="breadcrumb-item active" aria-current="page">Chờ đóng hàng</li>
                         }
-
                     </ol>
                 </nav>
             </div>
         </div>
-        @*<div id="AllHoaDon">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Sản phẩm</th>
-                        <th scope="col">Số lượng</th>
-                        <th scope="col">Đơn giá</th>
-                        
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <th scope="row">@item.Ten</th>
-                            <td>@item.SoLuong</td>
-                            <td>@item.DonGia</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>*@
+
         <div class="shopping__cart__table">
             <table class="table" style="background-color:white;margin-bottom:0px">
                 <thead>
@@ -154,6 +136,10 @@
                         <th>Đơn giá</th>
                         <th>Số lượng</th>
                         <th>Thành tiền</th>
+                        @if (Model.FirstOrDefault().TrangThaiGiaoHang == 6)
+                        {
+                            <th></th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -169,25 +155,27 @@
                                     <h5>@item.TenKichCo/@item.TenMau</h5>
                                 </div>
                             </td>
-                            <td class="cart__price">@item.DonGia.ToString("n0").Replace(',','.') VNĐ</td>
+                            <td class="cart__price">@item.DonGia.ToString("n0").Replace(',', '.') VNĐ</td>
                             <td class="cart__price">@item.SoLuong</td>
-                            <td class="cart__price">@((item.DonGia * item.SoLuong).ToString("n0").Replace(',','.')) VNĐ</td>
+                            <td class="cart__price">@((item.DonGia * item.SoLuong).ToString("n0").Replace(',', '.')) VNĐ</td>
                             @if (item.TrangThaiGiaoHang == 6 && item.TrangThaiDanhGia == 0)
                             {
                                 <td class="cart__price">
                                     <div style="border: none; color: white; background-color: black; text-align:center;">
-                                        <a style="color:white;" asp-controller="Home" asp-action="ReviewProducts" asp-route-idCTHD="@item.IDCTHD" >Đánh giá sản phẩm</a>
+                                        <a style="color:white;" asp-controller="Home" asp-action="ReviewProducts" asp-route-idCTHD="@item.IDCTHD">Đánh giá sản phẩm</a>
                                     </div>
                                 </td>
                             }
+
                             @{
+                                // Logic tính toán giữ nguyên
                                 giaSP += item.DonGia * item.SoLuong;
                                 tienShip = item.TienShip;
                                 giaTri = item.GiaTri;
-                                diemSudung = item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 0) != null ? item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 0).Diem:0;
-                                diemTich = item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 1) != null ? item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 1).Diem:0;
+                                diemSudung = item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 0) != null ? item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 0).Diem : 0;
+                                diemTich = item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 1) != null ? item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 1).Diem : 0;
                                 trangThaiLichSuTichDiem = item.lichSuTichDiems.FirstOrDefault(p => p.TrangThai == 0) != null ? 0 : 1;
-                                hinhThucGiamGia =item.HinhThucGiamGia;
+                                hinhThucGiamGia = item.HinhThucGiamGia;
                                 tileTieuDiem = item.TiLeTieuDiem;
                                 tileTichDiem = item.TiLeTichDiem;
                                 trangthaiGiaoHang = item.TrangThaiGiaoHang;
@@ -208,71 +196,47 @@
                     <table style="background-color:white;">
                         <tbody>
                             @{
+                                // Logic tính tổng tiền giữ nguyên
                                 if (hinhThucGiamGia == 1)
                                 {
-                                    if (trangThaiLichSuTichDiem == 0)
-                                    {
-                                        tongtien = Convert.ToInt32(giaSP - giaSP * (Convert.ToDouble(giaTri) / 100)) + tienShip - diemSudung * tileTieuDiem;
-                                    }else
-                                    {
-                                        tongtien = Convert.ToInt32(giaSP - giaSP * (Convert.ToDouble(giaTri) / 100)) + tienShip;
-                                    }
-
-                                }else if (hinhThucGiamGia == 0)
+                                    if (trangThaiLichSuTichDiem == 0) { tongtien = Convert.ToInt32(giaSP - giaSP * (Convert.ToDouble(giaTri) / 100)) + tienShip - diemSudung * tileTieuDiem; }
+                                    else { tongtien = Convert.ToInt32(giaSP - giaSP * (Convert.ToDouble(giaTri) / 100)) + tienShip; }
+                                }
+                                else if (hinhThucGiamGia == 0)
                                 {
-                                    if (trangThaiLichSuTichDiem == 0)
-                                    {
-                                        tongtien = giaSP - Convert.ToInt32(giaTri) + tienShip - diemSudung * tileTieuDiem;
-                                    }
-                                    else
-                                    {
-                                        tongtien = giaSP - Convert.ToInt32(giaTri) + tienShip;
-                                    }
-                                }else
+                                    if (trangThaiLichSuTichDiem == 0) { tongtien = giaSP - Convert.ToInt32(giaTri) + tienShip - diemSudung * tileTieuDiem; }
+                                    else { tongtien = giaSP - Convert.ToInt32(giaTri) + tienShip; }
+                                }
+                                else
                                 {
-                                    if (trangThaiLichSuTichDiem == 0)
-                                    {
-                                        tongtien = giaSP + tienShip - diemSudung * tileTieuDiem;
-                                    }
-                                    else
-                                    {
-                                        tongtien = giaSP + tienShip;
-                                    }
+                                    if (trangThaiLichSuTichDiem == 0) { tongtien = giaSP + tienShip - diemSudung * tileTieuDiem; }
+                                    else { tongtien = giaSP + tienShip; }
                                 }
                                 int diemsudung = diemSudung * tileTieuDiem;
-                                int diemtich = diemTich != 0 ? giaSP / tileTichDiem : 0;
-
                             }
                             <tr>
-                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 70%;">
-                                    Giá sản phẩm
-                                </td>
-                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">@giaSP.ToString("n0").Replace(',','.') VNĐ</td>
+                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 70%;">Giá sản phẩm</td>
+                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">@giaSP.ToString("n0").Replace(',', '.') VNĐ</td>
                             </tr>
-                            @if(loaiHD == 0){
+                            @if (loaiHD == 0)
+                            {
                                 <tr>
-                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
-                                        Phí vận chuyển
-                                    </td>
-                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;"> @tienShip.ToString("n0").Replace(',','.') VNĐ</td>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">Phí vận chuyển</td>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;"> @tienShip.ToString("n0").Replace(',', '.') VNĐ</td>
                                 </tr>
                             }
                             @if (hinhThucGiamGia == 1)
                             {
                                 <tr>
-                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
-                                        Voucher
-                                    </td>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">Voucher</td>
                                     <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">- @giaTri%</td>
                                 </tr>
                             }
                             else if (hinhThucGiamGia == 0)
                             {
                                 <tr>
-                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
-                                        Voucher
-                                    </td>
-                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">- @Convert.ToInt32(giaTri).ToString("n0").Replace(',','.') VNĐ</td>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">Voucher</td>
+                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">- @Convert.ToInt32(giaTri).ToString("n0").Replace(',', '.') VNĐ</td>
                                 </tr>
                             }
                             @{
@@ -281,27 +245,22 @@
                                     if (item.TrangThai == 0 && diemsudung > 0)
                                     {
                                         <tr>
-                                            <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
-                                                Điểm sử dụng
-                                            </td>
-                                            <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">- @diemsudung.ToString("n0").Replace(',','.') VNĐ</td>
+                                            <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">Điểm sử dụng</td>
+                                            <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">- @diemsudung.ToString("n0").Replace(',', '.') VNĐ</td>
                                         </tr>
                                     }
                                 }
                             }
                             <tr>
-                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
-                                    Tổng tiền
-                                </td>
-                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">@tongtien.ToString("n0").Replace(',','.') VNĐ</td>
+                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">Tổng tiền</td>
+                                <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: 130px;padding-right: 70px; text-align: right;">@tongtien.ToString("n0").Replace(',', '.') VNĐ</td>
                             </tr>
-                            
                         </tbody>
                     </table>
                 </tfoot>
             </table>
         </div>
-        
+
         <div class="row" style="margin-bottom:30px;">
             <div class="col-6">
                 @{
@@ -324,31 +283,24 @@
                     <tbody>
                         @foreach (var item in lichSuTichDiems)
                         {
-                            @*if (item.TrangThai == 1 && diemtich > 0)
-                            {
-                                <tr style="height:88px;">
-                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
-                                        Điểm được tích
-                                    </td>
-                                    <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: auto;padding-right: 70px; text-align: right;">@diemtich.ToString("n0").Replace(',','.') Điểm</td>
-                                </tr>
-                            }*@
+                            @* Logic hiển thị điểm đã comment lại *@
                         }
                         <tr style="height:88px;">
-                            <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">
-                                Phương thức thanh toán
-                            </td>
+                            <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;">Phương thức thanh toán</td>
                             <td style="padding-left: 20px;color: #111111;font-size: 18px;font-weight: 700;width: auto;padding-right: 70px; text-align: right;">@phuongthucthanhtoan</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+
         @if (trangthaiGiaoHang == 2)
         {
-        <div style="text-align:-webkit-right ;">
-                <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center;">
-                    <a style="color:white;" asp-controller="Home" asp-action="HuyDonHang" asp-route-idHoaDon="@Model.First().ID">Hủy đơn hàng</a>
+            <div style="text-align:-webkit-right ;">
+                <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center; cursor: pointer;">
+                    <button type="button" onclick="showCancelModal('@idHoaDon')" style="color:white; background:none; border:none; width:100%; height:100%;">
+                        Hủy đơn hàng
+                    </button>
                 </div>
             </div>
         }
@@ -356,14 +308,15 @@
         {
             <div style="text-align:-webkit-right ;">
                 <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center;">
-                    <a style="color:white;" asp-controller="Home" asp-action="DoiTraHang" asp-route-idHoaDon="@Model.First().ID">Hoàn hàng</a>
+                    <a style="color:white;" asp-controller="Home" asp-action="DoiTraHang" asp-route-idHoaDon="@idHoaDon">Hoàn hàng</a>
                 </div>
             </div>
-        }else if (trangthaiGiaoHang == 8)
+        }
+        else if (trangthaiGiaoHang == 8)
         {
             <div style="text-align:-webkit-right ;">
                 <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center;">
-                    <a style="color:white;" asp-controller="Home" asp-action="HoanTacHuyDonHang" asp-route-idHoaDon="@Model.First().ID">Hoàn tác hủy đơn hàng</a>
+                    <a style="color:white;" asp-controller="Home" asp-action="HoanTacHuyDonHang" asp-route-idHoaDon="@idHoaDon">Hoàn tác hủy đơn hàng</a>
                 </div>
             </div>
         }
@@ -371,7 +324,7 @@
         {
             <div style="text-align:-webkit-right ;">
                 <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center;">
-                    <a style="color:white;" asp-controller="Home" asp-action="HoanTacDoiTraHang" asp-route-idHoaDon="@Model.First().ID">Hoàn tác hoàn hàng</a>
+                    <a style="color:white;" asp-controller="Home" asp-action="HoanTacDoiTraHang" asp-route-idHoaDon="@idHoaDon">Hoàn tác hoàn hàng</a>
                 </div>
             </div>
         }
@@ -379,12 +332,80 @@
         {
             <div style="text-align:-webkit-right ;">
                 <div style="border: none; color: white; background-color: black; text-align:center;width: 150px; height: 50px; display: grid; align-items: center;">
-                    <a style="color:white;" asp-controller="Home" asp-action="XacNhanGHTC" asp-route-idHoaDon="@Model.First().ID">Xác nhận giao hàng thành công</a>
+                    <a style="color:white;" asp-controller="Home" asp-action="XacNhanGHTC" asp-route-idHoaDon="@idHoaDon">Xác nhận giao hàng thành công</a>
                 </div>
             </div>
         }
-
     </div>
-    
 </section>
-@*@Html.PartialAsync("ReviewProduct")*@
+
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelOrderModalLabel">Xác nhận hủy đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn hủy đơn hàng này không? Bạn có thể để lại lý do (không bắt buộc):</p>
+                <textarea id="cancelReasonInput" class="form-control" rows="3" placeholder="Nhập lý do hủy đơn..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">Xác nhận hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var cancelOrderModal;
+        var orderIdToCancel;
+
+        $(document).ready(function () {
+            // Khởi tạo Modal
+            if (document.getElementById('cancelOrderModal')) {
+                cancelOrderModal = new bootstrap.Modal(document.getElementById('cancelOrderModal'), {});
+            }
+
+            // Sự kiện nút "Xác nhận hủy"
+            $("#confirmCancelBtn").click(function () {
+                var reason = $("#cancelReasonInput").val(); // Lấy lý do (có thể rỗng)
+
+                // Gọi Ajax
+                $.ajax({
+                    url: '@Url.Action("HuyDonHang", "Home")', // Gọi đến HomeController
+                    type: 'POST',
+                    data: {
+                        idHoaDon: orderIdToCancel,
+                        ghiChu: reason // Gửi lý do lên server
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success("Đã gửi yêu cầu hủy đơn hàng.");
+                            location.reload(); // Tải lại trang để cập nhật trạng thái
+                        } else {
+                            toastr.error(response.message || "Hủy đơn thất bại.");
+                        }
+                        cancelOrderModal.hide();
+                    },
+                    error: function () {
+                        toastr.error("Có lỗi xảy ra, vui lòng thử lại.");
+                        cancelOrderModal.hide();
+                    }
+                });
+            });
+        });
+
+        // Hàm hiển thị Modal
+        function showCancelModal(orderId) {
+            orderIdToCancel = orderId;
+            $("#cancelReasonInput").val(''); // Xóa trắng ô nhập
+
+            if (cancelOrderModal) {
+                cancelOrderModal.show();
+            }
+        }
+    </script>
+}

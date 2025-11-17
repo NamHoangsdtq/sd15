@@ -14,9 +14,10 @@ namespace AppView.Controllers
         public VouchersController()
         {
             _httpClient = new HttpClient();
-            dBContext=new AssignmentDBContext();
+            dBContext = new AssignmentDBContext();
         }
         public int PageSize = 8;
+
         // get all vocher
         [HttpGet]
         public async Task<IActionResult> GetAllVoucher(int ProductPage = 1)
@@ -36,10 +37,9 @@ namespace AppView.Controllers
                     TotalItems = roles.Count()
                 }
 
-            }
-                );
-
+            });
         }
+
         // tim kiem ten
         [HttpGet]
         public async Task<IActionResult> TimKiemTenVC(string Ten, int ProductPage = 1)
@@ -58,11 +58,9 @@ namespace AppView.Controllers
                     CurrentPage = ProductPage,
                     TotalItems = roles.Count()
                 }
-
-            }
-                );
-
+            });
         }
+
         // create
         public IActionResult Create()
         {
@@ -70,7 +68,6 @@ namespace AppView.Controllers
         }
 
         [HttpPost]
-
         public async Task<IActionResult> Create(VoucherView voucher)
         {
             try
@@ -82,28 +79,13 @@ namespace AppView.Controllers
 
                 if (voucher.SoTienCan != null || voucher.Ten != null || voucher.GiaTri != null || voucher.HinhThucGiamGia != null || voucher.TrangThai != null || voucher.NgayApDung != null || voucher.NgayKetThuc != null)
                 {
-                    if (voucher.SoTienCan < 0)
-                    {
-                        ViewData["SoTienCan"] = "Số tiền cần không được âm ";
-                    }
-                    if (voucher.GiaTri <= 0)
-                    {
-                        ViewData["GiaTri"] = "Mời bạn nhập giá trị lớn hơn 0";
-                    }
-                    if (voucher.SoLuong <= 0)
-                    {
-                        ViewData["SoLuong"] = "Mời bạn nhập số lượng lớn hơn 0";
-                    }
-                    if (voucher.NgayKetThuc < voucher.NgayApDung)
-                    {
-                        ViewData["Ngay"] = "Ngày kết thúc phải lớn hơn ngày áp dụng";
-                    }
+                    if (voucher.SoTienCan < 0) ViewData["SoTienCan"] = "Số tiền cần không được âm ";
+                    if (voucher.GiaTri <= 0) ViewData["GiaTri"] = "Mời bạn nhập giá trị lớn hơn 0";
+                    if (voucher.SoLuong <= 0) ViewData["SoLuong"] = "Mời bạn nhập số lượng lớn hơn 0";
+                    if (voucher.NgayKetThuc < voucher.NgayApDung) ViewData["Ngay"] = "Ngày kết thúc phải lớn hơn ngày áp dụng";
+
                     var timkiem = roles.FirstOrDefault(x => x.Ten == voucher.Ten.Trim());
-                    if (timkiem != null)
-                    {
-                        ViewData["Ma"] = "Mã này đã tồn tại";
-                        
-                    }
+                    if (timkiem != null) ViewData["Ma"] = "Mã này đã tồn tại";
 
                     if (voucher.HinhThucGiamGia == 1)
                     {
@@ -119,10 +101,7 @@ namespace AppView.Controllers
                                 if (voucher.SoTienCan >= 0 && voucher.GiaTri > 0 && voucher.SoLuong > 0 && voucher.NgayKetThuc >= voucher.NgayApDung && timkiem == null)
                                 {
                                     var response = await _httpClient.PostAsJsonAsync($"https://localhost:7095/api/Voucher", voucher);
-                                    if (response.IsSuccessStatusCode)
-                                    {
-                                        return RedirectToAction("GetAllVoucher");
-                                    }
+                                    if (response.IsSuccessStatusCode) return RedirectToAction("GetAllVoucher");
                                     return View();
                                 }
                             }
@@ -136,10 +115,7 @@ namespace AppView.Controllers
                                     if (voucher.SoTienCan >= 0 && voucher.GiaTri > 0 && voucher.SoLuong > 0 && voucher.NgayKetThuc >= voucher.NgayApDung && timkiem == null)
                                     {
                                         var response = await _httpClient.PostAsJsonAsync($"https://localhost:7095/api/Voucher", voucher);
-                                        if (response.IsSuccessStatusCode)
-                                        {
-                                            return RedirectToAction("GetAllVoucher");
-                                        }
+                                        if (response.IsSuccessStatusCode) return RedirectToAction("GetAllVoucher");
                                         return View();
                                     }
                                 }
@@ -148,17 +124,13 @@ namespace AppView.Controllers
                                     ViewData["GiaTri"] = "Giá trị từ 1 đến 100";
                                     return View();
                                 }
-
                             }
                             if (voucher.GiaTri > voucher.SoTienCan)
                             {
                                 ViewData["GiaTri"] = "Giá trị phải nhỏ hơn hoặc bằng số tiền cần";
                                 return View();
-
                             }
                         }
-
-
                     }
                     if (voucher.HinhThucGiamGia == 0)
                     {
@@ -174,10 +146,7 @@ namespace AppView.Controllers
                                 if (voucher.SoTienCan >= 0 && voucher.GiaTri > 0 && voucher.SoLuong > 0 && voucher.NgayKetThuc >= voucher.NgayApDung && timkiem == null)
                                 {
                                     var response = await _httpClient.PostAsJsonAsync($"https://localhost:7095/api/Voucher", voucher);
-                                    if (response.IsSuccessStatusCode)
-                                    {
-                                        return RedirectToAction("GetAllVoucher");
-                                    }
+                                    if (response.IsSuccessStatusCode) return RedirectToAction("GetAllVoucher");
                                     return View();
                                 }
                             }
@@ -196,10 +165,7 @@ namespace AppView.Controllers
                                     if (voucher.SoTienCan >= 0 && voucher.GiaTri > 0 && voucher.SoLuong > 0 && voucher.NgayKetThuc >= voucher.NgayApDung && timkiem == null)
                                     {
                                         var response = await _httpClient.PostAsJsonAsync($"https://localhost:7095/api/Voucher", voucher);
-                                        if (response.IsSuccessStatusCode)
-                                        {
-                                            return RedirectToAction("GetAllVoucher");
-                                        }
+                                        if (response.IsSuccessStatusCode) return RedirectToAction("GetAllVoucher");
                                         return View();
                                     }
                                 }
@@ -211,18 +177,15 @@ namespace AppView.Controllers
                             }
                         }
                     }
-
-
                 }
-
                 return View();
             }
             catch
             {
                 return View();
             }
-           
         }
+
         // update
         [HttpGet]
         public IActionResult Updates(Guid id)
@@ -239,18 +202,23 @@ namespace AppView.Controllers
             {
                 return View();
             }
-            
         }
 
         [HttpPost]
-
         public async Task<IActionResult> Updates(VoucherView voucher)
         {
             try
             {
+                // === LOGIC MỚI: Nếu số lượng <= 0 thì set trạng thái về 0 (Không hoạt động) ===
+                if (voucher.SoLuong <= 0)
+                {
+                    voucher.TrangThai = 0;
+                }
+                // ==============================================================================
+
                 if (voucher.SoTienCan == 0)
                 {
-                    if (voucher.SoLuong > 0 && voucher.NgayKetThuc >= voucher.NgayApDung)
+                    if (voucher.SoLuong >= 0 && voucher.NgayKetThuc >= voucher.NgayApDung) // Cho phép số lượng = 0 để lưu trạng thái tắt
                     {
                         var response = await _httpClient.PutAsJsonAsync($"https://localhost:7095/api/Voucher/{voucher.Id}", voucher);
                         if (response.IsSuccessStatusCode)
@@ -261,14 +229,7 @@ namespace AppView.Controllers
                     }
                     else
                     {
-                        if (voucher.NgayKetThuc < voucher.NgayApDung)
-                        {
-                            ViewData["Ngay"] = "Ngày kết thúc phải lớn hơn ngày áp dụng";
-                        }
-                        if (voucher.SoLuong <= 0)
-                        {
-                            ViewData["SoLuong"] = "Mời bạn nhập số lượng lớn hơn 0";
-                        }
+                        if (voucher.NgayKetThuc < voucher.NgayApDung) ViewData["Ngay"] = "Ngày kết thúc phải lớn hơn ngày áp dụng";
                         return View();
                     }
                 }
@@ -276,7 +237,7 @@ namespace AppView.Controllers
                 {
                     if (voucher.SoTienCan >= voucher.GiaTri)
                     {
-                        if (voucher.SoLuong > 0 && voucher.NgayKetThuc >= voucher.NgayApDung)
+                        if (voucher.SoLuong >= 0 && voucher.NgayKetThuc >= voucher.NgayApDung) // Cho phép số lượng = 0
                         {
                             var response = await _httpClient.PutAsJsonAsync($"https://localhost:7095/api/Voucher/{voucher.Id}", voucher);
                             if (response.IsSuccessStatusCode)
@@ -294,7 +255,6 @@ namespace AppView.Controllers
                 }
                 else
                 {
-                    
                     if (voucher.SoTienCan < 0)
                     {
                         ViewData["SoTienCan"] = "Mời bạn nhập số tiền cần không âm";
@@ -307,22 +267,10 @@ namespace AppView.Controllers
             {
                 return View();
             }
-            
-            
         }
-        // delete
-        //public async Task<IActionResult> Delete(Guid id)
-        //{
-        //    string apiURL = $"https://localhost:7095/api/Voucher/{id}";
 
-        //    var response = await _httpClient.DeleteAsync(apiURL);
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        return RedirectToAction("GetAllVoucher");
-        //    }
-        //    return View();
-        //}
-        
+        // --- CÁC CHỨC NĂNG THAY ĐỔI TRẠNG THÁI NHANH ---
+
         public async Task<IActionResult> SuDung(Guid id)
         {
             try
@@ -330,9 +278,15 @@ namespace AppView.Controllers
                 var timkiem = dBContext.Vouchers.FirstOrDefault(x => x.ID == id);
                 if (timkiem != null)
                 {
-                    timkiem.TrangThai = 1;
-                    dBContext.Vouchers.Update(timkiem);
-                    dBContext.SaveChanges();
+                    // Kiểm tra nếu còn số lượng thì mới cho kích hoạt
+                    if (timkiem.SoLuong > 0)
+                    {
+                        timkiem.TrangThai = 1;
+                        dBContext.Vouchers.Update(timkiem);
+                        dBContext.SaveChanges();
+                        return RedirectToAction("GetAllVoucher");
+                    }
+                    // Nếu hết số lượng thì không cho kích hoạt (hoặc reload trang mà ko làm gì)
                     return RedirectToAction("GetAllVoucher");
                 }
                 else
@@ -344,8 +298,8 @@ namespace AppView.Controllers
             {
                 return View();
             }
-           
         }
+
         public async Task<IActionResult> KoSuDung(Guid id)
         {
             try
@@ -367,7 +321,37 @@ namespace AppView.Controllers
             {
                 return View();
             }
-            
+        }
+
+        // === CHỨC NĂNG MỚI: KHÁCH HÀNG SỬ DỤNG VOUCHER (TRỪ SỐ LƯỢNG) ===
+        public IActionResult DaSuDungVoucher(Guid id)
+        {
+            try
+            {
+                var voucher = dBContext.Vouchers.FirstOrDefault(x => x.ID == id);
+                if (voucher != null)
+                {
+                    // Chỉ trừ nếu voucher đang hoạt động
+                    if (voucher.TrangThai == 1 && voucher.SoLuong > 0)
+                    {
+                        voucher.SoLuong = voucher.SoLuong - 1;
+
+                        // Logic chính: Nếu số lượng về 0 thì TẮT trạng thái
+                        if (voucher.SoLuong == 0)
+                        {
+                            voucher.TrangThai = 0;
+                        }
+
+                        dBContext.Vouchers.Update(voucher);
+                        dBContext.SaveChanges();
+                    }
+                }
+                return RedirectToAction("GetAllVoucher");
+            }
+            catch
+            {
+                return RedirectToAction("GetAllVoucher");
+            }
         }
     }
 }

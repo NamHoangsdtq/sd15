@@ -36,6 +36,7 @@
          */
         public Guid? IDNhanVien { get; set; }
         public Guid? IDVoucher { get; set; }
+        public Guid TrackingToken { get; set; }
         public virtual IEnumerable<LichSuTichDiem>? LichSuTichDiems { get; set; }
         public virtual NhanVien? NhanVien { get; set; }
         public virtual Voucher? Voucher { get; set; }

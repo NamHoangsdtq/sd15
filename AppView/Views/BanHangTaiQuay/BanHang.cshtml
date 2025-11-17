@@ -5,7 +5,6 @@
     ViewData["Title"] = "BanHang";
     <script src="~/Admin/js/bantaiquay.js" defer></script>
     var lsthdcho = ViewData["lsthdcho"] as List<HoaDon>;
-    // var lstPttt = ViewData["lstPttt"] as List<PhuongThucThanhToan>;
 
     var loginInfor = new LoginViewModel();
     string? session = Context.Session.GetString("LoginInfor");
@@ -24,62 +23,65 @@
             box-sizing: border-box;
             z-index: 1001;
             padding-top: 20px;
-            background:#e1e3e6!important;
-            display:none;
+            background: #e1e3e6 !important;
+            display: none;
         }
 
-        #sptk{
-             background: #fff;
+        #sptk {
+            background: #fff;
         }
-        #sptk:hover {
-            border: 2px solid #4154f1;
-            background: #cce2fd;
-            border-radius: 5px;
-        }
+
+            #sptk:hover {
+                border: 2px solid #4154f1;
+                background: #cce2fd;
+                border-radius: 5px;
+            }
     </style>
 }
 
 <div class="d-flex flex-row align-items-stretch" style="background: #f0f1f3">
-    <!--Hiển thị giỏ hàng-->
     <div class="d-flex flex-column align-items-stretch flex-grow-1">
         <div class="d-flex flex-row text-white w-100 flex-shrink-1" style="background:#5372F0;height:50px;">
-            <!--Hiển thị danh sách hóa đơn chờ-->
             <div class="tabbill">
                 <div class="icon me-auto"><i id="left" class="fa-solid fa-angle-left"></i></div>
                 @if (lsthdcho != null)
                 {
                     <ul class="tabs-box">
                         @{
-                            var index = 1;
+                            // Sắp xếp lại danh sách nếu cần (để khớp với JS)
+                            // var sortedList = lsthdcho.OrderByDescending(c => c.NgayTao).ToList();
+                            var count = lsthdcho.Count;
+                            var i = 0;
                             foreach (var item in lsthdcho)
                             {
+                                var index = count - i; // Đếm ngược để khớp với JS
+
+                                // === SỬA ĐỔI 1: Thêm id="tab-..." và truyền event vào deleteHDCho ===
                                 if (item.TrangThaiGiaoHang == 1)
                                 {
-                                    <li class="tab" onclick="gethdct('@item.ID')">
+                                    <li class="tab" id="tab-@item.ID" onclick="gethdct('@item.ID')">
                                         <span value="@item.ID">
                                             <a>Hoá đơn @index</a>
-                                            <a style="padding-left: 10px;" onclick="deleteHDCho('@item.ID')"><i class="fas fa-times"></i></a>
+                                            <a style="padding-left: 10px;" onclick="deleteHDCho(event, '@item.ID')"><i class="fas fa-times"></i></a>
                                         </span>
                                     </li>
-                                    index++;
                                 }
                                 else
                                 {
-                                    <li class="tab" onclick="gethdct('@item.ID')">
+                                    <li class="tab" id="tab-@item.ID" onclick="gethdct('@item.ID')">
                                         <span value="@item.ID">
                                             <a>@item.GhiChu</a>
-                                            <a style="padding-left: 10px;" onclick="deleteHDCho('@item.ID')"><i class="fas fa-times"></i></a>
+                                            <a style="padding-left: 10px;" onclick="deleteHDCho(event, '@item.ID')"><i class="fas fa-times"></i></a>
                                         </span>
                                     </li>
                                 }
-
+                                i++;
                             }
                         }
                     </ul>
                 }
                 <div class="icon ms-auto"><i id="right" class="fa-solid fa-angle-right"></i></div>
             </div>
-            <!--Tạo mới-->
             <div class="ms-auto align-content-center">
                 <div class="btn-create d-flex align-items-center">
                     <button type="button" onclick="addHDCho()" class="btn btn-success d-flex align-items-center ms-auto" title="Thêm mới">
@@ -90,7 +92,6 @@
             </div>
         </div>
 
-        <!--Hiển thị hóa đơn chi tiết-->
         <div class="d-flex flex-column p-2 mx-3 mt-3 border-0 rounded-3 flex-grow-1 bg-white" style="height:640px;">
             <div class="d-flex flex-column p-2">
                 <div id="partialGioHang">
@@ -98,9 +99,7 @@
             </div>
         </div>
     </div>
-    <!--Sản phẩm-->
     <div class="d-flex flex-column align-items-stretch">
-        <!--Tìm kiếm sản phẩm-->
         <div class="d-flex flex-row text-white w-100" style="background:#5372F0;height:50px;">
             <div class="d-flex justify-content-start">
                 <div class="search-product d-flex align-items-center">
@@ -116,7 +115,6 @@
                     </div>
                 </div>
             </div>
-            <!--Quét QR-->
             <div class="d-flex align-content-center">
                 <div class="d-flex align-items-center">
                     <button type="button" onclick="scanQRCode()" style="background:#5372F0; color:#ffffff" class="btn d-flex align-items-center ms-auto" title="Quét mã vạch">
@@ -124,7 +122,6 @@
                     </button>
                 </div>
             </div>
-            <!--Lọc-->
             <div class="d-flex me-auto align-content-center">
                 <div class="btn-filter d-flex align-items-center">
                     <button type="button" onclick="showFilter()" style="background:#5372F0; color:#ffffff" class="btn d-flex align-items-center ms-auto" title="Lọc sản phẩm">
@@ -132,15 +129,7 @@
                     </button>
                 </div>
             </div>
-            <!--Sắp xếp-->
-            @*<div class="d-flex flex-column justify-content-center p-1 w-100" style="font-size:14px; ">
-                <div class="form-check form-switch bg-white rounded-5">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
-                <label class="form-check-label" for="flexSwitchCheckDefault">Tăng</label>
-                </div>
-                </div>*@
         </div>
-        <!--Hiển thị sản phẩm-->
         <div class="d-flex flex-column p-2  mt-3 border-0 rounded-3 bg-white" style="height:640px">
             <ul class="product-list">
             </ul>
@@ -150,8 +139,6 @@
         </div>
     </div>
 </div>
-<!--MODEL-->
-<!--Model QRCode-->
 <div class="modal border-0 rounded-0" id="scanqrcode" tabindex="-1">
     <div class="modal-dialog" id="modalscanqrcode">
         <div class="modal-content" id="modalscanqrcode-content">
@@ -160,7 +147,6 @@
         </div>
     </div>
 </div>
-<!--Model lọc-->
 <div class="modal border-0 rounded-0" id="locsp" tabindex="-1">
     <div class="modal-dialog" id="modallocsp">
         <div class="modal-content" id="modallocsp-content">
@@ -170,20 +156,14 @@
     </div>
 </div>
 
-<!--Model thanh toán -->
 <div class="modal border-0 rounded-0" id="thanhtoan" tabindex="-1">
     <div class="modal-dialog" id="modalthanhtoan">
         <div class="modal-content" id="modalthanhtoan-content">
-            @* <div class="modal-header bg-primary">
-                <h5 class="modal-title fw-700 text-white align-center">THANH TOÁN </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>*@
             <div class="modal-body" id="thanhtoanbody">
             </div>
         </div>
     </div>
 </div>
-<!--Model sản phẩm-->
 <div class="modal border-0 rounded-0" id="sanpham" tabindex="-1">
     <div class="modal-dialog" id="modalsanpham">
         <div class="modal-content" id="modalsanpham-content">
@@ -205,13 +185,19 @@
 <script>
     var pageSizesp = 10;// Tối đa 10sp 1 trang
     var pageIndexsp = 1;//Trang ban đầu
-   
+
     $(document).ready(function () {
         loadsp();
-        //if (@lsthdcho.Count == 0) {
-        //    addHDCho();
-        //}
-        activeTab(0);
+        // Tự động chọn tab đầu tiên khi load trang
+        var firstTab = $(".tabs-box .tab").first();
+        if (firstTab.length > 0) {
+            var idFirst = firstTab.find("span").attr("value");
+            gethdct(idFirst);
+        } else {
+            // Nếu không có tab nào, hiện màn hình trống
+            gethdct(null);
+        }
+
         $(function () {
             $(document).on("click", ".tab", function (e) {
                 e.preventDefault();
@@ -219,23 +205,8 @@
                 $(this).addClass("active");
             });
         });
-        $("#resultsp").css("display","none");
+        $("#resultsp").css("display", "none");
     })
-    //TabActive
-    function activeTab(index) {
-        var allTabs = $(".tabs-box .tab");
-        if (allTabs.length !== 0 && index == 0) {
-            var tab = allTabs.first();
-            var elementValue = tab.find("span").attr("value");
-            gethdct(elementValue);
-            tab.addClass("active");
-        } else if (index == 1) {
-            var tab = allTabs.last();
-            var elementValue = tab.find("span").attr("value");
-            gethdct(elementValue);
-            tab.addClass("active");
-        }
-    }
 
     //LoadDSSanPham
     function loadsp() {
@@ -251,19 +222,18 @@
                 $(".product-list").empty();
                 for (let i = 0; i < response.data.length; i++) {
                     $(".product-list").append(`
-                                                            <li class="product-item d-flex flex-row" onclick="showSPDetail('${response.data[i].id}')">
-                                                                    <div class="product-img">
-                                                                        <img src="/img/product/${response.data[i].anh}" class="img-fluid rounded-start" alt="..." style="width:70px;height:80px">
-                                                                    </div>
-                                                                    <div class="product-detail d-flex flex-column flex-grow-1">
-                                                                        <span class="product-name mt-1">${response.data[i].ten}</span>
-                                                                        <div class="product-infor mt-auto">
-                                                                            <span style="flex-basis:100%"><b style="color:blue;font-size:14px; font-weight:700">${Intl.NumberFormat().format(response.data[i].giaBan)}</b></span>
-
-                                                                        </div>
-                                                                    </div>
-                                                            </li>
-                                                            `);
+                                                                        <li class="product-item d-flex flex-row" onclick="showSPDetail('${response.data[i].id}')">
+                                                                                <div class="product-img">
+                                                                                    <img src="/img/product/${response.data[i].anh}" class="img-fluid rounded-start" alt="..." style="width:70px;height:80px">
+                                                                                </div>
+                                                                                <div class="product-detail d-flex flex-column flex-grow-1">
+                                                                                    <span class="product-name mt-1">${response.data[i].ten}</span>
+                                                                                    <div class="product-infor mt-auto">
+                                                                                        <span style="flex-basis:100%"><b style="color:blue;font-size:14px; font-weight:700">${Intl.NumberFormat().format(response.data[i].giaBan)}</b></span>
+                                                                                    </div>
+                                                                                </div>
+                                                                        </li>
+                                                                        `);
                 }
                 pagingsp(response.total, function () {
                     loadsp();
@@ -291,48 +261,55 @@
             }
         });
     }
-    //LOAD DANH SÁCH HOA DON CHO
-    async function loadHDCHO(callback) {
-        try {
-            const data = await $.ajax({
-                url: "/BanHangTaiQuay/GetHdChoCuaUser",
-                type: "GET",
-                dataType: "json"
-            });
-            $(".tabs-box").empty();
-            //if (data.length === 0) {
-            //    addHDCho();
-            //}
-            for (let i = 0; i < data.length; i++) {
-                const item = data[i];
-                const itemID = item.id;
-                const index = i + 1;
-                if(item.trangThaiGiaoHang === 1){
-                    $(".tabs-box").append(`
-                        <li class="tab" onclick="gethdct('${itemID}')">
-                            <span value="${itemID}">
-                            <a>Hoá đơn ${index}</a>
-                            <a style="padding-left: 10px;" onclick="deleteHDCho('${itemID}')" title="Xóa"><i class="fas fa-times"></i></a>
-                            </span>
-                        </li>
-                        `);
-                }else{
-                    $(".tabs-box").append(`
-                        <li class="tab" onclick="gethdct('${itemID}')">
-                            <span value="${itemID}">
-                            <a>${item.ghiChu}</a>
-                            <a style="padding-left: 10px;" onclick="deleteHDCho('${itemID}')" title="Xóa"><i class="fas fa-times"></i></a>
-                            </span>
-                        </li>
-                        `);
-                };
+
+    // === CÁC HÀM ĐÃ SỬA ĐỔI ===
+
+    // Hàm vẽ giao diện danh sách tab
+    function renderTabHTML(data) {
+        $(".tabs-box").empty();
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
+            const itemID = item.id;
+            const index = data.length - i; // Đếm ngược
+
+            let tabContent = `<a>Hoá đơn ${index}</a>`;
+            if (item.trangThaiGiaoHang !== 1 && item.ghiChu) {
+                tabContent = `<a>${item.ghiChu}</a>`;
             }
-            setTimeout(callback, 50);
+
+            // --- SỬA ĐỔI 2: Thêm event vào hàm deleteHDCho ---
+            $(".tabs-box").append(`
+                    <li class="tab" id="tab-${itemID}" onclick="gethdct('${itemID}')">
+                        <span value="${itemID}">
+                            ${tabContent}
+                            <a style="padding-left: 10px;" onclick="deleteHDCho(event, '${itemID}')" title="Xóa"><i class="fas fa-times"></i></a>
+                        </span>
+                    </li>
+                `);
+        }
+    }
+
+    // LOAD DANH SÁCH HÓA ĐƠN CHỜ
+    async function loadHDCHO(providedData = null, callback = null) {
+        try {
+            let data;
+            if (providedData) {
+                data = providedData;
+            } else {
+                data = await $.ajax({
+                    url: "/BanHangTaiQuay/GetHdChoCuaUser",
+                    type: "GET",
+                    dataType: "json"
+                });
+            }
+            renderTabHTML(data);
+            if (callback) setTimeout(callback, 50);
         } catch (error) {
             console.log('Error:', error);
         }
     }
-    //THÊM HÓA ĐƠN CHỜ
+
+    // THÊM HÓA ĐƠN CHỜ
     function addHDCho() {
         $.ajax({
             url: "/BanHangTaiQuay/AddHDCho",
@@ -340,46 +317,89 @@
             dataType: 'json',
             contentType: 'application/json',
             success: function (response) {
-                if(response.success == true){
-                    loadHDCHO(function () {
-                        activeTab(1);
+                if (response.success == true) {
+                    toastr.success(response.message, "Thông báo", { timeOut: 1000 });
+
+                    loadHDCHO(response.data, function () {
+                        if (response.newId) {
+                            gethdct(response.newId);
+                            $(".tab").removeClass("active");
+                            $("#tab-" + response.newId).addClass("active");
+                        }
                     });
-                }else{
-                     toastr.error(response.message, "Thông báo", { timeOut: 3000 });
+
+                } else {
+                    toastr.error(response.message, "Thông báo", { timeOut: 3000 });
                 }
             },
             error: function (response) {
-                toastr.error('Thêm thất bại', "Thông báo", { timeOut: 3000 });
+                toastr.error('Thêm thất bại: Lỗi kết nối', "Thông báo", { timeOut: 3000 });
             }
         });
     }
-    //Xóa hóa đơn chờ
-    function deleteHDCho(idhd) {
+
+    // XÓA HÓA ĐƠN CHỜ (ĐÃ SỬA LỖI EVENT & URL 404)
+    function deleteHDCho(event, idhd) {
+        // 1. Ngăn chặn sự kiện click xuyên qua
+        if (event) event.stopPropagation();
+
         var ans = confirm("Bạn có chắc chắn xóa Đơn Nháp này?");
         if (ans) {
             $.ajax({
+                // 2. SỬA ĐƯỜNG DẪN TUYỆT ĐỐI ĐẾN API (PORT 7095)
                 url: "https://localhost:7095/api/HoaDon/deleteHoaDon/" + idhd,
                 type: "DELETE",
                 dataType: 'json',
                 contentType: 'application/json',
                 success: function (response) {
-                    $("#partialGioHang").empty();
-                    loadHDCHO(function () {
-                        activeTab(0);
+                    toastr.success('Xóa thành công', 'Thông báo', { timeOut: 1000 });
+
+                    $("#partialGioHang").empty(); // Xóa trắng giỏ hàng
+                    $("#partialGioHang").html('<div class="text-center p-4"><h4>Chưa chọn hóa đơn nào</h4></div>');
+
+                    // Load lại danh sách
+                    loadHDCHO(null, function () {
+                        // Tự động chọn tab đầu tiên sau khi xóa (nếu còn)
+                        var firstTab = $(".tabs-box .tab").first();
+                        if (firstTab.length > 0) {
+                            var firstId = firstTab.find("span").attr("value");
+                            gethdct(firstId);
+                        }
                     });
-                    loadsp();
                 },
                 error: function (response) {
-                    toastr.error('Xóa thất bại', 'Thông báo', { timeOut: 3000 });
+                    console.log(response);
+                    toastr.error('Xóa thất bại: Lỗi kết nối Server API', 'Thông báo', { timeOut: 3000 });
                 }
             });
         }
     }
+
+    // LAY HOA DON CHI TIET
+    function gethdct(idhd) {
+        if (!idhd || idhd === 'undefined') {
+            $("#partialGioHang").html('<div class="text-center p-4"><h4>Chưa chọn hóa đơn nào</h4></div>');
+            return;
+        }
+
+        $(".tab").removeClass("active");
+        $("#tab-" + idhd).addClass("active");
+        $("#partialGioHang").load("/BanHangTaiQuay/getCTHD/" + idhd);
+    }
+
+    // ============================
+
     //Thêm SP vào Hóa đơn
     function addCTSP(idctsp) {
         var activeTab = $(".tabs-box .tab").filter(".active");
         var elementValue = activeTab.find("span").attr("value");
-        var request = { IdHoaDon: elementValue, IdChiTietSanPham: idctsp,  SoLuong: 1 }
+
+        if (!elementValue) {
+            toastr.warning('Vui lòng chọn hoặc tạo hóa đơn trước', 'Thông báo');
+            return;
+        }
+
+        var request = { IdHoaDon: elementValue, IdChiTietSanPham: idctsp, SoLuong: 1 }
         $.ajax({
             url: "/BanHangTaiQuay/addHdct",
             async: false,
@@ -388,9 +408,8 @@
             data: request,
             success: function (response) {
                 if (response.success === true) {
-                    toastr.success(response.message, "Thông báo", { timeOut: 3000 });
+                    toastr.success(response.message, "Thông báo", { timeOut: 1000 });
                     gethdct(request.IdHoaDon);
-                    FilterPL();
                 } else {
                     toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
                 }
@@ -399,11 +418,6 @@
                 toastr.error(response.message, 'Thông báo', { timeOut: 3000 });
             }
         });
-    }
-    //LAY HOA DON CHI TIET THEO IDHOADON
-
-    function gethdct(idhd) {
-        $("#partialGioHang").load("/BanHangTaiQuay/getCTHD/" + idhd);
     }
 
     //Xóa HDCT
@@ -434,15 +448,12 @@
         ttien = parseInt(ttien.replaceAll(',', ''));
         var pttt = $('input[name="pttt"]:checked').val();
         var khachdua = $("#khachdua").val();
-        //else if (ttien <= 0) {
-        //    toastr.error('Phiếu hàng đang trống', 'Thông báo', { timeOut: 3000 });
-        //}
 
         if (ttien < 0) {
             toastr.error('Số tiền thanh toán không hợp lệ', 'Thông báo', { timeOut: 3000 });
-        }else if(khachdua < ttien && pttt === "Tiền mặt"){
+        } else if (khachdua < ttien && pttt === "Tiền mặt") {
             toastr.error('Khách chưa thanh toán đủ tiền hàng', 'Thông báo', { timeOut: 3000 });
-        }else {
+        } else {
             var pttt = $('input[name="pttt"]:checked').val();
             var idvoucher = $("#idvoucher").text();
             var tichdiemhd = $("#tichdiemhd").text();
@@ -462,8 +473,15 @@
                     $("#partialGioHang").empty();
                     toastr.success('Thanh toán thành công', "Thông báo", { timeOut: 3000 });
                     InHD(id);
-                    loadHDCHO(function () {
-                        activeTab(0);
+                    loadHDCHO(null, function () {
+                        // Sau khi thanh toán xong, reload và chọn tab đầu
+                        var firstTab = $(".tabs-box .tab").first();
+                        if (firstTab.length > 0) {
+                            var firstId = firstTab.find("span").attr("value");
+                            gethdct(firstId);
+                        } else {
+                            gethdct(null);
+                        }
                     });
                 },
                 error: function (response) {
@@ -496,39 +514,39 @@
                 url: "/BanHangTaiQuay/Search/" + keyword,
                 dataType: 'json',
                 success: function (response) {
-                    if(response.data.length > 0){
-                        $("#resultsp").css("display","block");
+                    if (response.data.length > 0) {
+                        $("#resultsp").css("display", "block");
                         for (let i = 0; i < response.data.length; i++) {
                             const item = response.data[i];
                             $("#resultsp").append(`
-                                        <li id="sptk" onclick="showSPDetail('${item.id}')">
-                                            <div class="d-flex align-items-center p-1">
-                                                <div class="flex-shrink-0">
-                                                    <img src="/img/product/${item.anh}" style="height:80px; width:70px;" alt="...">
-                                                </div>
-                                                <div class="flex-grow-1 ms-3 text-dark">
-                                                    <span class="product-name mt-1">${item.ten}</span>
-                                                    <div class="product-infor mt-auto">
-                                                        <span style="flex-basis:100%"><b style="color:blue;font-size:14px; font-weight:700">${Intl.NumberFormat().format(item.giaBan)}</b></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    `);
-                            }
-                    }else{
+                                                                        <li id="sptk" onclick="showSPDetail('${item.id}')">
+                                                                            <div class="d-flex align-items-center p-1">
+                                                                                <div class="flex-shrink-0">
+                                                                                    <img src="/img/product/${item.anh}" style="height:80px; width:70px;" alt="...">
+                                                                                </div>
+                                                                                <div class="flex-grow-1 ms-3 text-dark">
+                                                                                    <span class="product-name mt-1">${item.ten}</span>
+                                                                                    <div class="product-infor mt-auto">
+                                                                                        <span style="flex-basis:100%"><b style="color:blue;font-size:14px; font-weight:700">${Intl.NumberFormat().format(item.giaBan)}</b></span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+                                                                        `);
+                        }
+                    } else {
                         $("#resultsp").empty();
-                        $("#resultsp").css("display","none");
+                        $("#resultsp").css("display", "none");
                     }
                 },
                 error: function (response) {
-                     $("#resultsp").empty();
-                     $("#resultsp").css("display","none");
+                    $("#resultsp").empty();
+                    $("#resultsp").css("display", "none");
                 }
             });
         } else {
             $("#resultsp").empty();
-            $("#resultsp").css("display","none");
+            $("#resultsp").css("display", "none");
         }
     });
     //Chuyển trang quản lý hóa đơn

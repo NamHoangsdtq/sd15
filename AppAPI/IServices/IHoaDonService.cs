@@ -12,7 +12,7 @@ namespace AppAPI.IServices
         public HoaDon GetHoaDonById(Guid idhd);
         public List<ChiTietHoaDon> GetAllChiTietHoaDon(Guid idHoaDon);
         //public bool UpdateTrangThaiGiaoHang(Guid idHoaDon, int trangThai,Guid? idNhanVien);
-        (bool Success, string ErrorMessage) UpdateTrangThaiGiaoHang(Guid idHoaDon, int trangThai, Guid? idNhanVien);
+        (bool Success, string ErrorMessage) UpdateTrangThaiGiaoHang(Guid idHoaDon, int trangThai, Guid? idNhanVien, string? ghiChu);
         public int CheckVoucher(string ten, int tongtien);
         public List<HoaDon> TimKiemVaLocHoaDon(string ten,int? loc);
         public List<HoaDon> LichSuGiaoDich(Guid idNguoiDung);
@@ -25,7 +25,7 @@ namespace AppAPI.IServices
         public bool CreateHoaDonOffline(Guid idnhanvien);
         public bool DeleteHoaDon(Guid id);
         //public bool UpdateHoaDon(HoaDonThanhToanRequest hoaDon);
-
+        public HoaDon GetHoaDonByToken(Guid token);
         (bool Success, string ErrorMessage) UpdateHoaDon(HoaDonThanhToanRequest hoaDon);
         public bool UpdateGhiChuHD(Guid idhd,Guid idnv, string ghichu);
         public bool CheckHDHasLSGD( Guid idHoaDon);

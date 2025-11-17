@@ -10,6 +10,7 @@
     ViewData["Title"] = "Create";
     AppData.Models.AssignmentDBContext dBContext = new AppData.Models.AssignmentDBContext();
 }
+
 <h4>Thêm mới chất liệu</h4>
 <hr />
 <div>
@@ -23,34 +24,49 @@
                 @ViewBag.ErrorMessage
             </div>
         }
-        <form asp-action="Create">
+        <form asp-action="Create" id="createForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
                 <label asp-for="Ten" class="control-label">Tên</label>
-                <input asp-for="Ten" class="form-control" autocomplete="off" />
-                <div id="emptyNameError" class="invalid-feedback d-none">Vui lòng nhập tên chất liệu!</div>
+
+                <input asp-for="Ten" class="form-control" autocomplete="off" id="TenInput" />
+
+                <div class="invalid-feedback">
+                    Tên chất liệu không được bỏ trống!
+                </div>
             </div>
+
             <input type="hidden" asp-for="TrangThai" value="1" />
+
             <div class="form-group">
                 <input type="submit" value="Lưu" class="btn btn-primary" style="margin-top: 10px" />
             </div>
         </form>
     </div>
 </div>
+
 <script>
-    $("input[name='Ten']").on("input", function () {
-        $(this).removeClass("is-invalid");
-        $("#emptyNameError").text("");
-    });
-    $("form").submit(function () {
-        var tenInput = $("input[name='Ten']");
-        var tenValue = tenInput.val();
-        if (tenValue.trim() === "") {
-            tenInput.addClass("is-invalid");
-            $("#emptyNameError").text("Tên không được bỏ trống");
-            return false;
-        }
-        return true;
+    $(document).ready(function () {
+        // 1. Khi người dùng bắt đầu gõ, xóa trạng thái lỗi
+        $("#TenInput").on("input", function () {
+            $(this).removeClass("is-invalid");
+        });
+
+        // 2. Khi nhấn nút Lưu
+        $("#createForm").submit(function (e) {
+            var tenInput = $("#TenInput");
+            var tenValue = tenInput.val();
+
+            // Kiểm tra nếu ô nhập trống hoặc chỉ chứa khoảng trắng
+            if (tenValue.trim() === "") {
+                tenInput.addClass("is-invalid"); // Thêm class này để hiện dòng chữ đỏ
+                e.preventDefault(); // Chặn không cho form gửi đi
+                return false;
+            }
+
+            return true;
+        });
     });
 </script>
 
