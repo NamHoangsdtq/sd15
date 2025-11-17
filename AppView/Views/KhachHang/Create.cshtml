@@ -6,12 +6,46 @@
     AppData.Models.AssignmentDBContext dbcontext = new AppData.Models.AssignmentDBContext();
 }
 
-<h1>Thêm khách hàng</h1>
+@* <h1>Thêm khách hàng</h1> *@
 
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            🧑‍🤝‍🧑Thêm khách hàng
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    <div class="col-12 col-xl-auto mb-3">
+                        @* <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
+
+                        <span> 🧵 Thêm mới chất liệu </span>
+                        </a> *@
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+</div>
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="m-0">Thông tin khách hàng </h5>
+    </div>
+    <div class="card-body">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
@@ -81,17 +115,23 @@
                 <input asp-for="DiemTich" class="form-control" />
                 <span asp-validation-for="DiemTich" class="text-danger"></span>
             </div>*@
-            <div class="form-group">
+            @* <div class="form-group">
                 <input type="submit" value="Thêm khách hàng" class="btn btn-success" />
+            </div> *@
+            <div class="form-group d-flex align-items-center gap-2 mt-3">
+                <input type="submit" value="Thêm khách hàng" class="btn btn-success" />
+
+
+                <a asp-action="GetAllKhachHang" class="btn btn-primary ">Quay lại danh sách</a>
             </div>
         </form>
     </div>
 </div>
 
 <br />
-<button class="btn btn-primary">
+@* <button class="btn btn-primary">
     <a asp-action="GetAllKhachHang" style="color:white;">Quay lại</a>
-</button>
+</button> *@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

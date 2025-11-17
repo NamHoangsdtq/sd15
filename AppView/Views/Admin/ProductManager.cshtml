@@ -2,11 +2,43 @@
     ViewData["Title"] = "ProductManager";
 }
 
-<h1>Quản lý sản phẩm</h1>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            👟 Danh sách  sản phẩm 
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    <div class="col-12 col-xl-auto mb-3">
+                        <a asp-action="AddSanPham" class="btn btn-primary d-flex align-items-center">
+
+                            <span> 👟 Thêm  sản phẩm mới </span>
+                        </a>
+                       @*  <a asp-action="AddSanPham" class="btn btn-success">Thêm sản phẩm <i class="bi bi-plus-circle"></i></a> *@
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+</div>
 
 <div class="row mb-4">
     <div class="col-lg-4">
-        <a asp-action="AddSanPham" class="btn btn-success">Thêm sản phẩm <i class="bi bi-plus-circle"></i></a>
+       @*  <a asp-action="AddSanPham" class="btn btn-success">Thêm sản phẩm <i class="bi bi-plus-circle"></i></a> *@
     </div>
     <div class="col-lg-8 d-flex justify-content-end">
         <div class="col-lg-1" style="padding:0px">

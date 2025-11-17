@@ -4,9 +4,37 @@
     ViewData["Title"] = "AddAnhToMauSac";
 }
 
-<h1>Thêm ảnh sản phẩm theo màu sắc</h1>
-<br />
-<a asp-action="AddSanPham" class="btn btn-primary"><i class="bi bi-chevron-double-left"></i>Quay Lại</a>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            👞 Thông tin chi tiết sản phẩm
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    @* <div class="col-12 col-xl-auto mb-3">
+                    <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
+
+                    <span> 👟 Thêm loại sản phẩm mới </span>
+                    </a>
+                    </div> *@
+
+                </div>
+            </div>
+        </div>
+    </header>
+</div>
+
+@* <a asp-action="AddSanPham" class="btn btn-primary"><i class="bi bi-chevron-double-left"></i>Quay Lại</a> *@
 <form asp-action="UpdateChiTietSanPham" id="myForm">
     <table class="table">
         <thead>
@@ -78,7 +106,25 @@
             }
         </tbody>
     </table>
-    <button class="btn btn-success" type="submit">Submit</button>
+        <div class="mt-4 d-flex justify-content-between">
+            <!-- Button Quay Lại bên trái -->
+            <!-- Button Thêm bên phải -->
+            <div class="form-group">
+                @* <button type="submit" class="btn btn-success">
+                Thêm chi tiết sản phẩm
+                </button> *@
+                <button class="btn btn-success" type="submit">Cập nhật thông tin sản phẩm</button>
+            </div>
+
+            <div>
+                <a class="btn btn-primary" onclick="history.back();">
+                    Quay
+                    lại danh sách
+                </a>
+
+            </div>
+        </div>
+    
 </form>
 
 <script src="/js/jquery-3.3.1.min.js"></script>

@@ -202,6 +202,11 @@ namespace AppView.Controllers
         {
             try
             {
+                // Kiểm tra validation trước khi xử lý
+                if (!ModelState.IsValid)
+                {
+                    return View(sanPhamRequest); // Trả lại view với lỗi validation
+                }
                 //Xóa màu deleted           
                 sanPhamRequest.MauSacs.RemoveAll(XoaMau);
                 //Xoá size deleted
@@ -212,7 +217,7 @@ namespace AppView.Controllers
                 {
                     var temp = response.Content.ReadAsStringAsync().Result;
                     var chiTietSanPham = JsonConvert.DeserializeObject<ChiTietSanPhamUpdateRequest>(temp);
-                    if(!chiTietSanPham.ChiTietSanPhams.Any() || chiTietSanPham.ChiTietSanPhams == null)
+                    if (!chiTietSanPham.ChiTietSanPhams.Any() || chiTietSanPham.ChiTietSanPhams == null)
                     {
                         return RedirectToAction("ProductManager");
                     }
@@ -220,9 +225,17 @@ namespace AppView.Controllers
                     TempData["MauSac"] = JsonConvert.SerializeObject(sanPhamRequest.MauSacs);
                     return RedirectToAction("UpdateChiTietSanPham");
                 }
-                else return BadRequest();
+                else
+                {
+                    ModelState.AddModelError("", "Thêm sản phẩm thất bại. Vui lòng thử lại.");
+                    return BadRequest();
+                }
             }
-            catch { return RedirectToAction("ProductManager"); }
+
+            catch {
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
+                return RedirectToAction("ProductManager"); 
+            } 
         }
         private static bool XoaMau(MauSac mau)
         {

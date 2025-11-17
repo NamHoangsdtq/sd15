@@ -11,13 +11,37 @@
     AppData.Models.AssignmentDBContext dBContext = new AppData.Models.AssignmentDBContext();
 }
 
-<h4>Thêm mới kích cỡ</h4>
-<hr />
-<div>
-    <a asp-action="Show" class="btn btn-primary mb-2"><i class="bi bi-caret-left-fill"></i>Quay Lại</a>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            🔶 Thêm kích cỡ
+                        </h4>
+                   
+            </div>
+        </div>
+            </div>
+        </div>
+    </header>
+
+
+
 </div>
-<div class="row">
-    <div class="col-md-4">
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="m-0">Thông tin kích cỡ </h5>
+    </div>
+
+    <div class="card-body">
         @if (ViewBag.ErrorMessage != null)
         {
             <div class="alert alert-danger">
@@ -36,8 +60,12 @@
 
             <input type="hidden" asp-for="TrangThai" value="1" />
 
-            <div class="form-group">
-                <input type="submit" value="Lưu" class="btn btn-primary" style="margin-top: 10px" />
+            
+            <div class="form-group d-flex align-items-center gap-2 mt-3">
+                <input type="submit" value="Thêm kích cỡ" class="btn btn-success" />
+
+
+                <a asp-action="Show" class="btn btn-primary ">Quay lại danh sách</a>
             </div>
         </form>
     </div>

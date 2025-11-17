@@ -8,136 +8,200 @@
 
     int stt = 1;
 }
-<h1 style="text-align:center"><b>Quản lý khuyến mãi </b></h1>
-<br />
+
 <div class="row mb-3">
-<div class="col-7">
-    <a class="btn btn-success" asp-action="Create">Thêm mới khuyến mãi</a>
-</div>
-<div class="col-5">
-    <form asp-action="TimKiemTenKM" asp-controller="QuanLyKM" method="get" style="margin-left: 30px; text-align:end" enctype="multipart/form-data">
-        <div class="input-group">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            🏷️ Danh sách khuyến mãi
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    <div class="col-12 col-xl-auto mb-3">
+                        <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
+
+                            <span> 🏷️ Thêm mới khuyến mãi</span>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="col-5">
+        <form asp-action="TimKiemTenKM" asp-controller="QuanLyKM" method="get" style="margin-left: 30px; text-align:end" enctype="multipart/form-data">
+            <div class="input-group">
                 <input style="width: 150px;" type="text" name="TenKM" class="form-control" placeholder="Tìm kiếm khuyến mãi">
                 <button type="submit" class="btn btn-outline-info"><i class="bi bi-search"></i></button>
-        </div>
-    </form>
+            </div>
+        </form>
+    </div>
+@* <div class="col-7">
+    <a class="btn btn-success" asp-action="Create">Thêm mới khuyến mãi</a>
+</div> *@
+
 </div>
-</div>
-<table class="table">
-    <thead>
-        <tr>
-            <th style=" background-color: #3b83ff;
-    color: white;">STT</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Mã</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Giá trị</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Ngày áp dụng</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">ngày kết thúc</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Mô tả</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Tình trạng</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Trạng thái</th>
-            <th style=" background-color: #3b83ff;
-    color: white;"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.listkms)
-        {
-            <tr>
-                <td>
-                    <strong style="color:black">@stt</strong>
-                </td>
 
-                <td>
-                    @item.Ten
-                </td>
-                <td>
-                    @if (item.TrangThai == 0 || item.TrangThai == 2)
-                    {
-                        <div style="color:blueviolet">@item.GiaTri.ToString("n0") VND</div>
-                    }
-                    else if (item.TrangThai == 1 || item.TrangThai == 3)
-                    {
-                        <div style="color:green">@item.GiaTri %</div>
-                    }
-                </td>
-                <td>
-                    <div style="color:green">@item.NgayApDung.ToString("dd/MM/yyyy HH:mm")</div>
-                </td>
-                <td>
-                    @if (item.NgayKetThuc >= DateTime.Now)
-                    {
-                        <div style="color:green">@item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</div>
-                    }
-                    else
-                    {
-                        <div style="color:red">@item.NgayKetThuc</div>
-                    }
-
-                </td>
-                <td>
-                    <div style="color:black">@item.MoTa</div>
-                </td>
-                <td>
-                    @{
-                        if (item.NgayKetThuc >= DateTime.Now)
-                        {
-                            <div style="color:green">Còn khuyến mãi</div>
-                        }
-                        else
-                        {
-                            <div style="color:red">Hết khuyến mãi</div>
-                        }
-                    }
-
-                </td>
-                <td>
-                    @if (item.TrangThai == 0 || item.TrangThai == 1)
-                    {
-                        <div style="color:green">Sử dụng </div>
-                    }
-                    else if (item.TrangThai == 2 || item.TrangThai == 3)
-                    {
-                        <div style="color:red">Dừng</div>
-                    }
-                </td>
-
-                <td style="display: flex; justify-content: space-between; align-items: center;">
-                    <button class="btn btn-info">
-                        @Html.ActionLink("Sửa", "Update", new { id = item.ID }, new { @style = "color:black;" })
-                    </button>
-
+<div class="card mb-4">
+    <div class="card-body">
+        <table class="table">
+            <thead style="background-color: #ffffff;">
+                <tr>
+                    <th class="text-secondary fw-semibold">STT</th>
+                    <th class="text-secondary fw-semibold">Mã </th>
+                   
+                    <th class="text-secondary fw-semibold">Giá trị</th>
+                    <th class="text-secondary fw-semibold">Ngày áp dụng</th>
+                    <th class="text-secondary fw-semibold">Ngày kết thúc</th>
                     
-                    @if (item.TrangThai == 0 || item.TrangThai == 1)
-                    {
-                        <button class="btn btn-primary">
-                            @Html.ActionLink("Chi tiết", "GetSPByIdKM", new { id = item.ID }, new { @style = "color:white;" })
-                        </button>
-                        <button class="btn btn-danger">
-                            @Html.ActionLink("Dừng", "KoSuDung", new { id = item.ID }, new { @style = "color:white;" })
-                        </button>
+                    <th class="text-secondary fw-semibold">Mô tả</th>
+                    <th class="text-secondary fw-semibold">Tình trạng</th>
+                    <th class="text-secondary fw-semibold">Trạng thái</th>
+                    
+                </tr>
+               
+                
+            </thead>
 
-                    }
-                    else if (item.TrangThai == 2 || item.TrangThai == 3)
-                    {
-                        <button class="btn btn-success">
-                            @Html.ActionLink("Sử dụng", "SuDung", new { id = item.ID }, new { @style = "color:white;" })
-                        </button>
-                    }
+            <tbody>
+                @foreach (var item in Model.listkms)
+                {
+                    <tr>
+                        <td>
+                            <strong style="color:black">@stt</strong>
+                        </td>
 
-                </td> @{
-                    stt++;
+                        <td>
+                            @item.Ten
+                        </td>
+                        <td>
+                            @if (item.TrangThai == 0 || item.TrangThai == 2)
+                            {
+                                <div style="color:blueviolet">@item.GiaTri.ToString("n0") VND</div>
+                            }
+                            else if (item.TrangThai == 1 || item.TrangThai == 3)
+                            {
+                                <div style="color:green">@item.GiaTri %</div>
+                            }
+                        </td>
+                        <td>
+                            <div style="color:green">@item.NgayApDung.ToString("dd/MM/yyyy HH:mm")</div>
+                        </td>
+                        <td>
+                            @if (item.NgayKetThuc >= DateTime.Now)
+                            {
+                                <div style="color:green">@item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</div>
+                            }
+                            else
+                            {
+                                <div style="color:red">@item.NgayKetThuc</div>
+                            }
+
+                        </td>
+                        <td>
+                            <div style="color:black">@item.MoTa</div>
+                        </td>
+                        <td>
+                            @{
+                                if (item.NgayKetThuc >= DateTime.Now)
+                                {
+                                    <div style="color:green">Còn khuyến mãi</div>
+                                }
+                                else
+                                {
+                                    <div style="color:red">Hết khuyến mãi</div>
+                                }
+                            }
+
+                        </td>
+                        <td>
+                            @if (item.TrangThai == 0 || item.TrangThai == 1)
+                            {
+                                <div style="color:green">Sử dụng </div>
+                            }
+                            else if (item.TrangThai == 2 || item.TrangThai == 3)
+                            {
+                                <div style="color:red">Dừng</div>
+                            }
+                        </td>
+                        <td style="display: flex; gap: 8px; align-items: center;">
+
+                            <!-- Sửa -->
+                            <a href="@Url.Action("Update", new { id = item.ID })"
+                               class="btn btn-warning text-dark" title="Sửa">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+
+                            @if (item.TrangThai == 0 || item.TrangThai == 1)
+                            {
+                                <!-- Chi tiết -->
+                                <a href="@Url.Action("GetSPByIdKM", new { id = item.ID })"
+                                   class="btn btn-info text-white" title="Chi tiết">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+
+                                <!-- Dừng -->
+                                <a href="@Url.Action("KoSuDung", new { id = item.ID })"
+                                   class="btn btn-danger text-white" title="Dừng">
+                                    <i class="fa-solid fa-ban"></i>
+                                </a>
+                            }
+                            else if (item.TrangThai == 2 || item.TrangThai == 3)
+                            {
+                                <!-- Sử dụng -->
+                                <a href="@Url.Action("SuDung", new { id = item.ID })"
+                                   class="btn btn-success text-white" title="Sử dụng">
+                                    <i class="fa-solid fa-play"></i>
+                                </a>
+                            }
+
+                        </td>
+
+
+
+                        @* <td style="display: flex; justify-content: space-between; align-items: center;">
+                            <button class="btn btn-info">
+                                @Html.ActionLink("Sửa", "Update", new { id = item.ID }, new { @style = "color:black;" })
+                            </button>
+
+
+                            @if (item.TrangThai == 0 || item.TrangThai == 1)
+                            {
+                                <button class="btn btn-primary">
+                                    @Html.ActionLink("Chi tiết", "GetSPByIdKM", new { id = item.ID }, new { @style = "color:white;" })
+                                </button>
+                                <button class="btn btn-danger">
+                                    @Html.ActionLink("Dừng", "KoSuDung", new { id = item.ID }, new { @style = "color:white;" })
+                                </button>
+
+                            }
+                            else if (item.TrangThai == 2 || item.TrangThai == 3)
+                            {
+                                <button class="btn btn-success">
+                                    @Html.ActionLink("Sử dụng", "SuDung", new { id = item.ID }, new { @style = "color:white;" })
+                                </button>
+                            }
+
+                        </td> *@ @{
+                            stt++;
+                        }
+                    </tr>
                 }
-            </tr>
-        }
-    </tbody>
-</table>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
 <div class="col-12">
     <nav>
         <ul class="pagination justify-content-center">

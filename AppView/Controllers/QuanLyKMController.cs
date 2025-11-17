@@ -125,7 +125,19 @@ namespace AppView.Controllers
             var response1 = await _httpClient.GetAsync(apiURL1);
             var apiData1 = await response1.Content.ReadAsStringAsync();
             var bienthes = JsonConvert.DeserializeObject<List<AllViewCTSP>>(apiData1);
-            var idkhuyenmai = Guid.Parse(HttpContext.Session.GetString("IdKhuyenMai"));
+
+
+            //var idkhuyenmai = Guid.Parse(HttpContext.Session.GetString("IdKhuyenMai"));
+            var idKMString = HttpContext.Session.GetString("IdKhuyenMai");
+
+            if (string.IsNullOrEmpty(idKMString))
+            {
+                // Xử lý khi session chưa có → ví dụ chuyển hướng hoặc báo lỗi
+                return RedirectToAction("GetAllKM", "QuanLyKM");
+            }
+
+            var idkhuyenmai = Guid.Parse(idKMString);
+
             ViewBag.IdKhuyenMai = idkhuyenmai;
             return View(new PhanTrangCTSPBySP
             {
@@ -501,7 +513,16 @@ namespace AppView.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSPNoKM(int ProductPage = 1)
         {
-            var idkhuyenmai = Guid.Parse(HttpContext.Session.GetString("IdKhuyenMai"));          
+            var idKMString = HttpContext.Session.GetString("IdKhuyenMai");
+
+            if (string.IsNullOrEmpty(idKMString))
+            {
+                // Xử lý khi session chưa có → ví dụ chuyển hướng hoặc báo lỗi
+                return RedirectToAction("GetAllKM", "QuanLyKM");
+            }
+
+            var idkhuyenmai = Guid.Parse(idKMString);
+
             ViewBag.IdKhuyenMai = idkhuyenmai;
             // // list AllViewsp
             string apiURL1 = $"https://localhost:7095/api/KhuyenMai/GetAllSPNoKM?id={idkhuyenmai}";

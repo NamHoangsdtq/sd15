@@ -4,22 +4,51 @@
     ViewData["Title"] = "Thêm chi tiết sản phẩm";
 }
 
-<h1>Thêm chi tiết sản phẩm</h1>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
 
-<hr />
-<div class="row">
-    <div>
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            👟 Thêm chi tiết sản phẩm
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    @* <div class="col-12 col-xl-auto mb-3">
+                    <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
+
+                    <span> 👟 Thêm loại sản phẩm mới </span>
+                    </a>
+                    </div> *@
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+</div>
+<div class="card shadow-sm">
+    <div class="card-header">
         <form asp-action="AddChiTietSanPham">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <!-- Nút Quay Lại bên trái -->
                 <div class="col-auto">
-                    <a class="btn btn-primary" onclick="history.back();">
+                    @* <a class="btn btn-primary" onclick="history.back();">
                         <i class="bi bi-caret-left-fill"></i> Quay Lại
-                    </a>
+                    </a> *@
                 </div>
                 <!-- Nút Create bên phải -->
                 <div class="form-group">
-                    <input type="submit" value="Thêm" class="btn btn-success" />
+                    @* <input type="submit" value="Thêm" class="btn btn-success" /> *@
                 </div>
             </div>
             <div class ="row">
@@ -60,6 +89,23 @@
                    
                 </div>
                 <datalist id="kichCo"></datalist>
+            </div>
+            <div class="mt-4 d-flex justify-content-between">
+                <!-- Button Quay Lại bên trái -->
+                <!-- Button Thêm bên phải -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">
+                        Thêm chi tiết sản phẩm
+                    </button>
+                </div>
+
+                <div>
+                    <a asp-action="ProductManager" class="btn btn-primary" onclick="history.back();">
+                        Quay
+                        lại danh sách
+                    </a>
+                    
+                </div>
             </div>
         </form>
     </div>

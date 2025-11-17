@@ -196,6 +196,29 @@
                 </div>
             </div>
 
+            <!-- FORM THANH TOÁN CHUYỂN KHOẢN -->
+            <div id="chuyenkhoan" style="display:none">
+                <div class="d-flex flex-row lh-1">
+                   
+
+                </div>
+
+                <div class="mt-4 text-center">
+                    <!-- Thông tin tài khoản -->
+                    <div class="fw-bold mb-3" style="font-size: 1.2rem; color: #000;">
+                        Ngân hàng ACB - 1045690195 - KENI SHOP
+                    </div>
+
+                    <!-- Ảnh QR -->
+                    <img src="~/img/qrcode (2).png"
+                         alt="QR Chuyển khoản"
+                         class="img-fluid rounded border p-2"
+                         style="width:220px; height:220px;">
+                </div>
+
+            </div>
+
+
         }
     </form>
     <div class="d-flex flex-column mt-auto">
@@ -406,6 +429,16 @@
                 $("#khachdua").val('');
                 $("#tientrakhach").text('');
             }
+
+        if (pttt === "Tiền mặt") {
+            $("#tienmat").css('display', 'block');
+            $("#tienmattrakhach").css('display', 'block');
+            $("#chuyenkhoan").css('display', 'none');  // ẨN FORM CK
+        } else {
+            $("#tienmat").css('display', 'none');
+            $("#tienmattrakhach").css('display', 'none');
+            $("#chuyenkhoan").css('display', 'block');  // HIỆN FORM CK
+        }
             TinhTien();
         }
         function khachDua(value){

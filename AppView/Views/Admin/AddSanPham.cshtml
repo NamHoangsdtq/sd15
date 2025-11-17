@@ -4,29 +4,45 @@
     ViewData["Title"] = "AddSanPham";
 }
 
-<h1>Thêm sản phẩm</h1>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
 
-<hr />
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            👟 Thêm sản phẩm
+                        </h4>
+                    </div>
 
+                    <!-- Right button -->
+                    @* <div class="col-12 col-xl-auto mb-3">
+                        <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
 
-<div class="row">
-    <div class="col-md-12">
-        <form asp-action="AddSanPham" enctype="multipart/form-data">
-            <div class="d-flex justify-content-between mb-4">
-                <!-- Button Quay Lại bên trái -->
-                <div>
-                    <a asp-action="ProductManager" class="btn btn-primary">
-                        <i class="bi bi-caret-left-fill"></i> Quay
-                        Lại
-                    </a>
-                </div>
-                <!-- Button Thêm bên phải -->
-                <div class="form-group">
-                    <button type="submit" class="btn btn-success" onclick="return confirmAddSanPham()">
-                        Thêm <i class="bi bi-plus-circle"></i>
-                    </button>
+                            <span> 👟 Thêm loại sản phẩm mới </span>
+                        </a>
+                    </div> *@
+
                 </div>
             </div>
+        </div>
+    </header>
+
+
+
+</div>
+
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="m-0">Thông tin  sản phẩm </h5>
+        <form asp-action="AddSanPham" enctype="multipart/form-data">
+           
             <div class="row">
                 <!-- Left Form -->
                 <div class="col-md-6">
@@ -52,6 +68,7 @@
                         <input asp-for="TenLoaiSPCha" class="form-control mb-2" list="loaiSPCha" id="ipLoaiSPCha"
                                autocomplete="off" />
                         <datalist id="loaiSPCha"></datalist>
+                        <span asp-validation-for="TenLoaiSPCha" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label class="control-label">Loại sản phẩm con</label>
@@ -110,6 +127,23 @@
                         </button>
                     </div>
                     <datalist id="kichCo"></datalist>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <!-- Button Quay Lại bên trái -->
+                        <!-- Button Thêm bên phải -->
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success" onclick="return confirmAddSanPham()">
+                                Thêm sản phẩm 
+                            </button>
+                        </div>
+
+                        <div>
+                            <a asp-action="ProductManager" class="btn btn-primary">
+                                Quay
+                                lại danh sách
+                            </a>
+                        </div>
+                    </div>
+                   
                 </div>
             </div>
         </form>
@@ -222,6 +256,13 @@
         element.remove();
     }
     function themMauSac() {
+        if (countMauSac > 0) {
+            var prevInput = document.getElementById("tenMau" + (countMauSac - 1));
+            if (prevInput && prevInput.value.trim() === "") {
+                prevInput.focus(); // giữ focus
+                return; // giữ trạng thái nút thêm, không tạo dòng mới
+            }
+        }
         $("#tbbody").append("<tr id='mau" + countMauSac + "'><td style='width:70%'> <input name='MauSacs[" + countMauSac + "].Ten' class='form-control' list='mauSac' id='tenMau" + countMauSac + "' onchange='changeTenMau(" + countMauSac + ")' autocomplete=\"off\" /></td><td style='width: 45.6px'><input name='MauSacs[" + countMauSac + "].Ma' type='color' onchange='changeMaMau(" + countMauSac + ")' class='form-control' id='maMau" + countMauSac + "' style='height: 41.6px;width:100%' /></td><td style='width: 50px'><button type='button' class='form-control btn btn-outline-danger' hidden id='xoamau" + countMauSac + "' onclick='xoaMau(" + countMauSac + ")'><i class='bi bi-trash'></i></button></td></tr > ");
         document.getElementById("xoamau" + (countMauSac - 1)).hidden = false;
         countMauSac++;
@@ -235,6 +276,7 @@
         document.getElementById("tenkc" + count).value = 'Deleted';
     }
     function confirmAddSanPham() {
+
         return window.confirm("Bạn có chắc chắn muốn thêm sản phẩm không?");
     }
 </script>

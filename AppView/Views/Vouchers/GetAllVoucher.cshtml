@@ -5,12 +5,40 @@ ViewData["Title"] = "GetAllVoucher";
 int stt = 1;
 }
 
-<h1 style="text-align:center"><b>Quản lý Voucher </b></h1>
+
+
 
 <div class="row mb-3">
-  <div class="col-7">
-    <a class="btn btn-success" asp-action="Create">Thêm mới</a>
-  </div>
+ 
+
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            🎫 Danh sách voucher
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    <div class="col-12 col-xl-auto mb-3">
+                        <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
+                            
+                            <span> 🎫 Thêm voucher mới</span>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
   <div class="col-5">
         <form asp-action="TimKiemTenVC" asp-controller="Vouchers" method="get" style="margin-left: 30px; text-align:end" enctype="multipart/form-data">
             <div class="input-group">
@@ -20,137 +48,131 @@ int stt = 1;
         </form>
   </div>
 </div>
-
+<div class="card mb-4">
+    <div class="card-body">
 <table class="table">
-  <thead>
-    <tr>
-      <th style=" background-color: #3b83ff;
-    color: white;">STT</th>
-      <th style=" background-color: #3b83ff;
-    color: white;">Mã Voucher</th>
-      <th style=" background-color: #3b83ff;
-    color: white;">Hình thức giảm giá</th>
-      <th style=" background-color: #3b83ff;
-    color: white;">Số tiền cần</th>
-      <th style=" background-color: #3b83ff;
-    color: white;">Giá trị</th>
-      <th style=" background-color: #3b83ff;
-    color: white;">Ngày áp dụng</th>
-      <th style=" background-color: #3b83ff;
-    color: white;">Ngày kết thúc</th>
-      <th style=" background-color: #3b83ff;
-    color: white;">Số lượng</th>
-      <th style=" background-color: #3b83ff;
-    color: white;">Mô tả</th>
-      <th style=" background-color: #3b83ff;
-    color: white;">Tình trạng</th>
-      <th style=" background-color: #3b83ff;
-    color: white;">Trạng thái </th>
-      <th style=" background-color: #3b83ff;
-    color: white;"> </th>
-    </tr>
-  </thead>
-  <tbody>
-    @foreach (var item in Model.listvouchers)
-    {
-    <tr>
-      <td>
-        <strong style="color:black">@stt</strong>
-      </td>
+            <thead style="background-color: #ffffff;">
+                <tr>
+                    <th class="text-secondary fw-semibold">STT</th>
+                    <th class="text-secondary fw-semibold">Mã Voucher</th>
+                    <th class="text-secondary fw-semibold">Hình thức giảm giá</th>
+                    <th class="text-secondary fw-semibold">Số tiền cần</th>
+                    <th class="text-secondary fw-semibold">Giá trị</th>
+                    <th class="text-secondary fw-semibold">Ngày áp dụng</th>
+                    <th class="text-secondary fw-semibold">Ngày kết thúc</th>
+                    <th class="text-secondary fw-semibold">Số lượng</th>
+                    <th class="text-secondary fw-semibold">Mô tả</th>
+                    <th class="text-secondary fw-semibold">Tình trạng</th>
+                    <th class="text-secondary fw-semibold">Trạng thái</th>
+                    <th class="text-secondary fw-semibold">Hành động</th>
+                </tr>
+            </thead>
 
-      <td>
-        @item.Ten
-      </td>
-      <td>
-        @if(item.HinhThucGiamGia==0){
-        <div style="color:red">Giảm Theo Tiền Mặt</div>
-        }
-        else{
-        <div style="color:green">Giảm Theo Phần Trăm</div>
-        }
+            <tbody>
+                @foreach (var item in Model.listvouchers)
+                {
+                    <tr>
+                        <td><strong>@stt</strong></td>
 
-      </td>
-      <td>
-        <div style="color:green">@item.SoTienCan.ToString("n0") VND</div>
-      </td>
-      <td>
-        @if (item.HinhThucGiamGia == 0)
-        {
-        <div style="color:red">@item.GiaTri.ToString("n0") VND</div>
-        }
-        else
-        {
-        <div style="color:green">@item.GiaTri %</div>
-        }
-      </td>
-      <td>
-        <div style="color:green">@item.NgayApDung.ToString("dd/MM/yyyy HH:mm")</div>
-      </td>
-      <td>
-        @if (item.NgayKetThuc >= DateTime.Now)
-        {
-        <div style="color:green">@item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</div>
-        }
-        else
-        {
-        <div style="color:red">@item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</div>
-        }
+                        <td>@item.Ten</td>
 
-      </td>
-      <td>
-        <div style="color:red">@item.SoLuong</div>
-      </td>
-      <td>
-        <div style="color:black">@item.MoTa</div>
-      </td>
-      <td>
-        @{
-        if (item.NgayKetThuc >= DateTime.Now&&item.SoLuong>0)
-        {
-        <div style="color:green">Còn khuyến mãi</div>
-        }
-        else
-        {
-        <div style="color:red">Hết Khuyến mãi</div>
-        }
-        }
+                        <td>
+                            @if (item.HinhThucGiamGia == 0)
+                            {
+                                <span class="badge bg-danger-subtle text-danger fw-semibold">
+                                    Giảm tiền mặt
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success-subtle text-success fw-semibold">
+                                    Giảm phần trăm
+                                </span>
+                            }
+                        </td>
 
-      </td>
-      <td>
-        @{
-        if (item.TrangThai ==1)
-        {
-        <div style="color:green"> Sử dụng </div>
-        }
-        else
-        {
-        <div style="color:red">Không sử dụng</div>
-        }
-        }
-      </td>
-      <td>
-        <button class="btn btn-info">
-          @Html.ActionLink("Sửa", "Updates", new { id = item.Id }, new { @style = "color:black;" })
-        </button>
-        @if(item.TrangThai==1){
-        <button class="btn btn-danger">
-          @Html.ActionLink("Không sử dụng", "KoSuDung", new { id = item.Id }, new { @style = "color:white;" })
-        </button>
-        }
-        else{
-        <button class="btn btn-success">
-          @Html.ActionLink("Sử dụng", "SuDung", new { id = item.Id }, new { @style = "color:white;" })
-        </button>
-        }
-                  
-      </td> 
-      @{
-      stt++;
-      }
-    </tr>
-    }
-  </tbody>
+                        <td>@item.SoTienCan.ToString("n0") VND</td>
+
+                        <td>
+                            @if (item.HinhThucGiamGia == 0)
+                            {
+                                <span class="text-danger fw-semibold">@item.GiaTri.ToString("n0") VND</span>
+                            }
+                            else
+                            {
+                                <span class="text-success fw-semibold">@item.GiaTri%</span>
+                            }
+                        </td>
+
+                        <td>@item.NgayApDung.ToString("dd/MM/yyyy HH:mm")</td>
+
+                        <td>
+                            @if (item.NgayKetThuc >= DateTime.Now)
+                            {
+                                <span class="text-success fw-semibold">@item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger fw-semibold">@item.NgayKetThuc.ToString("dd/MM/yyyy HH:mm")</span>
+                            }
+                        </td>
+
+                        <td><span class="fw-semibold">@item.SoLuong</span></td>
+
+                        <td>@item.MoTa</td>
+
+                        <td>
+                            @if (item.NgayKetThuc >= DateTime.Now && item.SoLuong > 0)
+                            {
+                                <span class="badge bg-success-subtle text-success">Còn KM</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger-subtle text-danger">Hết KM</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.TrangThai == 1)
+                            {
+                                <span class="badge bg-success">Đang dùng</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Không dùng</span>
+                            }
+                        </td>
+
+                        <td class="text-nowrap">
+
+                            <!-- Nút sửa -->
+                            <a asp-action="Updates" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+
+                            <!-- Nút đổi trạng thái -->
+                            @if (item.TrangThai == 1)
+                            {
+                                <a asp-action="KoSuDung" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-action="SuDung" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-check-circle"></i>
+                                </a>
+                            }
+                        </td>
+                    </tr>
+
+                    stt++;
+                }
+            </tbody>
+
 </table>
+    </div>
+</div>
 <div class="col-12">
   <nav>
     <ul class="pagination justify-content-center">
@@ -164,3 +186,9 @@ int stt = 1;
     </ul>
   </nav>
 </div>
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+   
+}
+
