@@ -1,0 +1,125 @@
+﻿@model AppData.Models.HoaDon
+@{
+    ViewData["Title"] = "Trạng thái đơn hàng " + Model.MaHD;
+    Layout = "_Layout"; // Dùng layout chung của website
+
+    // --- Tính toán tiền voucher ---
+    int subtotal = 0;
+    if (Model.ChiTietHoaDons != null)
+    {
+        subtotal = Model.ChiTietHoaDons.Sum(item => (int)(item.DonGia * item.SoLuong));
+    }
+
+    int tienGiamVoucher = 0;
+    string tenVoucher = "";
+
+    if (Model.Voucher != null)
+    {
+        tenVoucher = $"({Model.Voucher.Ten})";
+
+        // === LOGIC ĐÃ ĐƯỢC SỬA LẠI ===
+        // Dựa trên JSON, hinhThucGiamGia == 0 LÀ giảm thẳng
+        if (Model.Voucher.HinhThucGiamGia == 0)
+        {
+            tienGiamVoucher = Model.Voucher.GiaTri;
+        }
+        else // HinhThucGiamGia == 1 (hoặc khác) LÀ giảm %
+        {
+            tienGiamVoucher = (subtotal * Model.Voucher.GiaTri) / 100;
+        }
+        // =============================
+    }
+    // --- Kết thúc tính toán ---
+}
+
+@functions {
+    public string GetTrangThaiText(int trangThai)
+    {
+        switch (trangThai)
+        {
+            case 1: return "Đơn nháp";
+            case 2: return "Chờ xác nhận";
+            case 3: return "Đang giao hàng";
+            case 4: return "Đang hoàn hàng";
+            case 5: return "Hoàn hàng thành công";
+            case 6: return "Giao hàng thành công";
+            case 7: return "Đơn hủy";
+            case 8: return "Chờ xác nhận hủy";
+            case 9: return "Chờ xác nhận hoàn hàng";
+            case 10: return "Đã xác nhận";
+            case 11: return "Giao không thành công";
+            default: return "Không xác định";
+        }
+    }
+}
+
+<div class="container" style="margin-top: 30px; margin-bottom: 30px;">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h3>Chi tiết đơn hàng: @Model.MaHD</h3>
+            <p>Cảm ơn bạn đã đặt hàng! Dưới đây là thông tin đơn hàng của bạn.</p>
+            <hr />
+
+            <div class="alert alert-info" role="alert">
+                <strong>Trạng thái đơn hàng:</strong> @GetTrangThaiText(Model.TrangThaiGiaoHang)
+            </div>
+
+            <h4>Thông tin nhận hàng</h4>
+            <p><strong>Người nhận:</strong> @Model.TenNguoiNhan</p>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Địa chỉ:</strong> @Model.DiaChi</p>
+            <p><strong>Số điện thoại:</strong> @Model.SDT</p>
+
+            <h4 style="margin-top: 20px;">Các sản phẩm đã đặt</h4>
+            <ul class="list-group">
+                @if (Model.ChiTietHoaDons != null)
+                {
+                    foreach (var item in Model.ChiTietHoaDons)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                @if (item.ChiTietSanPham != null && item.ChiTietSanPham.SanPham != null)
+                                {
+                                    <strong>@item.ChiTietSanPham.SanPham.Ten</strong>
+                                }
+                                else
+                                {
+                                    <strong>(Sản phẩm không xác định)</strong>
+                                }
+                                <br>
+                                <small>Số lượng: @item.SoLuong</small>
+                            </div>
+                            <span>@item.DonGia.ToString("N0") VNĐ</span>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="list-group-item">Không có thông tin chi tiết sản phẩm.</li>
+                }
+            </ul>
+
+            <hr />
+            <div style="text-align: right;">
+                <p style="font-size: 1.1em;">
+                    <strong>Tiền hàng:</strong> @subtotal.ToString("N0") VNĐ
+                </p>
+                <p style="font-size: 1.1em;">
+                    <strong>Phí vận chuyển:</strong> @Model.TienShip.ToString("N0") VNĐ
+                </p>
+
+                @if (tienGiamVoucher > 0)
+                {
+                    <p style="font-size: 1.1em;">
+                        <strong>Voucher:</strong>
+                        <span style="color: #28a745;">-@tienGiamVoucher.ToString("N0") VNĐ</span>
+                    </p>
+                }
+            </div>
+            <h4 style="margin-top: 20px; text-align: right;">
+                Tổng tiền: <span style="color: red;">@Model.TongTien.Value.ToString("N0") VNĐ</span>
+            </h4>
+
+        </div>
+    </div>
+</div>

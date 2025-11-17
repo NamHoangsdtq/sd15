@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using MailKit.Net.Smtp;
 
-
 namespace AppAPI.Services
 {
     public class MailServices : IMailServices
@@ -14,23 +13,32 @@ namespace AppAPI.Services
         {
             _mailSettings = mailSettingsOptions.Value;
         }
+
         public async Task<bool> SendMail(MailData mailData)
         {
             try
             {
-                using(MimeMessage emailMessage = new MimeMessage())
+                using (MimeMessage emailMessage = new MimeMessage())
                 {
                     MailboxAddress emailFrom = new MailboxAddress(_mailSettings.SenderName, _mailSettings.SenderEmail);
                     emailMessage.From.Add(emailFrom);
+
                     MailboxAddress emailTo = new MailboxAddress(mailData.EmailToName, mailData.EmailToId);
                     emailMessage.To.Add(emailTo);
-                    emailMessage.Cc.Add(new MailboxAddress("Cc Receiver", "cc@example.com"));
-                    emailMessage.Bcc.Add(new MailboxAddress("Bcc Receiver", "bcc@example.com"));
+
+                    // (Đã xóa 2 dòng Cc và Bcc)
+
                     emailMessage.Subject = mailData.EmailSubject;
+
                     BodyBuilder emailBodyBuilder = new BodyBuilder();
-                    emailBodyBuilder.TextBody = mailData.EmailBody;
+
+                    // === SỬA DÒNG NÀY ===
+                    emailBodyBuilder.HtmlBody = mailData.EmailBody; // Đổi từ TextBody sang HtmlBody
+                                                                    // ===================
+
                     emailMessage.Body = emailBodyBuilder.ToMessageBody();
-                    using(SmtpClient mailClient = new SmtpClient())
+
+                    using (SmtpClient mailClient = new SmtpClient())
                     {
                         await mailClient.ConnectAsync(_mailSettings.Server, _mailSettings.Port, MailKit.Security.SecureSocketOptions.StartTls);
                         await mailClient.AuthenticateAsync(_mailSettings.UserName, _mailSettings.Password);
@@ -42,6 +50,7 @@ namespace AppAPI.Services
             }
             catch (Exception ex)
             {
+                // Nếu có lỗi, bạn nên ghi log lại (ex.Message)
                 return false;
             }
         }

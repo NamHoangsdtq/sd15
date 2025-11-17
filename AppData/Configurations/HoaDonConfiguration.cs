@@ -19,6 +19,8 @@ namespace AppData.Configurations
             builder.Property(x => x.GhiChu).HasColumnType("nvarchar(100)");
             builder.Property(x => x.TienShip).HasColumnType("int");
             builder.Property(x => x.TrangThaiGiaoHang).HasColumnType("int");
+            builder.Property(x => x.TrackingToken);
+            builder.HasIndex(x => x.TrackingToken).IsUnique();
             builder.HasOne(x => x.NhanVien).WithMany(x => x.HoaDons).HasForeignKey(x => x.IDNhanVien);
             builder.HasOne(x => x.Voucher).WithMany(x => x.HoaDons).HasForeignKey(x => x.IDVoucher);
         }

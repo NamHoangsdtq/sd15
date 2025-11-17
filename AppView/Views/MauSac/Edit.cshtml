@@ -6,7 +6,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
 }
 
 <h1>Chỉnh sửa màu sắc</h1>
@@ -22,50 +22,73 @@
                 @ViewBag.ErrorMessage
             </div>
         }
-        <form asp-action="Edit">
+        <form asp-action="Edit" id="editForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group" hidden>
                 <label asp-for="ID" class="control-label"></label>
                 <input asp-for="ID" class="form-control" />
                 <span asp-validation-for="ID" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Ten" class="control-label">Tên màu</label>
-                <input asp-for="Ten" class="form-control" autocomplete="off" />
-                <div id="emptyNameError" class="invalid-feedback d-none">Vui lòng nhập tên màu sắc!</div>
+                <input asp-for="Ten" class="form-control" autocomplete="off" id="TenInput" />
+                <div class="invalid-feedback">Vui lòng nhập tên màu sắc!</div>
             </div>
+
             <div class="form-group">
                 <label asp-for="Ma" class="control-label">Mã màu</label>
-                <input asp-for="Ma" type="color" class="form-control" style="width: 150px;" />
-                <div id="emptyNameError" class="invalid-feedback d-none">Vui lòng chọn mã màu sắc !</div>
+                <input asp-for="Ma" type="color" class="form-control" style="width: 150px;" id="MaInput" />
+                <div class="invalid-feedback">Vui lòng chọn mã màu sắc!</div>
             </div>
+
             <div class="form-group" hidden>
                 <label asp-for="TrangThai" class="control-label"></label>
-                <input asp-for="TrangThai" class="form-control" value="1"/>
-                <span asp-validation-for="TrangThai" class="text-danger"></span>
+                <input asp-for="TrangThai" class="form-control" value="1" />
             </div>
+
             <div class="form-group">
                 <input type="submit" value="Lưu" class="btn btn-success" style="margin-top: 10px" />
             </div>
         </form>
     </div>
 </div>
+
 <script>
-    $("input[name='Ten']").on("input", function () {
-        $(this).removeClass("is-invalid");
-        $("#emptyNameError").text("");
-    });
-    $("form").submit(function () {
-        var tenInput = $("input[name='Ten']");
-        var tenValue = tenInput.val();
-        if (tenValue.trim() === "") {
-            tenInput.addClass("is-invalid");
-            $("#emptyNameError").text("Tên không được bỏ trống");
-            return false;
-        }
-        return true;
+    $(document).ready(function () {
+        // 1. Khi người dùng nhập lại vào ô Tên, xóa class lỗi đi
+        $("#TenInput").on("input", function () {
+            $(this).removeClass("is-invalid");
+        });
+
+        // 2. Xử lý khi bấm nút Submit (Lưu)
+        $("#editForm").submit(function (e) {
+            var tenInput = $("#TenInput");
+            var tenValue = tenInput.val();
+
+            // Kiểm tra Tên có trống không
+            if (tenValue.trim() === "") {
+                tenInput.addClass("is-invalid"); // Thêm class này để hiện dòng chữ đỏ
+                e.preventDefault(); // Chặn không cho gửi form
+                return false;
+            }
+
+            // Nếu muốn kiểm tra Mã (với trường hợp input type="text")
+            // var maInput = $("#MaInput");
+            // if (maInput.val().trim() === "") {
+            //    maInput.addClass("is-invalid");
+            //    e.preventDefault();
+            //    return false;
+            // }
+
+            return true; // Cho phép gửi form
+        });
     });
 </script>
+
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
