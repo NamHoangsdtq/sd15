@@ -12,9 +12,10 @@
          ".png", ".jpg", ".jpeg", ".gif", ".tiff", ".pdf",".webp",".jfif"
     };
 }
-<button class="btn btn-primary mb-2">
-    @Html.ActionLink("Quay lại", "GetSPByIdKM", new { ID = idkm }, new { @style = "color:white;" })
-</button>
+<a class="btn btn-primary mb-3" href="@Url.Action("GetSPByIdKM", new { ID = idkm })">
+    <i class="fa-solid fa-arrow-left"></i> Quay lại
+</a>
+
 
 <table class="table">
     <thead>
@@ -196,13 +197,26 @@
         </ul>
     </nav>
 </div>
-<button id="selectAllCheckbox" class="btn btn-info mb-2">Chọn tất cả</button>
+@* <button id="selectAllCheckbox" class="btn btn-info mb-2"><i class="fa-solid fa-check-double"></i> Chọn tất cả</button>
 
 <br />
 <div class="form-group">
-    <button id="updateButton" class="btn btn-success">Thêm sản phẩm khuyến mãi</button> <button id="XoaButton" class="btn btn-danger">Không áp dụng khuyến mãi</button>
+    <button id="updateButton" class="btn btn-success"> <i class="fa-solid fa-plus"></i>Thêm sản phẩm khuyến mãi</button> <button id="XoaButton" class="btn btn-danger"> <i class="fa-solid fa-xmark"></i>Không áp dụng khuyến mãi</button>
 </div>
-<br />
+<br /> *@
+<div class="d-flex gap-2 mt-3">
+    <button id="selectAllCheckbox" class="btn btn-info">
+        <i class="fa-solid fa-check-double"></i> Chọn tất cả
+    </button>
+
+    <button id="updateButton" class="btn btn-success">
+        <i class="fa-solid fa-plus"></i> Thêm sản phẩm khuyến mãi
+    </button>
+
+    <button id="XoaButton" class="btn btn-danger">
+        <i class="fa-solid fa-xmark"></i> Không áp dụng khuyến mãi
+    </button>
+</div>
 
 <script src="~/js/jquery-3.3.1.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

@@ -5,13 +5,42 @@
     Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
     int stt = 1;
 }
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
 
-<h1 style="text-align:center">
-    <b>Quản lý khách hàng</b>
-</h1>
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            🧑‍🤝‍🧑 Danh sách khách hàng
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    <div class="col-12 col-xl-auto mb-3">
+                       @*  <a asp-action="AddSanPham" class="btn btn-primary d-flex align-items-center">
+
+                            <span> 👟 Thêm  sản phẩm mới </span>
+                        </a> *@
+                        @*  <a asp-action="AddSanPham" class="btn btn-success">Thêm sản phẩm <i class="bi bi-plus-circle"></i></a> *@
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+</div>
 
 <div class="col-8">
-    <a class="btn btn-primary" asp-action="Create">Thêm mới</a>
+    <a class="btn btn-primary" asp-action="Create">🧑‍🤝‍🧑Thêm mới khách hàng</a>
 </div>
 <br />
 <form asp-action="GetAllKHTheoTimKiem" asp-controller="KhachHang" method="get" enctype="multipart/form-data">
@@ -87,12 +116,20 @@
                     }
                 </td>
                 <td>
-                    <button class="btn btn-success">
+                    @* <button class="btn btn-success">
                         @Html.ActionLink("Sửa", "Updates", new { id = item.IDKhachHang }, new { @style = "color:white;" })
-                    </button>
-                    <button class="btn btn-primary">
+                    </button> *@
+                    <a href="@Url.Action("Updates", new { id = item.IDKhachHang })"
+                       class="btn btn-warning text-dark" title="Sửa">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                    @* <button class="btn btn-primary">
                         @Html.ActionLink("Lịch sử mua hàng", "GetAllLSTDByIDKH", new { id = item.IDKhachHang }, new { @style = "color:white;" })
-                    </button>
+                    </button> *@
+                    <a href="@Url.Action("GetAllLSTDByIDKH", new { id = item.IDKhachHang })"
+                       class="btn btn-info text-white" title="Chi tiết">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
                 </td>
                 @{
                     stt++;

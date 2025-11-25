@@ -11,12 +11,42 @@
 
 }
 
-<h1>
-    <b>Danh sách nhân viên </b>
-</h1>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            👤 Danh sách nhân viên
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    <div class="col-12 col-xl-auto mb-3">
+                        @* <a asp-action="AddSanPham" class="btn btn-primary d-flex align-items-center">
+
+                            <span> 👟 Thêm  sản phẩm mới </span>
+                        </a> *@
+                        @*  <a asp-action="AddSanPham" class="btn btn-success">Thêm sản phẩm <i class="bi bi-plus-circle"></i></a> *@
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+</div>
 <div class="row" style=" margin: 5px">
     <div class="col-7">
-        <a class="btn btn-primary" asp-action="Create">Thêm mới</a>
+        <a class="btn btn-primary" asp-action="Create">👤Thêm mới nhân viên</a>
     </div>
     <div class="col-5">
         <form asp-action="SearchTheoTen" asp-controller="NhanVien" method="get" enctype="multipart/form-data" style="margin-left: 30px; text-align:end">
@@ -76,14 +106,42 @@
                         ;
                     }
                 </td>
-                <td style="text-align:end">
+                @* <td style="text-align:end">
                     <button type="button" class="btn btn-success" onclick="return confirm('Bạn có muốn đổi trạng thái nhân viên @item.Ten sang trạng thái @(item.TrangThai == 1 ? "Nghỉ làm" : "Đang làm") không?');">
                         @Html.ActionLink("Sửa", "Sua", new { id = item.ID }, new { @style = "color:white;" })
                     </button>
                     <button class="btn btn-success" style="text-align:end">
                         @Html.ActionLink("Chi tiết", "Details", new { id= item.ID }, new { @style = "color:white;"})
                     </button>
-                </td>
+
+                </td> *@
+                <td class="text-end">
+
+    <!-- Nút đổi trạng thái -->
+    <a asp-action="Sua" asp-route-id="@item.ID"
+       class="btn btn-warning text-white me-2"
+       onclick="return confirm('Bạn có muốn đổi trạng thái nhân viên @item.Ten sang trạng thái @(item.TrangThai == 1 ? "Nghỉ làm" : "Đang làm") không?');">
+
+        @if (item.TrangThai == 1)
+        {
+            <!-- Đang làm → icon bật -->
+            <i class="fa-solid fa-toggle-on"></i>
+        }
+        else
+        {
+            <!-- Nghỉ làm → icon tắt -->
+            <i class="fa-solid fa-toggle-off"></i>
+        }
+    </a>
+
+    <!-- Nút chi tiết -->
+    <a asp-action="Details" asp-route-id="@item.ID"
+       class="btn btn-success text-white">
+        <i class="fa-solid fa-circle-info"></i>
+    </a>
+
+</td>
+
                 @{
                     stt++;
                 }

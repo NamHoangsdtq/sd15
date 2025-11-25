@@ -1,6 +1,7 @@
 ﻿using AppData.Models;
 using AppData.ViewModels;
 using AppView.PhanTrang;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net.Http;
@@ -65,7 +66,19 @@ namespace AppView.Controllers
         [HttpGet]
          public  async Task<IActionResult> DonThanhCong( int ProductPage = 1)
           {
-            var id = Guid.Parse(HttpContext.Session.GetString("DonKH"));
+            //var id = Guid.Parse(HttpContext.Session.GetString("DonKH"));
+            var id = HttpContext.Session.GetString("DonKH");
+
+            if (string.IsNullOrEmpty(id))
+            {
+                // Xử lý khi session chưa có → ví dụ chuyển hướng hoặc báo lỗi
+                return RedirectToAction("GetAllLSTDByIDKH", "KhachHang");
+            }
+
+            var ddonKH = Guid.Parse(id);
+
+            ViewBag.DonKH =ddonKH;
+
             string apiURL2 = $"https://localhost:7095/api/LichSuTichDiem/ListDonThanhCong?id={id}";
             var response2 = await httpClients.GetAsync(apiURL2);
             var apiData2 = await response2.Content.ReadAsStringAsync();
@@ -86,7 +99,19 @@ namespace AppView.Controllers
         [HttpGet]
         public async Task<IActionResult> DonHuy( int ProductPage = 1)
         {
-            var id = Guid.Parse(HttpContext.Session.GetString("DonKH"));
+            //var id = Guid.Parse(HttpContext.Session.GetString("DonKH"));
+
+            var id = HttpContext.Session.GetString("DonKH");
+
+            if (string.IsNullOrEmpty(id))
+            {
+                // Xử lý khi session chưa có → ví dụ chuyển hướng hoặc báo lỗi
+                return RedirectToAction("GetAllLSTDByIDKH", "KhachHang");
+            }
+
+            var ddonKH = Guid.Parse(id);
+
+            ViewBag.DonKH = ddonKH;
             string apiURL2 = $"https://localhost:7095/api/LichSuTichDiem/ListDonHuy?id={id}";
             var response2 = await httpClients.GetAsync(apiURL2);
             var apiData2 = await response2.Content.ReadAsStringAsync();
@@ -107,7 +132,19 @@ namespace AppView.Controllers
         [HttpGet]
         public async Task<IActionResult> DonHoanHang(int ProductPage = 1)
         {
-            var id = Guid.Parse(HttpContext.Session.GetString("DonKH"));
+            //var id = Guid.Parse(HttpContext.Session.GetString("DonKH"));
+
+            var id = HttpContext.Session.GetString("DonKH");
+
+            if (string.IsNullOrEmpty(id))
+            {
+                // Xử lý khi session chưa có → ví dụ chuyển hướng hoặc báo lỗi
+                return RedirectToAction("GetAllLSTDByIDKH", "KhachHang");
+            }
+
+            var ddonKH = Guid.Parse(id);
+
+            ViewBag.DonKH = ddonKH;
             string apiURL2 = $"https://localhost:7095/api/LichSuTichDiem/ListDonHoanHang?id={id}";
             var response2 = await httpClients.GetAsync(apiURL2);
             var apiData2 = await response2.Content.ReadAsStringAsync();

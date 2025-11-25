@@ -5,12 +5,44 @@
     Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
 }
 
-<h1>Sửa thông tin khách hàng</h1>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            🧑‍🤝‍🧑Cập nhật khách hàng
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    @* <div class="col-12 col-xl-auto mb-3">
+                    <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
+
+                    <span> 👟 Thêm loại sản phẩm mới </span>
+                    </a>
+                    </div> *@
+
+                </div>
+            </div>
+        </div>
+    </header>
 
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
+
+</div>
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="m-0">Thông tin khách hàng</h5>
+    </div>
+
+    <div class="card-body">
         <form asp-action="Updates">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group" hidden>
@@ -71,15 +103,32 @@
                 <input asp-for="DiemTich"  class="form-control" />
                 <span asp-validation-for="DiemTich" class="text-danger"></span>
             </div>
-            <div class="form-group mt-2">
+            @* <div class="form-group mt-2">
                 <input type="submit" value="Sửa khách hàng" class="btn btn-success" />
+            </div> *@
+            <div class="mt-4 d-flex justify-content-between">
+                <!-- Button Quay Lại bên trái -->
+                <!-- Button Thêm bên phải -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-info">
+                        Cập nhật khách hàng 
+                    </button>
+                </div>
+
+                <div>
+                    <a asp-action="GetAllKhachHang" class="btn btn-primary" onclick="history.back();">
+                        Quay
+                        lại danh sách
+                    </a>
+
+                </div>
             </div>
         </form>
     </div>
 </div>
-<button class="btn btn-primary mt-2">
+@* <button class="btn btn-primary mt-2">
     <a asp-action="GetAllKhachHang" style="color:white;">Quay lại</a>
-</button>
+</button> *@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -12,7 +12,7 @@
     };
 }
 <form asp-controller="QuanLyKM" asp-action="GetSPNoKMLoaiSPCL" method="get" enctype="multipart/form-data">
-    <div>
+    @* <div>
         
         <select name="idloaisp" class="form-control" style="width:600px;height:40px">
             if (idloaisp == null)
@@ -37,15 +37,14 @@
             }
 
         </select>
-    </div>
+    </div> *@
 
-    <button type="submit" class="fa fa-search"></button>
+    
 
 
 </form>
-<br />
-<br />
-<br />
+
+
 <table class="table" style="margin-left: 20px">
     <thead>
         <tr>
@@ -71,7 +70,8 @@
             <th style=" background-color: darkslategray;
     color: white;">Trạng thái</th>
             <th style=" background-color: darkslategray;
-    color: white;"></th>
+    color: white;">Hành động</th>
+
         </tr>
     </thead>
     <tbody>
@@ -133,8 +133,16 @@
                     <button class="btn btn-primary">
                         @Html.ActionLink("Chi tiết", "AddCTSPByIdKMLayTuSession", new { id = item.ID }, new { @style = "color:white;" })
                     </button>
+                    <a class="btn btn-danger" href="@Url.Action("GetSPByIdKM", new { ID = idkm })">
+                         Quay lại
+                    </a>
 
                 </td>
+                @* <td>
+                    <a class="btn btn-primary mb-3" href="@Url.Action("GetSPByIdKM", new { ID = idkm })">
+                        <i class="fa-solid fa-arrow-left"></i> Quay lại
+                    </a>
+                </td> *@
                 @{
                     stt++;
                 }
@@ -156,7 +164,4 @@
         </ul>
     </nav>
 </div>
-<button class="btn btn-primary">
-    @Html.ActionLink("Quay lại", "GetSPByIdKM", new { ID= idkm }, new { @style = "color:white;" })
-</button>
 

@@ -10,17 +10,44 @@
     string searchData = "";
 }
 
-<h1>Danh mục loại sản phẩm con</h1>
-<table class="table">
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            📦 Thông tin sản phẩm con
+                        </h4>
+                    </div>
+                    
+                    
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+</div>
+
+
+<table class="table list-unstyled">
     <thead>
         <tr>
-            <th style=" background-color: #3b83ff;color: white;">
+            <th class="text-secondary fw-semibold">
                 STT
             </th>
-            <th style=" background-color: #3b83ff;color: white;">
+            <th class="text-secondary fw-semibold">
                 Tên
             </th>
-            <th style=" background-color: #3b83ff"></th>
+            <th class="text-secondary fw-semibold">Hành động</th>
         </tr>
     </thead>
     <tbody>
@@ -33,10 +60,14 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Ten)
                 </td>
-                <td style="text-align:end">
+                <td >
                     <button class="btn btn-info ">
                         @Html.ActionLink("Sửa", "EditLoaiSPCon", new { id= item.ID }, new { @style = "color:white;"})
                     </button>
+                    
+                    <a asp-action="Show" class="btn btn-primary">
+                        Quay lại danh sách
+                    </a>
                 </td>
                 @{
                     stt++;
@@ -45,3 +76,4 @@
         }
     </tbody>
 </table>
+

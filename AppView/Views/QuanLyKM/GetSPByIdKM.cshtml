@@ -13,15 +13,43 @@
     };
 }
 
-<h1 style="text-align:center"><b> Các sản phẩm có trong khuyến mãi</b></h1>
-<hr />
 
-<button class="btn btn-primary mt-2">
-    <a asp-action="GetAllKM" style="color:white;">Quay lại</a>
-</button>
-<div class="col-8 mt-2 mb-2">
-    <a class="btn btn-primary" asp-action="GetSPNoKM">Thêm khuyến mãi sản phẩm</a>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">🏷️ Các sản phẩm có trong khuyến mãi </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    <div class="col-12 col-xl-auto mb-3">
+                        <a asp-action="GetSPNoKM" class="btn btn-primary d-flex align-items-center">
+
+                            <span> 🏷️ Thêm khuyến mãi sản phẩm</span>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+  
+    @* <div class="col-7">
+    <a class="btn btn-success" asp-action="Create">Thêm mới khuyến mãi</a>
+    </div> *@
+
 </div>
+@* <button class="btn btn-primary mt-2">
+    <a asp-action="GetAllKM" style="color:white;">Quay lại</a>
+</button> *@
+
 <table class="table">
     <thead>
         <tr>
@@ -47,7 +75,7 @@
             <th style=" background-color: #3b83ff;
     color: white;">Trạng thái</th>
             <th style=" background-color: #3b83ff;
-    color: white;"></th>
+    color: white;">Hành động</th>
         </tr>
     </thead>
     <tbody>
@@ -108,6 +136,9 @@
 
                     <button class="btn btn-primary">
                         @Html.ActionLink("Chi tiết", "AddCTSPByIdKMLayTuSession", new { id = item.ID }, new { @style = "color:white;" })
+                    </button>
+                    <button class="btn btn-danger">
+                        <a asp-action="GetAllKM" style="color:white;">Quay lại</a>
                     </button>
 
                 </td>

@@ -6,11 +6,43 @@
     AppData.Models.AssignmentDBContext dBContext = new AppData.Models.AssignmentDBContext();
 }
 
-<h1>Thêm mới nhân viên</h1>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            👤Thêm  nhân viên
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    <div class="col-12 col-xl-auto mb-3">
+                        @* <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
+
+                            <span> 🧵 Thêm mới chất liệu </span>
+                        </a> *@
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+</div>
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="m-0">Thông tin nhân viên </h5>
+    </div>
+    <div class="card-body">
         @if (ViewBag.ErrorMessage != null)
         {
             <div class="alert alert-danger">
@@ -55,17 +87,21 @@
             <input type="hidden" asp-for="TrangThai" value="1" />
             <input type="hidden" asp-for="IDVaiTro" value="@(dBContext.VaiTros.FirstOrDefault(x => x.Ten == "Nhân viên")?.ID)" />
 
-            <div class="form-group">
+            @* <div class="form-group">
                 <input type="submit" value="Thêm nhân viên" class="btn btn-success" />
-            </div>
+            </div> *@
+        <div class="form-group d-flex align-items-center gap-2 mt-3">
+            <input type="submit" value="Thêm nhân viên" class="btn btn-success" />
+
+
+            <a asp-action="Show" class="btn btn-primary ">Quay lại danh sách</a>
+        </div>
         </form>
     </div>
-</div>
+    </div>
 
-<br />
-<button class="btn btn-primary">
-    <a asp-action="Index" style="color:white; text-decoration:none;">Quay lại</a>
-</button>
+
+
 
 <script>
     $(document).ready(function () {

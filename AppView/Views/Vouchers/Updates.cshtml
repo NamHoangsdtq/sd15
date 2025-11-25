@@ -5,95 +5,172 @@
     Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
 }
 
-<h1>Sửa Voucher</h1>
 
+<div class="col-auto mb-3 d-flex align-items-center">
+    <div class="page-header-icon me-3">
+        <i data-feather="tag"></i>
+    </div>
+    <h4 class="page-header-title m-0">🎫 Cập nhật voucher </h4>
+</div>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form  asp-action="Updates" >
-            <div asp-validation-summary="ModelOnly" class="text-danger" ></div>
-            <div class="form-group"  hidden>
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="m-0">Thông tin voucher </h5>
+    </div>
+    <div class="card-body">
+
+        <form asp-action="Updates">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row g-3">
+            <div class="form-group" hidden>
                 <label class="control-label">ID Voucher</label>
                 <input asp-for="Id" class="form-control" />
                 <span asp-validation-for="Id" class="text-danger"></span>
             </div>
             <div class="form-group" hidden>
                 <label class="control-label">Mã Voucher</label>
-                <input asp-for="Ten"  class="form-control" />
+                <input asp-for="Ten" class="form-control" />
                 <span asp-validation-for="Ten" class="text-danger"></span>
             </div>
-            @*<div class="form-group">
-                <label class="control-label">Loại giảm giá</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="hinhthucgiamgia" value="1" @(Model.HinhThucGiamGia== 1 ? "checked" : "")>
-                    <label class="form-check-label" for="flexRadioDefault1">
-                        Phần Trăm
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="hinhthucgiamgia" value="0" @(Model.HinhThucGiamGia == 0 ? "checked" : "")>
-                    <label class="form-check-label" for="flexRadioDefault2">
-                        Tiền Mặt
-                    </label>
-                </div>
-            </div>*@
-            
+            @* <div class="form-group">
+            <label class="control-label">Loại giảm giá</label>
+            <div class="form-check">
+            <input class="form-check-input" type="radio" name="hinhthucgiamgia" value="1" @(Model.HinhThucGiamGia== 1 ? "checked" : "")>
+            <label class="form-check-label" for="flexRadioDefault1">
+            Phần Trăm
+            </label>
+            </div>
+            <div class="form-check">
+            <input class="form-check-input" type="radio" name="hinhthucgiamgia" value="0" @(Model.HinhThucGiamGia == 0 ? "checked" : "")>
+            <label class="form-check-label" for="flexRadioDefault2">
+            Tiền Mặt
+            </label>
+            </div>
+            </div> *@
 
-            <div class="form-group">
-                <label class="control-label"> Số tiền cần</label>
-                <input asp-for="SoTienCan" class="form-control" />
-                <span  class="text-danger">@ViewData["SoTienCan"]</span>
-            </div>
-            @*@if (Model.HinhThucGiamGia == 0)
-            {
-                <div class="form-group">
-                    <label class="control-label"> Giảm theo tiền mặt</label>
-                    <input asp-for="GiaTri" class="form-control" />
-                    <span class="text-danger">@ViewData["GiaTri"]</span>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="SoTienCan" class="form-label">Số tiền cần</label>
+                    <input asp-for="SoTienCan" class="form-control" />
+                    <span class="text-danger">@ViewData["SoTienCan"]</span>
                 </div>
-            }
-            else
-            {
+                @*@if (Model.HinhThucGiamGia == 0)
+                {
                 <div class="form-group">
-                    <label class="control-label"> Giảm theo phần trăm</label>
-                    <input asp-for="GiaTri" class="form-control" />
-                    <span class="text-danger">@ViewData["GiaTri"]</span>
+                <label class="control-label"> Giảm theo tiền mặt</label>
+                <input asp-for="GiaTri" class="form-control" />
+                <span class="text-danger">@ViewData["GiaTri"]</span>
                 </div>
-            }*@
-            <div class="form-group">
-                <label class="control-label">Ngày áp dụng</label>
-                <input asp-for="NgayApDung" class="form-control" />
-                <span class="text-danger">@ViewData["NgayApDung"]</span>
-            </div>
-            <div class="form-group">
-                <label class="control-label"> Ngày kết thúc</label>
-                <input asp-for="NgayKetThuc" class="form-control" />
-                <span class="text-danger">@ViewData["NgayKetThuc"]</span>
-                <span class="text-danger">@ViewData["Ngay"]</span>
-            </div>
-            <div class="form-group">
-                <label class="control-label"> Số lượng</label>
-                <input asp-for="SoLuong" class="form-control" />
-                <span class="text-danger">@ViewData["SoLuong"]</span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Mô tả</label>
-                <input asp-for="MoTa" class="form-control" />
-                <span asp-validation-for="MoTa" class="text-danger"></span>
-            </div>
-            
-            <div class="form-group">
-                <input type="submit" value="Sửa Voucher" class="btn btn-success" />
+                }
+                else
+                {
+                <div class="form-group">
+                <label class="control-label"> Giảm theo phần trăm</label>
+                <input asp-for="GiaTri" class="form-control" />
+                <span class="text-danger">@ViewData["GiaTri"]</span>
+                </div>
+                }*@
+
+                <div class="col-md-6">
+                    <label asp-for="NgayApDung" class="form-label">Ngày áp dụng</label>
+                    <input asp-for="NgayApDung" class="form-control" type="datetime-local" />
+                    <span class="text-danger">@ViewData["NgayApDung"]</span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="NgayKetThuc" class="form-label">Ngày kết thúc</label>
+                    <input asp-for="NgayKetThuc" class="form-control" type="datetime-local" />
+                    <span class="text-danger">@ViewData["NgayKetThuc"]</span>
+                    <span class="text-danger">@ViewData["Ngay"]</span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SoLuong" class="form-label">Số lượng</label>
+                    <input asp-for="SoLuong" class="form-control" />
+                    <span class="text-danger">@ViewData["SoLuong"]</span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="MoTa" class="form-label">Mô tả</label>
+                    <input asp-for="MoTa" class="form-control" />
+                    <span asp-validation-for="MoTa" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-between">
+                    <input type="submit" value="Cập nhật voucher" class="btn btn-info" />
+                    <button class="btn btn-primary ">
+                        <a asp-action="GetAllVoucher" class="text-white text-decoration-none">Quay lại danh sách</a>
+                    </button>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
-</div>
+    </div>
+
+
+
+
+        
+    
+
+
+
+@* <div class="card-body">
+    <form asp-action="Updates" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <!-- ID và Mã Voucher ẩn -->
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="Ten" type="hidden" />
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="SoTienCan" class="form-label">Số tiền cần</label>
+                <input asp-for="SoTienCan" class="form-control" />
+                <span class="text-danger">@ViewData["SoTienCan"]</span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="GiaTri" class="form-label">Giá trị giảm</label>
+                <input asp-for="GiaTri" class="form-control" />
+                <span class="text-danger">@ViewData["GiaTri"]</span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="NgayApDung" class="form-label">Ngày áp dụng</label>
+                <input asp-for="NgayApDung" class="form-control" type="datetime-local" />
+                <span class="text-danger">@ViewData["NgayApDung"]</span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="NgayKetThuc" class="form-label">Ngày kết thúc</label>
+                <input asp-for="NgayKetThuc" class="form-control" type="datetime-local" />
+                <span class="text-danger">@ViewData["NgayKetThuc"]</span>
+                <span class="text-danger">@ViewData["Ngay"]</span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="SoLuong" class="form-label">Số lượng</label>
+                <input asp-for="SoLuong" class="form-control" />
+                <span class="text-danger">@ViewData["SoLuong"]</span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="MoTa" class="form-label">Mô tả</label>
+                <input asp-for="MoTa" class="form-control" />
+                <span asp-validation-for="MoTa" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <input type="submit" value="Sửa Voucher" class="btn btn-success" />
+            <a asp-action="GetAllVoucher" class="btn btn-secondary">🔙 Quay lại</a>
+        </div>
+    </form>
+</div> *@
 
 <br />
-<button class="btn btn-primary">
-    <a asp-action="GetAllVoucher" style="color:white;">Quay lại</a>
-</button>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

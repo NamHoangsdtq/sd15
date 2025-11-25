@@ -10,31 +10,57 @@
     string searchData = "";
 }
 
-<h1>
-    <b>Danh sách chất liệu </b>
-</h1>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            🧵 Danh sách chất liệu  
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    <div class="col-12 col-xl-auto mb-3">
+                        <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
+
+                            <span> 🧵 Thêm mới chất liệu </span>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+</div>
 <div class="row" style=" margin: 5px">
-    <div class="col-7">
-        <a class="btn btn-success" asp-action="Create">Thêm mới</a>
-    </div>
-    <div class="col-5"  >
+
+    <div class="row d-flex justify-content-end" style="margin: 5px;">
         <form asp-action="SearchTheoTen" asp-controller="ChatLieu" method="get" enctype="multipart/form-data" style="margin-left: 30px;text-align:end">
             <input class="tk1" type="text" name="Ten" placeholder="Tìm kiếm theo tên " autocomplete="off" />
-            <input class="btn btn-outline-secondary" type="submit" value="Tìm kiếm" style="margin-bottom: 3px;text-align:end" />
+            <input class="btn btn-outline-secondary" type="submit" value="Tìm kiếm"  />
         </form>
     </div>
     <div id="searchErrorMessage" class="alert alert-warning" role="alert" style="display: @(ViewData["SearchError"] != null ? "block" : "none") ; margin-top: 10px; margin-left: 11px">@ViewData["SearchError"]</div>
 </div>
-<table class="table" style="margin-left: 20px">
-    <thead style=" background-color: #3b83ff">
+<div class="card mb-4">
+    <div class="card-body">
+        <table class="table">
+            <thead style="background-color: #ffffff;">
         <tr>
-            <th style=" background-color: #3b83ff;
-    color: white;">STT</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Tên</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Trạng thái</th>
-            <th style=" background-color: #3b83ff"></th>
+            <th class="text-secondary fw-semibold">STT</th>
+            <th class="text-secondary fw-semibold">Tên</th>
+            <th class="text-secondary fw-semibold">Trạng thái</th>
+            <th class="text-secondary fw-semibold">Hành động</th>
         </tr>
     </thead>
     <tbody>
@@ -54,13 +80,30 @@
                         <div style="color:black">Hoạt động</div>
                     }
                 </td>
-                <td style="text-align:end">
-                    <button class="btn btn-info">
-                        @Html.ActionLink("Sửa", "Edit", new { id= item.ID }, new { @style = "color:white;"})
-                    </button>
-                    <button type="button" class="btn btn-danger" onclick="return confirm('Bạn có muốn đổi trạng thái chất liệu @item.Ten sang trạng thái @(item.TrangThai == 1 ? "Không hoạt động" : "Hoạt động") không?');">
-                        @Html.ActionLink("Đổi", "Sua", new { id = item.ID }, new { @style = "color:white;" })
-                    </button>
+                <td >
+                            <!-- Nút sửa -->
+                            <a asp-action="Edit" asp-route-id="@item.ID"
+                               class="btn btn-info text-white me-2">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+
+                            <!-- Nút đổi trạng thái -->
+                            <a asp-action="Sua" asp-route-id="@item.ID"
+                               class="btn btn-danger text-white"
+                               onclick="return confirm('Bạn có muốn đổi trạng thái chất liệu @item.Ten sang trạng thái @(item.TrangThai == 1 ? "Không hoạt động" : "Hoạt động") không?');">
+
+                                @if (item.TrangThai == 1)
+                                {
+                                    <!-- Đang hoạt động → icon tắt -->
+                                    <i class="fa-solid fa-toggle-on"></i>
+                                }
+                                else
+                                {
+                                    <!-- Đang không hoạt động → icon bật -->
+                                    <i class="fa-solid fa-toggle-off"></i>
+                                }
+                            </a>
+
                 </td>
                 @{
                     stt++;
@@ -68,7 +111,10 @@
             </tr>
         }
     </tbody>
-</table>
+
+        </table>
+    </div>
+</div>
 <div style="display: flex; justify-content: center; margin: 0; padding: 0;">
     <button disabled="@(Model.PagingInfo.CurrentPage == 1)" style="background-color: @(Model.PagingInfo.CurrentPage == 1 ? "#f5f5f5" : "transparent"); border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 0; margin: 0;">
         <a style="text-decoration: none; color: black;" href="@Url.Action("Show", new { ProductPage = 1 })">Đầu</a>

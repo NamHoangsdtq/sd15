@@ -10,17 +10,23 @@ namespace AppData.ViewModels.SanPham
 {
     public class SanPhamRequest
     {
-        [Required(ErrorMessage = "Thiếu tên sản phẩm")]
+        [Required(ErrorMessage = "Tên sản phẩm không được để trống")]
         public string Ten { get; set; }
+        [Required(ErrorMessage = "Mô tả sản phẩm không được để trống")]
         public string? MoTa { get; set; }
-        [Required(ErrorMessage = "Thiếu chất liệu sản phẩm")]
+        [Required(ErrorMessage = "Chất liệu sản phẩm không được để trống")]
         public string TenChatLieu { get; set; }
-        [Required(ErrorMessage = "Thiếu màu sắc")]
+        [Required(ErrorMessage = "Chất liệu sản phẩm không được để trống")]
+
+        //[MinLength(1, ErrorMessage = "Vui lòng thêm ít nhất một màu sắc")]
         public List<MauSac> MauSacs { get; set; }
-        [Required(ErrorMessage = "Thiếu kích cỡ sản phẩm")]
+        [Required(ErrorMessage = "Chất liệu sản phẩm không được để trống")]
+        //[MinLength(1, ErrorMessage = "Vui lòng thêm ít nhất một kích cỡ")]
+
         public List<string> KichCos {  get; set; }
+        [Required(ErrorMessage = "Tên sản phẩm cha không được để trống")]
         public string TenLoaiSPCha { get; set; }
-        [Required(ErrorMessage = "Thiếu loại sản phẩm con (nhánh)")]
+        [Required(ErrorMessage = "Tên sản phẩm con không được để trống")]
         public string TenLoaiSPCon { get; set; }
     }
 }

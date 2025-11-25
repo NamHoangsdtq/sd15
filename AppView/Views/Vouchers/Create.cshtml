@@ -5,94 +5,121 @@
     Layout = "~/Views/Shared/_LayoutForAdmin.cshtml";
 }
 
-<h1>Thêm mới Voucher</h1>
+<div class="col-auto mb-3 d-flex align-items-center">
+    <div class="page-header-icon me-3">
+        <i data-feather="tag"></i>
+    </div>
+    <h4 class="page-header-title m-0">🎫 Thêm voucher </h4>
+</div>
 
-<hr />
-<div class="row">
-    <div class="col-md-6">
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="m-0">Thông tin voucher </h5>
+    </div>
+
+    <div class="card-body">
         <form asp-action="Create" id="createForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-group">
-                <label class="control-label">Mã Voucher <span class="text-danger">*</span></label>
-                <input asp-for="Ten" class="form-control" id="TenInput" autocomplete="off" />
-                <span class="text-danger" id="TenError">@ViewData["Ma"]</span>
-            </div>
+            <div class="row g-3">
 
-            <div class="form-group">
-                <label class="control-label">Loại giảm giá</label>
-                <div class="d-flex">
-                    <div class="form-check mr-4">
-                        <input class="form-check-input" type="radio" name="HinhThucGiamGia" value="1" asp-for="HinhThucGiamGia" id="RadioPhanTram" checked>
-                        <label class="form-check-label" for="RadioPhanTram">Phần trăm (%)</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="HinhThucGiamGia" value="0" asp-for="HinhThucGiamGia" id="RadioTienMat">
-                        <label class="form-check-label" for="RadioTienMat">Tiền mặt (VND)</label>
+                <!-- Mã voucher -->
+                <div class="col-md-6">
+                    <label class="form-label">Mã Voucher <span class="text-danger">*</span></label>
+                    <input asp-for="Ten" class="form-control" id="TenInput" autocomplete="off" />
+                    <span class="text-danger" id="TenError">@ViewData["Ma"]</span>
+                </div>
+
+                <!-- Loại giảm giá -->
+                <div class="col-md-6">
+                    <label class="form-label">Loại giảm giá</label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="HinhThucGiamGia" value="1" checked>
+                            <label class="form-check-label">Phần trăm (%)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="HinhThucGiamGia" value="0">
+                            <label class="form-check-label">Tiền mặt (VND)</label>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label class="control-label">Đơn tối thiểu (Số tiền cần) <span class="text-danger">*</span></label>
-                <input asp-for="SoTienCan" class="form-control" type="number" id="SoTienCanInput" />
-                <span class="text-danger" id="SoTienCanError">@ViewData["SoTienCan"]</span>
-            </div>
+                <!-- Số tiền cần -->
+                <div class="col-md-6">
+                    <label class="form-label">Đơn tối thiểu (Số tiền cần) <span class="text-danger">*</span></label>
+                    <input asp-for="SoTienCan" class="form-control" id="SoTienCanInput" type="number" />
+                    <span class="text-danger" id="SoTienCanError">@ViewData["SoTienCan"]</span>
+                </div>
 
-            <div class="form-group">
-                <label class="control-label">Giá trị giảm <span class="text-danger">*</span></label>
-                <input asp-for="GiaTri" class="form-control" type="number" id="GiaTriInput" />
-                <span class="text-danger" id="GiaTriError">@ViewData["GiaTri"]</span>
-            </div>
+                <!-- Giá trị giảm -->
+                <div class="col-md-6">
+                    <label class="form-label">Giá trị giảm <span class="text-danger">*</span></label>
+                    <input asp-for="GiaTri" class="form-control" id="GiaTriInput" type="number" />
+                    <span class="text-danger" id="GiaTriError">@ViewData["GiaTri"]</span>
+                </div>
 
-            <div class="form-group">
-                <label class="control-label">Ngày áp dụng <span class="text-danger">*</span></label>
-                <input asp-for="NgayApDung" class="form-control" type="datetime-local" id="NgayApDungInput" />
-                <span class="text-danger" id="NgayApDungError">@ViewData["NgayApDung"]</span>
-            </div>
+                <!-- Ngày áp dụng -->
+                <div class="col-md-6">
+                    <label class="form-label">Ngày áp dụng <span class="text-danger">*</span></label>
+                    <input asp-for="NgayApDung" class="form-control" id="NgayApDungInput" type="datetime-local" />
+                    <span class="text-danger" id="NgayApDungError">@ViewData["NgayApDung"]</span>
+                </div>
 
-            <div class="form-group">
-                <label class="control-label">Ngày kết thúc <span class="text-danger">*</span></label>
-                <input asp-for="NgayKetThuc" class="form-control" type="datetime-local" id="NgayKetThucInput" />
-                <span class="text-danger" id="NgayKetThucError">@ViewData["Ngay"]</span>
-            </div>
+                <!-- Ngày kết thúc -->
+                <div class="col-md-6">
+                    <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                    <input asp-for="NgayKetThuc" class="form-control" id="NgayKetThucInput" type="datetime-local" />
+                    <span class="text-danger" id="NgayKetThucError">@ViewData["Ngay"]</span>
+                </div>
 
-            <div class="form-group">
-                <label class="control-label">Số lượng <span class="text-danger">*</span></label>
-                <input asp-for="SoLuong" class="form-control" type="number" id="SoLuongInput" />
-                <span class="text-danger" id="SoLuongError">@ViewData["SoLuong"]</span>
-            </div>
+                <!-- Số lượng -->
+                <div class="col-md-6">
+                    <label class="form-label">Số lượng <span class="text-danger">*</span></label>
+                    <input asp-for="SoLuong" class="form-control" id="SoLuongInput" type="number" />
+                    <span class="text-danger" id="SoLuongError">@ViewData["SoLuong"]</span>
+                </div>
 
-            <div class="form-group">
-                <label class="control-label">Mô tả</label>
-                <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
-            </div>
+                <!-- Mô tả -->
+                <div class="col-md-6">
+                    <label class="form-label">Mô tả</label>
+                    <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+                </div>
 
-            <div class="form-group">
-                <label class="control-label">Trạng thái</label>
-                <div class="d-flex">
-                    <div class="form-check mr-4">
-                        <input class="form-check-input" type="radio" name="TrangThai" value="1" asp-for="TrangThai" checked>
-                        <label class="form-check-label">Hoạt động</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="TrangThai" value="0" asp-for="TrangThai">
-                        <label class="form-check-label">Không hoạt động</label>
+                <!-- Trạng thái -->
+                <div class="col-md-6">
+                    <label class="form-label">Trạng thái</label>
+                    <div class="d-flex gap-4 align-items-center">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" value="1" name="TrangThai" checked>
+                            <label class="form-check-label">Hoạt động</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" value="0" name="TrangThai">
+                            <label class="form-check-label">Không hoạt động</label>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
-            <div class="form-group mt-3">
-                <input type="submit" value="Lưu Voucher" class="btn btn-success" />
+            
+            <div class="mt-4 d-flex justify-content-between">
+                <input type="submit" value="Thêm voucher" class="btn btn-success" />
+                <button class="btn btn-primary ">
+                    <a asp-action="GetAllVoucher" class="text-white text-decoration-none">Quay lại danh sách</a>
+                </button>
             </div>
         </form>
     </div>
 </div>
 
+
+
+
+
 <br />
-<button class="btn btn-primary">
-    <a asp-action="GetAllVoucher" style="color:white; text-decoration:none;">Quay lại danh sách</a>
-</button>
+
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 <script>

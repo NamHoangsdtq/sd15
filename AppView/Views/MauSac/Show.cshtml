@@ -8,19 +8,45 @@
     int stt = 1;
     string searchData = "";
 }
-<h1>
-    <b>Danh sách màu sắc </b>
-</h1>
-<hr />
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
+
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            🌈 Danh sách màu sắc
+                        </h4>
+                    </div>
+
+                    <!-- Right button -->
+                    <div class="col-12 col-xl-auto mb-3">
+                        <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
+
+                            <span> 🌈 Thêm màu sắc mới </span>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+</div>
 <div class="row" style=" margin: 5px">
-    <div class="col-7">
-        <a class="btn btn-success" asp-action="Create">Thêm mới</a>
-    </div>
-    <div class="col-5">
+
+    <div class="row d-flex justify-content-end" style="margin: 5px;">
         <form asp-action="SearchTheoTen" asp-controller="MauSac" method="get" enctype="multipart/form-data" style="margin-left: 30px; text-align:end">
             <div class="input-group mb-3">
                 <input type="text" class="tk1" name="Ten" placeholder="Tìm kiếm theo tên hoặc mã " autocomplete="off" />
-                <button class="btn btn-outline-secondary" style="color: black;" type="submit">Tìm kiếm <i class="bi bi-search"></i></button>
+                <button class="btn btn-outline-secondary" style="color: black;" type="submit">Tìm kiếm </button>
             </div>
         </form>
     </div>
@@ -30,18 +56,16 @@
         @TempData["ThongBao"]
     </p>
 </div>
-<table class="table" style="margin-left: 20px">
-    <thead style=" background-color: #3b83ff">
+<div class="card mb-4">
+    <div class="card-body">
+        <table class="table" style="margin-left: 20px">
+            <thead style="background-color: #ffffff;">
         <tr>
-            <th style=" background-color: #3b83ff;
-    color: white;">STT</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Tên</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Mã</th>
-            <th style=" background-color: #3b83ff;
-    color: white;">Trạng thái</th>
-            <th style=" background-color: #3b83ff"></th>
+                    <th class="text-secondary fw-semibold">STT</th>
+                    <th class="text-secondary fw-semibold">Tên</th>
+                    <th class="text-secondary fw-semibold">Mã</th>
+                    <th class="text-secondary fw-semibold">Trạng thái</th>
+                    <th class="text-secondary fw-semibold">Hành động</th>
         </tr>
     </thead>
     <tbody>
@@ -63,13 +87,32 @@
                         <div style="color:green">Hoạt động</div>
                     }
                 </td>
-                <td style="text-align:end">
-                    <button class="btn btn-info" style="text-align:end">
+                <td >
+                    @* <button class="btn btn-info" style="text-align:end">
                         @Html.ActionLink("Sửa", "Edit", new { id= item.ID }, new { @style = "color:white;"})
-                    </button>
-                    <button type="button" class="btn btn-danger" onclick="return confirm('Bạn có muốn đổi trạng thái màu @item.Ten sang trạng thái @(item.TrangThai == 1 ? "Không hoạt động" : "Hoạt động") không?');">
+                    </button> *@
+                            <a asp-action="Edit" asp-route-id="@item.ID"
+                               class="btn btn-info text-white me-2">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                    @* <button type="button" class="btn btn-danger" onclick="return confirm('Bạn có muốn đổi trạng thái màu @item.Ten sang trạng thái @(item.TrangThai == 1 ? "Không hoạt động" : "Hoạt động") không?');">
                         @Html.ActionLink("Xoá", "Sua", new { id = item.ID }, new { @style = "color:white;" })
-                    </button>
+                    </button> *@
+                            <a asp-action="Sua" asp-route-id="@item.ID"
+                               class="btn btn-danger text-white"
+                               onclick="return confirm('Bạn có muốn đổi trạng thái màu @item.Ten sang trạng thái @(item.TrangThai == 1 ? "Không hoạt động" : "Hoạt động") không?');">
+
+                                @if (item.TrangThai == 1)
+                                {
+                                    <!-- Đang hoạt động → icon tắt -->
+                                    <i class="fa-solid fa-toggle-on"></i>
+                                }
+                                else
+                                {
+                                    <!-- Đang không hoạt động → icon bật -->
+                                    <i class="fa-solid fa-toggle-off"></i>
+                                }
+                            </a>
                 </td>
                 @{
                     stt++;
@@ -78,6 +121,8 @@
         }
     </tbody>
 </table>
+    </div>
+</div>
 <div class="d-flex justify-content-center my-3">
     <button class="btn btn-outline-secondary" @(Model.PagingInfo.CurrentPage == 1 ? "disabled" : "")>
         <a class="text-decoration-none text-dark" href="@Url.Action("Show", new { ProductPage = 1 })">Đầu</a>

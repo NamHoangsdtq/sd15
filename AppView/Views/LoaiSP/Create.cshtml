@@ -7,12 +7,19 @@
     var listLoaiSP = ViewData["listLoaiSP"] as List<LoaiSP>;
 }
 
-<h1>Thêm loại sản phẩm</h1>
-<div>
-    <a asp-action="Show" class="btn btn-primary mb-2"><i class="bi bi-caret-left-fill"></i>Quay Lại</a>
+<div class="col-auto mb-3 d-flex align-items-center">
+    <div class="page-header-icon me-3">
+        <i data-feather="tag"></i>
+    </div>
+    <h4 class="page-header-title m-0">📦Thêm loại sản phẩm</h4>
 </div>
-<div class="row">
-    <div class="col-md-4">
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="m-0">Thông tin loại sản phẩm </h5>
+    </div>
+
+    <div class="card-body">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             @if (ViewBag.ErrorMessage != null)
@@ -38,8 +45,12 @@
                 </select>
             </div>
             <input type="hidden" asp-for="TrangThai" value="1" />
-            <div class="form-group">
-                <input type="submit" value="Thêm Loại SP" class="btn btn-success" style="margin-top: 10px" />
+            
+            <div class="form-group d-flex align-items-center gap-2 mt-3">
+                <input type="submit" value="Thêm Loại SP" class="btn btn-success"  />
+                
+
+                <a asp-action="Show" class="btn btn-primary ">Quay lại danh sách</a>
             </div>
         </form>
     </div>

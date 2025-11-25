@@ -11,9 +11,10 @@
 
 }
 
-<h1 style="text-align:center"><b>Xem lịch sử</b></h1>
-<table class="table" style="margin-left: 20px">
-    <thead>
+<h2 class="text-center fw-bold mb-4">📜 Lịch Sử Đơn Hàng</h2>
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="bg-dark text-white text-center">
         <tr>
             <th style=" background-color: darkslategray;
     color: white;">Loại đơn</th>
@@ -22,7 +23,7 @@
             <th style=" background-color: darkslategray;
     color: white;">Tổng số tiền</th>
             <th style=" background-color: darkslategray;
-    color: white;">Chi Tiết</th>
+    color: white;">Hành động</th>
             
            @* <th style=" background-color: darkslategray;
     color: white;">Số điểm tích hoặc tiêu</th>*@
@@ -61,7 +62,11 @@
                
                 <button class="btn btn-primary">
                     <a asp-action="DonThanhCong" style="color:white;">Chi tiết</a>
+
                 </button>
+                    <button class="btn btn-danger">
+                        <a asp-action="GetAllKhachHang" style="color:white;">Quay lại</a>
+                    </button>
                 </td>
                
                 @*<td>
@@ -96,6 +101,9 @@
                 <button class="btn btn-primary">
                     <a asp-action="DonHuy" style="color:white;">Chi tiết</a>
                 </button>
+                    <button class="btn btn-danger">
+                        <a asp-action="GetAllKhachHang" style="color:white;">Quay lại</a>
+                    </button>
             </td>
 
             @*<td>
@@ -130,6 +138,9 @@
                 <button class="btn btn-primary">
                     <a asp-action="DonHoanHang" style="color:white;">Chi tiết</a>
                 </button>
+                    <button class="btn btn-danger">
+                        <a asp-action="GetAllKhachHang" style="color:white;">Quay lại</a>
+                    </button>
             </td>
 
             @*<td>
@@ -139,9 +150,8 @@
         
     </tbody>
 </table>
+</div>
 
 <br />
-<button class="btn btn-primary">
-    <a asp-action="GetAllKhachHang" style="color:white;">Quay lại</a>
-</button>
+
 

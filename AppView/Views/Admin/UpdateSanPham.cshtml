@@ -4,23 +4,52 @@
     ViewData["Title"] = "AddSanPham";
 }
 
-<h1>Sửa sản phẩm</h1>
+<div class="row mb-3">
+    <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content">
+                <div class="row align-items-center justify-content-between pt-3">
 
-<hr />
+                    <!-- Left title -->
+                    <div class="col-auto mb-3 d-flex align-items-center">
+                        <div class="page-header-icon me-3">
+                            <i data-feather="tag"></i>
+                        </div>
+                        <h4 class="page-header-title m-0">
+                            👟 Cập nhật sản phẩm
+                        </h4>
+                    </div>
 
-<div class="row">
-    <div class="col-md-12">
+                    <!-- Right button -->
+                    @* <div class="col-12 col-xl-auto mb-3">
+                    <a asp-action="Create" class="btn btn-primary d-flex align-items-center">
+
+                    <span> 👟 Thêm loại sản phẩm mới </span>
+                    </a>
+                    </div> *@
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+</div>
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="m-0">Thông tin  sản phẩm </h5>
         <form asp-action="UpdateSanPham">
             <div class="d-flex justify-content-between">
                 <!-- Button Quay Lại bên trái -->
                 <div>
-                    <a asp-action="ProductManager" class="btn btn-primary"><i class="bi bi-caret-left-fill"></i>Quay Lại</a>
+                    @* <a asp-action="ProductManager" class="btn btn-primary"><i class="bi bi-caret-left-fill"></i>Quay Lại</a> *@
                 </div>
                 <!-- Button Thêm bên phải -->
                 <div class="form-group">
-                    <button type="submit" class="btn btn-success">
+                   @*  <button type="submit" class="btn btn-success">
                         <i class="bi bi-pencil-square"></i> Sửa
-                    </button>
+                    </button> *@
                 </div>
             </div>
             <input asp-for="ID" class="form-control" hidden />
@@ -52,7 +81,22 @@
                 <datalist id="loaiSPCon"></datalist>
                 <span asp-validation-for="TenLoaiSPCon" class="text-danger"></span>
             </div>
+            <div class="mt-4 d-flex justify-content-between">
+                <!-- Button Quay Lại bên trái -->
+                <!-- Button Thêm bên phải -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-info">
+                        Cập nhật sản phẩm
+                    </button>
+                </div>
 
+                <div>
+                    <a asp-action="ProductManager" class="btn btn-primary">
+                        Quay
+                        lại danh sách
+                    </a>
+                </div>
+            </div>
         </form>
     </div>
 </div>
