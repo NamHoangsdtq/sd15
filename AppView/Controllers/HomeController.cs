@@ -7,6 +7,7 @@ using AppData.ViewModels.VNPay;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
 using System.Text;
@@ -1524,7 +1525,34 @@ namespace AppView.Controllers
 
         #region Other
         public IActionResult BlogDetails() => View();
-        public IActionResult Contacts() => View();
+        [HttpPost]
+        [HttpPost]
+        public IActionResult GuiGopY([FromBody] GopYRequest model)
+        {
+            if (model == null) return BadRequest();
+
+            var gy = new GopY
+            {
+                HoTen = model.HoTen,
+                Email = model.Email,
+                SoDienThoai = model.SoDienThoai,
+                NoiDung = model.NoiDung,
+                NgayTao = DateTime.Now,
+                IsRead = false
+            };
+
+            dBContext.GopYs.Add(gy);
+            dBContext.SaveChanges();
+
+            return Ok();
+        }
+        public IActionResult Contacts()
+        {
+            return View();
+        }
+
+
+
         public IActionResult Blog() => View();
         #endregion
 

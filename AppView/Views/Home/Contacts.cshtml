@@ -17,10 +17,8 @@
             <div class="col-lg-6 col-md-6">
                 <div class="contact__text">
                     <div class="section-title">
-                        <h2>Gửi thắc mắc cho chúng tôi</h2>
-                        <p>
-                            Nếu bạn có thắc mắc gì, có thể gửi yêu cầu cho chúng tôi, và chúng tôi sẽ liên lạc lại với bạn sớm nhất có thể.
-                        </p>
+                        <h2>Mọi góp ý hãy gửi về cho chúng tôi</h2>
+                        
                     </div>
                     <div class="mb-3">
                         <input type="text" class="form-control" id="exampleFormControlName" placeholder="Tên Của Bạn">
@@ -37,7 +35,7 @@
                         <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Nội dung"></textarea>
                     </div>
                 </div>
-                <button type="button" class="btn btn-info">Gửi cho chúng tôi</button>
+                <button type="button" class="btn btn-info" onclick="GuiGopY()">Gửi cho chúng tôi</button>
             </div>
 
             <!-- Right side: Contact Info -->
@@ -81,3 +79,29 @@
 </section>
 
 <!-- Contact Section End -->
+<script>
+    function GuiGopY() {
+        var data = {
+            hoTen: document.getElementById("exampleFormControlName").value,
+            email: document.getElementById("exampleFormControlInput1").value,
+            soDienThoai: document.getElementById("exampleFormControlPhone").value,
+            noiDung: document.getElementById("exampleFormControlTextarea1").value
+        };
+
+        fetch("/Home/GuiGopY", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+        .then(r => {
+            if (r.ok) {
+                alert("Gửi góp ý thành công!");
+            } else {
+                alert("Gửi góp ý lỗi (" + r.status + ")");
+            }
+        })
+        .catch(err => console.error(err));
+    }
+</script>

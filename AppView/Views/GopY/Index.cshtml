@@ -1,0 +1,35 @@
+﻿@using AppData.Models
+@model IEnumerable<GopY>
+@{
+    Layout = "_LayoutForAdmin"; // layout admin của bạn
+}
+
+<h2>Góp ý của khách hàng</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>SĐT</th>
+            <th>Nội dung</th>
+            <th>Ngày tạo</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.HoTen</td>
+                <td>@item.Email</td>
+                <td>@item.SoDienThoai</td>
+                <td>@item.NoiDung</td>
+                <td>@item.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
+               
+            </tr>
+        }
+    </tbody>
+</table>
