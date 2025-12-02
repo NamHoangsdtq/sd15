@@ -151,6 +151,36 @@
             }
         });
     });
+    // function loadsp() {
+    //     var searchName = $("#searchName").val();
+    //     var min = $("#priceMin").val();
+    //     var max = $("#priceMax").val();
+    //     var categorydad = $("#categorydad").val();
+    //     var categoryson = $("#categoryson").val();
+    //     var sort = $("#sort").val();
+    //     var request = { page: pageIndex, pageSize: pagesize, search: searchName, minPrice: min, maxPrice: max, loaiSPCha: categorydad, loaiSPCon: categoryson, sortSP: sort };
+    //     $.ajax({
+    //         url: "/Admin/ShowProduct",
+    //         type: "GET",
+    //         data: request,
+    //         success: function (response) {
+    //             $("#list_products").empty();
+    //             $.each(response.data, function (i, item) {
+    //                 if (item.trangThai == 1)
+    //                     $("#list_products").append(`<tr><td>${item.ten}</td><td>${item.ma}</td><td><img src="/img/product/${item.anh}" style="width:70px;height:80px" /></td><td>${item.giaGoc}</td><td>${item.giaBan}</td><td>${item.soLuong}</td><td>${item.chatLieu}</td><td>${item.loaiSPCha}/${item.loaiSPCon}</td><td id='hoatDong_${item.id}' style="width:228px"><span style="color:green">Hoạt động</span></td><td style="width:250px"><a href='/Admin/ProductDetail?idSanPham=${item.id}' class="btn btn-primary" style="margin-right:5px">Chi tiết</a><a href='/Admin/UpdateSanPham?id=${item.id}' class="btn btn-warning" style="margin-right:5px">Sửa</a><button type='button' onclick="xoa('${item.id}',0)" class="btn btn-danger">Xoá</button></td></tr>`);
+    //                 else {
+    //                     $("#list_products").append(`<tr><td>${item.ten}</td><td>${item.ma}</td><td><img src="/img/product/${item.anh}" style="width:70px;height:80px" /></td><td>${item.giaGoc}</td><td>${item.giaBan}</td><td>${item.soLuong}</td><td>${item.chatLieu}</td><td>${item.loaiSPCha}/${item.loaiSPCon}</td><td id='hoatDong_${item.id}' style="width:228px"><span style="color:red">Không hoạt động</span></td><td style="width:250px" id='xoa_${item.id}'><a href='/Admin/ProductDetail?idSanPham=${item.id}' class="btn btn-primary" style="margin-right:5px">Chi tiết</a><a href='/Admin/UpdateSanPham?id=${item.id}' class="btn btn-warning" style="margin-right:5px">Sửa</a><button type='button' onclick="xoa('${item.id}',1)"  class="btn btn-success">Hoàn tác</button></td></tr>`);
+    //                 }
+    //             });
+    //             pagingsp(response.total, function () {
+    //                 loadsp();
+    //             });
+    //         },
+    //         error: function (err) {
+    //             console.log('Error:', err);
+    //         }
+    //     });
+    // }
     function loadsp() {
         var searchName = $("#searchName").val();
         var min = $("#priceMin").val();
@@ -158,20 +188,65 @@
         var categorydad = $("#categorydad").val();
         var categoryson = $("#categoryson").val();
         var sort = $("#sort").val();
-        var request = { page: pageIndex, pageSize: pagesize, search: searchName, minPrice: min, maxPrice: max, loaiSPCha: categorydad, loaiSPCon: categoryson, sortSP: sort };
+
+        var request = {
+            page: pageIndex,
+            pageSize: pagesize,
+            search: searchName,
+            minPrice: min,
+            maxPrice: max,
+            loaiSPCha: categorydad,
+            loaiSPCon: categoryson,
+            sortSP: sort
+        };
+
         $.ajax({
             url: "/Admin/ShowProduct",
             type: "GET",
             data: request,
             success: function (response) {
                 $("#list_products").empty();
+
                 $.each(response.data, function (i, item) {
-                    if (item.trangThai == 1)
-                        $("#list_products").append(`<tr><td>${item.ten}</td><td>${item.ma}</td><td><img src="/img/product/${item.anh}" style="width:70px;height:80px" /></td><td>${item.giaGoc}</td><td>${item.giaBan}</td><td>${item.soLuong}</td><td>${item.chatLieu}</td><td>${item.loaiSPCha}/${item.loaiSPCon}</td><td id='hoatDong_${item.id}' style="width:228px"><span style="color:green">Hoạt động</span></td><td style="width:250px"><a href='/Admin/ProductDetail?idSanPham=${item.id}' class="btn btn-primary" style="margin-right:5px">Chi tiết</a><a href='/Admin/UpdateSanPham?id=${item.id}' class="btn btn-warning" style="margin-right:5px">Sửa</a><button type='button' onclick="xoa('${item.id}',0)" class="btn btn-danger">Xoá</button></td></tr>`);
-                    else {
-                        $("#list_products").append(`<tr><td>${item.ten}</td><td>${item.ma}</td><td><img src="/img/product/${item.anh}" style="width:70px;height:80px" /></td><td>${item.giaGoc}</td><td>${item.giaBan}</td><td>${item.soLuong}</td><td>${item.chatLieu}</td><td>${item.loaiSPCha}/${item.loaiSPCon}</td><td id='hoatDong_${item.id}' style="width:228px"><span style="color:red">Không hoạt động</span></td><td style="width:250px" id='xoa_${item.id}'><a href='/Admin/ProductDetail?idSanPham=${item.id}' class="btn btn-primary" style="margin-right:5px">Chi tiết</a><a href='/Admin/UpdateSanPham?id=${item.id}' class="btn btn-warning" style="margin-right:5px">Sửa</a><button type='button' onclick="xoa('${item.id}',1)"  class="btn btn-success">Hoàn tác</button></td></tr>`);
+                    // Xác định trạng thái hoạt động
+                    var trangThaiHtml = item.trangThai == 1
+                        ? '<span style="color:green">Hoạt động</span>'
+                        : '<span style="color:red">Không hoạt động</span>';
+
+                    // Xác định nút thao tác
+                    var actionBtn = '';
+                    if (item.trangThai == 1) {
+                        actionBtn = `
+                            <a href='/Admin/ProductDetail?idSanPham=${item.id}' class="btn btn-light btn-sm" title="Chi tiết"><i class="bi bi-info-circle"></i></a>
+                            <a href='/Admin/UpdateSanPham?id=${item.id}' class="btn btn-light btn-sm" title="Sửa"><i class="bi bi-pencil-square"></i></a>
+                            <button type='button' onclick="xoa('${item.id}',0)" class="btn btn-light btn-sm" title="Xóa"><i class="bi bi-trash"></i></button>
+                        `;
+                    } else {
+                        actionBtn = `
+                            <a href='/Admin/ProductDetail?idSanPham=${item.id}' class="btn btn-light btn-sm" title="Chi tiết"><i class="bi bi-info-circle"></i></a>
+                            <a href='/Admin/UpdateSanPham?id=${item.id}' class="btn btn-light btn-sm" title="Sửa"><i class="bi bi-pencil-square"></i></a>
+                            <button type='button' onclick="xoa('${item.id}',1)" class="btn btn-light btn-sm" title="Hoàn tác"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        `;
                     }
+
+                    // Append vào bảng
+                    $("#list_products").append(`
+                        <tr>
+                            <td>${item.ten}</td>
+                            <td>${item.ma}</td>
+                            <td><img src="/img/product/${item.anh}" style="width:70px;height:80px" /></td>
+                            <td>${item.giaGoc}</td>
+                            <td>${item.giaBan}</td>
+                            <td>${item.soLuong}</td>
+                            <td>${item.chatLieu}</td>
+                            <td>${item.loaiSPCha}/${item.loaiSPCon}</td>
+                            <td id='hoatDong_${item.id}' style="width:120px; text-align:center">${trangThaiHtml}</td>
+                            <td id='xoa_${item.id}' style="width:120px; text-align:center">${actionBtn}</td>
+                        </tr>
+                    `);
                 });
+
+                // Phân trang
                 pagingsp(response.total, function () {
                     loadsp();
                 });
@@ -181,6 +256,7 @@
             }
         });
     }
+
     function pagingsp(totalrow, callback) {
         var totalgages = Math.ceil(totalrow / pagesize);
         $("#pagination-demo").twbsPagination({
@@ -222,6 +298,33 @@
             $('#categoryson').append(rows);
         }
     });
+    // function xoa(id, status) {
+    //     $.ajax({
+    //         type: "post",
+    //         dataType: "json",
+    //         data: { idSanPham: id, trangThai: status },
+    //         url: "/Admin/UpdateTrangThaiSanPham",
+    //         success: function (response) {
+    //             if (response.status) {
+    //                 if (response.ketQua == 0) {
+    //                     document.getElementById("hoatDong_" + id).innerHTML = '<span style="color:red">Không hoạt động</span>';
+    //                     var ip = document.getElementById("xoa_" + id);
+    //                     ip.removeChild(ip.children[2]);
+    //                     $("#xoa_" + id).append("<button type='button' class='btn btn-success' onclick = \"xoa('" + id + "',1)\">Hoàn tác</button>");
+    //                 }
+    //                 else if (response.ketQua == 1) {
+    //                     document.getElementById("hoatDong_" + id).innerHTML = '<span style="color:green">Hoạt động</span>';
+    //                     var ip = document.getElementById("xoa_" + id);
+    //                     ip.removeChild(ip.children[2]);
+    //                     $("#xoa_" + id).append("<button type='button' class='btn btn-danger' onclick = \"xoa('" + id + "',0)\">Xóa</button>");
+    //                 }
+    //             }
+    //             else {
+    //                 alert('Error');
+    //             }
+    //         }
+    //     });
+    // }
     function xoa(id, status) {
         $.ajax({
             type: "post",
@@ -229,25 +332,24 @@
             data: { idSanPham: id, trangThai: status },
             url: "/Admin/UpdateTrangThaiSanPham",
             success: function (response) {
-                if (response.status) {
-                    if (response.ketQua == 0) {
-                        document.getElementById("hoatDong_" + id).innerHTML = '<span style="color:red">Không hoạt động</span>';
-                        var ip = document.getElementById("xoa_" + id);
-                        ip.removeChild(ip.children[2]);
-                        $("#xoa_" + id).append("<button type='button' class='btn btn-success' onclick = \"xoa('" + id + "',1)\">Hoàn tác</button>");
-                    }
-                    else if (response.ketQua == 1) {
-                        document.getElementById("hoatDong_" + id).innerHTML = '<span style="color:green">Hoạt động</span>';
-                        var ip = document.getElementById("xoa_" + id);
-                        ip.removeChild(ip.children[2]);
-                        $("#xoa_" + id).append("<button type='button' class='btn btn-danger' onclick = \"xoa('" + id + "',0)\">Xóa</button>");
-                    }
-                }
-                else {
+                if (!response.status) {
                     alert('Error');
+                    return;
+                }
+
+                var ip = document.getElementById("xoa_" + id);
+                ip.removeChild(ip.children[2]); // Xóa nút cũ
+
+                if (response.ketQua == 0) { // Đã Xóa
+                    document.getElementById("hoatDong_" + id).innerHTML = '<span style="color:red">Không hoạt động</span>';
+                    $("#xoa_" + id).append("<button type='button' class='btn btn-light btn-sm' title='Hoàn tác' onclick=\"xoa('" + id + "',1)\"><i class='bi bi-arrow-counterclockwise'></i></button>");
+                } else if (response.ketQua == 1) { // Hoàn tác
+                    document.getElementById("hoatDong_" + id).innerHTML = '<span style="color:green">Hoạt động</span>';
+                    $("#xoa_" + id).append("<button type='button' class='btn btn-light btn-sm' title='Xóa' onclick=\"xoa('" + id + "',0)\"><i class='bi bi-trash'></i></button>");
                 }
             }
         });
     }
+
 </script>
 
