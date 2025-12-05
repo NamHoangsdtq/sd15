@@ -19,11 +19,27 @@ namespace AppView.Controllers
             _context = new AssignmentDBContext();
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string search, string status)
         {
-            var list = _context.GopYs
-                               .OrderByDescending(x => x.NgayTao)
-                               .ToList();
+            var query = _context.GopYs.AsQueryable();
+
+            // Tìm kiếm
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(x =>
+                    x.HoTen.Contains(search) ||
+                    x.Email.Contains(search) ||
+                    x.SoDienThoai.Contains(search));
+            }
+
+            // Lọc trạng thái
+            if (!string.IsNullOrEmpty(status))
+            {
+                if (status == "unread") query = query.Where(x => !x.IsRead);
+                if (status == "read") query = query.Where(x => x.IsRead);
+            }
+
+            var list = query.OrderByDescending(x => x.NgayTao).ToList();
             return View(list);
         }
 

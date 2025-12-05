@@ -35,7 +35,7 @@ namespace AppData.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=VANLOI\SQLEXPRESS;Initial Catalog=WebBanQuanAoThoiTrangNam3;Integrated Security=True");
+            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-MRQT4GH;Initial Catalog=WebBanQuanAoThoiTrangNam2;Integrated Security=True");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,5 +1,29 @@
-﻿@{
+﻿@using AppData.Models;
+@using AppData.ViewModels;
+@using Newtonsoft.Json
+@{
     Layout = "_Layout";
+    LoginViewModel loginInfor = new LoginViewModel();
+    string? session = Context.Session.GetString("LoginInfor");
+    if (session != null)
+    {
+        loginInfor = JsonConvert.DeserializeObject<LoginViewModel>(Context.Session.GetString("LoginInfor"));
+        string apiUrl = $"https://localhost:7095/api/KhachHang/GetById?id={loginInfor.Id}";
+        using (var client = new System.Net.Http.HttpClient())
+        {
+            var response = client.GetAsync(apiUrl).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var apiResponse = response.Content.ReadAsStringAsync().Result;
+                var user = JsonConvert.DeserializeObject<KhachHangViewModel>(apiResponse);
+                if (user != null)
+                {
+                    loginInfor.DiemTich = user.DiemTich;
+                }
+            }
+        }
+    }
+
 }
 <!-- Map Begin -->
 <div class="map">
@@ -17,32 +41,55 @@
             <div class="col-lg-6 col-md-6">
                 <div class="contact__text">
                     <div class="section-title">
-                        <h2>Mọi góp ý hãy gửi về cho chúng tôi</h2>
-                        
+                        <h2 style="font-size: 26px; color: #555; font-weight: 700;">
+                            Chúng tôi luôn lắng nghe ý kiến của bạn
+                        </h2>
+                        <p style="font-size: 15px; color: #777;">
+                            Mọi góp ý của bạn sẽ giúp chúng tôi hoàn thiện dịch vụ tốt hơn.
+                        </p>
                     </div>
+
                     <div class="mb-3">
-                        <input type="text" class="form-control" id="exampleFormControlName" placeholder="Tên Của Bạn">
+                       @*  <input type="text" class="form-control" id="exampleFormControlName" placeholder="Tên Của Bạn"> *@
+                        <input type="text" class="form-control"
+                               id="exampleFormControlName"
+                               placeholder="Tên Của Bạn"
+                               value="@(session != null ? loginInfor?.Ten : "")"
+                        @(session != null ? "readonly" : "") />
+
                     </div>
                     <div class="mb-3 d-flex">
                         <div class="flex-grow-1 me-2">
-                            <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="Email của bạn">
+                            @* <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="Email của bạn"> *@
+                            <input type="email" class="form-control"
+                                   id="exampleFormControlInput1"
+                                   placeholder="Email của bạn"
+                                   value="@(session != null ? loginInfor?.Email : "")"
+                            @(session != null ? "readonly" : "") />
                         </div>
                         <div class="flex-shrink-0">
-                            <input type="tel" class="form-control" id="exampleFormControlPhone" placeholder="Số điện thoại">
+                           @*  <input type="tel" class="form-control" id="exampleFormControlPhone" placeholder="Số điện thoại"> *@
+                            <input type="tel" class="form-control"
+                                   id="exampleFormControlPhone"
+                                   placeholder="Số điện thoại"
+                                   value="@(session != null ? loginInfor?.SDT : "")"
+                            @(session != null ? "readonly" : "")  />
                         </div>
                     </div>
                     <div class="mb-3">
                         <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Nội dung"></textarea>
                     </div>
                 </div>
-                <button type="button" class="btn btn-info" onclick="GuiGopY()">Gửi cho chúng tôi</button>
+                <button type="button" class="btn btn-success" onclick="GuiGopY()">Gửi cho chúng tôi</button>
             </div>
 
             <!-- Right side: Contact Info -->
             <div class="col-lg-6 col-md-6">
                 <div class="contact__text">
                     <div class="section-title">
-                        <h2>Thông tin liên hệ</h2>
+                        <h2 style="font-size: 26px; color: #555; font-weight: 700;">
+                            Thông tin liên hệ 
+                        </h2>
                     </div>
                     <ul>
                         <li>
@@ -80,28 +127,59 @@
 
 <!-- Contact Section End -->
 <script>
+    // var isLoggedIn = @((loginInfor != null).ToString().ToLower());
     function GuiGopY() {
-        var data = {
-            hoTen: document.getElementById("exampleFormControlName").value,
-            email: document.getElementById("exampleFormControlInput1").value,
-            soDienThoai: document.getElementById("exampleFormControlPhone").value,
-            noiDung: document.getElementById("exampleFormControlTextarea1").value
-        };
+    var isLoggedIn = @((session != null).ToString().ToLower());
 
-        fetch("/Home/GuiGopY", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        })
+    var name = document.getElementById("exampleFormControlName").value.trim();
+    var email = document.getElementById("exampleFormControlInput1").value.trim();
+    var phone = document.getElementById("exampleFormControlPhone").value.trim();
+    var content = document.getElementById("exampleFormControlTextarea1").value.trim();
+
+    var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+    var phoneRegex = /^0[0-9]{9}$/;
+
+    if (!isLoggedIn) {
+        if (name.length < 2) {
+            alert("Họ tên phải từ 2 ký tự trở lên!");
+            return;
+        }
+        if (!emailRegex.test(email)) {
+            alert("Email không đúng định dạng!");
+            return;
+        }
+        if (!phoneRegex.test(phone)) {
+            alert("Số điện thoại phải gồm 10 số và bắt đầu bằng 0!");
+            return;
+        }
+    }
+
+    if (content.length < 10) {
+        alert("Nội dung góp ý phải từ 10 ký tự trở lên!");
+        return;
+    }
+
+    var data = {
+        hoTen: name,
+        email: email,
+        soDienThoai: phone,
+        noiDung: content
+    };
+
+    fetch("/Home/GuiGopY", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
         .then(r => {
             if (r.ok) {
                 alert("Gửi góp ý thành công!");
+                    location.reload();
             } else {
-                alert("Gửi góp ý lỗi (" + r.status + ")");
+                alert("Lỗi gửi góp ý (" + r.status + ")");
             }
         })
         .catch(err => console.error(err));
     }
 </script>
+ 
