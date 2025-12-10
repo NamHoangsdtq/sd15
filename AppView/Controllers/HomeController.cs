@@ -1525,27 +1525,82 @@ namespace AppView.Controllers
 
         #region Other
         public IActionResult BlogDetails() => View();
-        [HttpPost]
+       
+        //[HttpPost]
+        //public IActionResult GuiGopY([FromBody] GopYRequest model)
+        //{
+        //    if (model == null) return BadRequest();
+
+        //    var gy = new GopY
+        //    {
+        //        HoTen = model.HoTen,
+        //        Email = model.Email,
+        //        SoDienThoai = model.SoDienThoai,
+        //        NoiDung = model.NoiDung,
+        //        NgayTao = DateTime.Now,
+        //        IsRead = false
+        //    };
+
+        //    dBContext.GopYs.Add(gy);
+        //    dBContext.SaveChanges();
+
+        //    return Ok();
+        //}
+
         [HttpPost]
         public IActionResult GuiGopY([FromBody] GopYRequest model)
         {
             if (model == null) return BadRequest();
 
-            var gy = new GopY
+            try
             {
-                HoTen = model.HoTen,
-                Email = model.Email,
-                SoDienThoai = model.SoDienThoai,
-                NoiDung = model.NoiDung,
-                NgayTao = DateTime.Now,
-                IsRead = false
-            };
+                // Lưu góp ý vào DB
+                var gy = new GopY
+                {
+                    HoTen = model.HoTen,
+                    Email = model.Email,
+                    SoDienThoai = model.SoDienThoai,
+                    NoiDung = model.NoiDung,
+                    NgayTao = DateTime.Now,
+                    IsRead = false
+                };
 
-            dBContext.GopYs.Add(gy);
-            dBContext.SaveChanges();
+                dBContext.GopYs.Add(gy);
+                dBContext.SaveChanges();
 
-            return Ok();
+                // Soạn email phản hồi cho khách
+                string noiDungPhanHoi = $"Xin chào {model.HoTen},<br><br>" +
+                                        $"Cảm ơn bạn đã gửi góp ý cho chúng tôi.<br>" +
+                                        $"Nội dung bạn đã gửi: <b>{model.NoiDung}</b><br><br>" +
+                                        $"Chúng tôi sẽ xem xét và phản hồi trong thời gian sớm nhất.<br><br>" +
+                                        $"Trân trọng,<br>Đội ngũ hỗ trợ  KENISHOP.";
+
+                MailData mail = new MailData()
+                {
+                    EmailToId = model.Email,
+                    EmailToName = model.HoTen,
+                    EmailSubject = "Cảm ơn bạn đã gửi góp ý",
+                    EmailBody = noiDungPhanHoi
+                };
+
+                // Gửi mail qua API Mail trong hệ thống của bạn
+                HttpResponseMessage response = _httpClient
+                    .PostAsJsonAsync(_httpClient.BaseAddress + "Mail/SendMail", mail)
+                    .Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return BadRequest("Không thể gửi mail phản hồi.");
+                }
+
+                return Ok(new { message = "Gửi góp ý và email phản hồi thành công." });
+            }
+            catch
+            {
+                return BadRequest("Đã xảy ra lỗi.");
+            }
         }
+
         public IActionResult Contacts()
         {
             return View();
